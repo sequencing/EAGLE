@@ -10,6 +10,7 @@ Dependencies
 ============
 
 Required packages (based on a fresh Ubuntu install):
+
     CMake >= 2.8.2
         yum/apt-get install cmake
 
