@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE - Simulating Reality - Metrics</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE - Simulating Reality - Metrics
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Mar 30, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLE-SimulatingReality-Metrics-Introduction">Introduction</h1>
+
+<p>We follow here the evolution of EAGLE based on metrics.</p>
+
+<h1 id="EAGLE-SimulatingReality-Metrics-EAGLEVersions">EAGLE Versions</h1>
+
+<ul>
+	<li>Real1: Real dataset</li>
+	<li>v1.0: No homopolymer model, Qtable without dependencies</li>
+	<li>v20120307: Qtable with dependencies</li>
+	<li>v20120321: With homopolymer model</li>
+</ul>
+
+
+<p>Each of these versions is able to generate 3 BAM files (except the real datasets, which only have the first 2 files):</p>
+<ul>
+	<li>CASAVA sorted.bam</li>
+	<li>sorted.bam + sorted.realigned.bam</li>
+	<li>sim.bam, which contains exactly what the simulator simulated</li>
+</ul>
+
+
+<p>Each metric is ran for each of these BAM files, in order to show the effect of the aligner.</p>
+
+<h2 id="EAGLE-SimulatingReality-Metrics-Metrics">Metrics</h2>
+
+<ul>
+	<li><strong>Metric M1</strong>: Histogram of the number of mismatches per read<br />
+Metric M1a: quantile 99.999%<br />
+Metric M1b: smallest X(=number of mismatches) where Y(=number of X)&lt;sum(values)/100000</li>
+	<li><strong>Metric M2</strong>: Error rate<br />
+Metric M2a: Mismatch rate<br />
+Metric M2b: Insertion rate<br />
+Metric M2c: deletion rate</li>
+	<li><strong>Metric M3</strong>: How mismatch rate changes across the genome: standard deviation of mismatch rate for genome windows of size 10kbases, ignoring areas of low coverage.</li>
+	<li><strong>Metric M4</strong>: How coverage changes across the genome: standard deviation of coverage for genome windows of size 10kbases, ignoring areas of low coverage.</li>
+</ul>
+
+
+<h1 id="EAGLE-SimulatingReality-Metrics-Measurements">Measurements</h1>
+
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M1a <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M1b <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M2a <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M2b <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M2c <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M3(dev/mismatch) <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> M4(dev/cov) <br class="atl-forced-newline" /> </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Real1 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>66</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>57</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.71% </p></td>
+<td class="confluenceTd"><p> 0.010% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.011% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.49(0.71) </p></td>
+<td class="confluenceTd"><p> 45.1(/58.5) </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> v1.0 </p></td>
+<td class="confluenceTd"><p> 7 </p></td>
+<td class="confluenceTd"><p> 8 </p></td>
+<td class="confluenceTd"><p> 0.78% </p></td>
+<td class="confluenceTd"><p> 3.6e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 2.1e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.030(/0.78) </p></td>
+<td class="confluenceTd"><p> 1.80(/29.2) </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> v20120307 </p></td>
+<td class="confluenceTd"><p> 12 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 12 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.49% </p></td>
+<td class="confluenceTd"><p> 3.4e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 4.7e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.020(/0.49) </p></td>
+<td class="confluenceTd"><p> 1.61(/29.3) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> v20120321 </p></td>
+<td class="confluenceTd"><p> 12 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 12 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.49% </p></td>
+<td class="confluenceTd"><p> 2.1e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 2.5e-6% </p></td>
+<td class="confluenceTd"><p> 0.019(/0.49) </p></td>
+<td class="confluenceTd"><p> 1.60(/29.3) </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> v20120321.sim </p></td>
+<td class="confluenceTd"><p> 11 </p></td>
+<td class="confluenceTd"><p> 11 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.37% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> N/A <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> N/A <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.22(/0.37) (*1) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.78(/30.0) </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 20120327.qAverage <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 29 </p></td>
+<td class="confluenceTd"><p> 19 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.33% </p></td>
+<td class="confluenceTd"><p> 5.2e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 6.9e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.04(/1.33) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.70(/29.3) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 20120327.qAverage.sim <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 23 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 21 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.01% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> N/A </p></td>
+<td class="confluenceTd"><p> N/A <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.62(/1.01) (*1) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.78(/30.0) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 20120327.qLevel </p></td>
+<td class="confluenceTd"><p> <strong>32</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>18</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.41% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.1e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 2.3e-6% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.03(/0.41) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.42(/29.4) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 20120327.qLevel.sim </p></td>
+<td class="confluenceTd"><p> 20 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 19 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.32% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> N/A <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> N/A <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.20(/0.32) (*1) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.78(/30.0) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 20120327.qLevel <br class="atl-forced-newline" />
+with mismatchTable <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>48</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>37</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.42% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.003% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.004% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.03(/0.42) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.41(/29.4) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> above <br class="atl-forced-newline" />
++ full genome + iSAAC <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>51</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> <strong>48</strong> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.40% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.004% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.004% <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 0.03(/.40) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> 1.66(/29.4) <br class="atl-forced-newline" /> </p></td>
+</tr>
+</tbody></table></div>
+
+<p>(*1: unreliable value due to the indels not being reported in the CIGAR string, leading to many more mismatches)</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

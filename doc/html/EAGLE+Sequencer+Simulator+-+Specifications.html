@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Sequencer Simulator - Specifications</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Sequencer Simulator - Specifications
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Dec 12, 2011 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLESequencerSimulator-Specifications-Introduction">Introduction</h1>
+
+<p>This is EAGLE's sequencer simulator.</p>
+
+<h2 id="EAGLESequencerSimulator-Specifications-Pre-existingtools/knowledge">Pre-existing tools/knowledge</h2>
+
+<p>Brett's Persimmonator:</p>
+
+<p><img class="confluence-embedded-image" height="239" width="320" src="attachments/1709472/1638721.jpg" data-image-src="attachments/1709472/1638721.jpg"></p>
+
+<p>Earlier Persimmon from Tony:<br />
+<a href="http://ukch-confluence.illumina.com/display/docs/PERSIMMON+-+Paired+End+Read+SIMulator+Module">PERSIMMON - Paired End Read SIMulator Module</a></p>
+
+<h1 id="EAGLESequencerSimulator-Specifications-Specifications">Specifications</h1>
+
+<h2 id="EAGLESequencerSimulator-Specifications-Inputs">Inputs</h2>
+
+<p>Data:</p>
+<ul>
+	<li>Nucleotide sequence (FASTA file) of the sample, usually coming from the Genome Mutator tool</li>
+	<li>Which chromosomes are circular</li>
+	<li>Adapters and sequencing primers sequences, to be used when insert size is too small and sequencing reaches those sequences.</li>
+	<li>Run ID, Flowcell ID</li>
+</ul>
+
+
+<p>Structure:</p>
+<ul>
+	<li>Number of lanes</li>
+	<li>Number of tiles per lane</li>
+	<li>Tile naming method</li>
+	<li>Number of cycles per read</li>
+	<li>Organisation of reads and adapters inside clusters (as they appear in RunInfo)</li>
+	<li>Number of surfaces and swaths</li>
+</ul>
+
+
+<p>Distribution models:</p>
+<ul>
+	<li>Read length distribution (mean&amp;stdDev)</li>
+	<li>If wanting paired reads: (See how RTA knows whether it needs to generate read pairs or not)
+	<ul>
+		<li>Insert size distribution between 2 read pairs (mean&amp;stdDev)</li>
+	</ul>
+	</li>
+	<li>If using mate pair library:
+	<ul>
+		<li>Loop fragmentation size (mean&amp;stdDev)</li>
+		<li>Model of the loop fragmentation cutting point: mean&amp;stdDev of the distance of the circularisation junction (biotin marker) compared to the middle of the 2 reads (see <a href="http://www.novocraft.com/wiki/tiki-index.php?page=Paired+Read+Modes" class="external-link" rel="nofollow">http://www.novocraft.com/wiki/tiki-index.php?page=Paired+Read+Modes</a>)</li>
+	</ul>
+	</li>
+	<li>Quality scores model (cycle-based, distinct for each read)</li>
+	<li>Model of Homopolymer runs affecting Q</li>
+	<li>Model of Homopolymer runs affecting coverage</li>
+	<li>Percentage of reads that pass filter</li>
+	<li>Model of duplicated reads (poisson distribution?)</li>
+</ul>
+
+
+<p>Quality thresholds:</p>
+<ul>
+	<li>Coverage threshold file</li>
+</ul>
+
+
+<p>RTA configuration files:</p>
+<ul>
+	<li>RTAConfiguration.xml, HiSeq/GA/MiSeq Configuration.xml, RunInfo.xml: <a href="EAGLE%2BSequencer%2BSimulator%2B-%2BSpecifications.html">See below</a></li>
+</ul>
+
+
+<p><span style="text-decoration: underline;">Notes</span>:</p>
+<ul>
+	<li>No need for a model of Read orientation: use 50% in each direction</li>
+	<li>No need for extra model of Read Pair orphans: we hope that it will modelled well enough by a 'N' model?</li>
+	<li>Multiplexed runs: Do not implement at this stage.</li>
+</ul>
+
+
+<h3 id="EAGLESequencerSimulator-Specifications-Coverageparameter">Coverage parameter</h3>
+
+<p>At first we won't implement a real coverage/sampling distribution: we ignore the std dev and only implement the mean value.<br />
+This mean value is just used to infer the total number of reads required.</p>
+
+<p>Note that the coverage value includes the duplicated reads, but doesn't include the reads that don't pass filter, so<br />
+TotalReadCount = GenomeSize*Coverage/(PassedFilterRatio*ReadLength)</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-InputFastafile">Input Fasta file</h3>
+
+<p>In the ref fasta files, what do we do with bases like 'B'?<br />
+Do we &quot;reduce&quot; them to ACGT in the mutator, or do we properly transform them randomly in the sequencer?<br />
+<span style="text-decoration: underline;">Answer</span>: If the mutator took care of them it's fine. Otherwise we randomly transform them in the sequencer.</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-Qualityscoresmodel">Quality scores model</h3>
+
+<p>Tobias provided us with quality scores tables.</p>
+
+<p>What we do with quality scores:</p>
+<ul>
+	<li>Used in the BCL output</li>
+	<li>Used to introduce sequencing errors: quality scores -&gt; sequencing error introduced -&gt; phase 1: random SNP, phase 2: ?</li>
+</ul>
+
+
+<p>Quality of base 101?<br />
+table for more than 100?<br />
+Ask Tobias about value of adding error model to Q, as exact Q&lt;=&gt;error_rate may help the aligners too much.<br />
+Different qualities for read 2? What about barcode?<br />
+Same quality tables for mate pairs than for paired reads?</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-Coveragethresholdfile">Coverage threshold file</h3>
+
+<p>The coverage threshold file will specify a list of positions or position ranges with a min and max desired coverage, in order to ensure certain quality features of the output:</p>
+<ul>
+	<li>For our basic system tests, we would like to apply only one variant and control how much it appears in the output (i.e control the 'ease of detection' property) so that it is detectable.</li>
+	<li>Another example is when we want to ensure that all translocations get at least n reads of coverage: we don't want to waste time re-running the sequencer simulation until they randomly becomes detectable.</li>
+	<li>Ability to specify an area of zero/low coverage for some experiments.</li>
+</ul>
+
+
+<p><span class="confluence-anchor-link" id="EAGLESequencerSimulator-Specifications-RtaConfigurationFiles"></span></p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-RTAconfigurationfiles">RTA configuration files</h3>
+
+<p>RTA configuration files are most useful to provide the information needed to construct the Run folder.<br />
+However, we noticed that RunInfo.xml contains all the useful information, and could also be used as an input file.</p>
+
+<p>The simulator will be able to parse 3 configuration file formats:</p>
+<ul>
+	<li>RTAConfiguration.xml</li>
+	<li>HiSeq/GA/MiSeq Configuration.xml</li>
+	<li>RunInfo.xml</li>
+</ul>
+
+
+<p>Many configuration items may be repeated between the files. If they disagree, an error must be issued.<br />
+Some configuration items may also be repeated as command line arguments, which will override those provided in the configuration files.</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-Adaptersandsequencingprimers">Adapters and sequencing primers</h3>
+
+<p>To be organised as described in <a href="http://www.illumina.com/Documents/products/datasheets/datasheet_sequencing_multiplex.pdf" class="external-link" rel="nofollow">http://www.illumina.com/Documents/products/datasheets/datasheet_sequencing_multiplex.pdf</a></p>
+
+<h2 id="EAGLESequencerSimulator-Specifications-Outputs">Outputs</h2>
+
+<p>For CASAVA:</p>
+<ul>
+	<li>Run folder<br />
+<img class="confluence-embedded-image" width="393" src="attachments/1709472/1638727.png" data-image-src="attachments/1709472/1638727.png"><br />
+<span style="text-decoration: underline;">Notes</span>:
+	<ul>
+		<li>In the prototype sequencer, the clocs files are not generated under a lane directory but directly in the Intensities directory with filenames such as s_8_0068_pos.txt</li>
+		<li>Same for the filter files: they are generated in the BaseCalls directory with names such as s_8_0068.filter</li>
+		<li>The control files are not generated at all</li>
+		<li>The Run folder is made of many files that just report the configuration used by the sequencer. Those parameters are often not used by the simulator, but need to be passed as inputs nonetheless in order to generate those output files correctly. For example:
+		<ul>
+			<li>Run ID (e.g. 100721_EAS16_0066_6264VAAXX)</li>
+			<li>Run Number</li>
+			<li>Instrument (can be extracted from Run ID)</li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+	<li>ValidationConfig.txt: needed for Casava's alignment stage, currently missing</li>
+</ul>
+
+
+<p>Metadata for subsequent analysis:</p>
+<ul>
+	<li>BAM files aligned on reference (at chromosome level? If yes, can they properly include translocations?)</li>
+	<li>Achieved coverage thresholds file (based on the input coverage threshold file)</li>
+	<li>V'', indicating a confidence score for each variant from the V' input</li>
+	<li>More metadata useful for subsequent analysis?</li>
+</ul>
+
+
+<p>Not needed / post-generated:</p>
+<ul>
+	<li>BAM files aligned on the mutated genome can be generated afterwards by an external process (we don't know if they will be useful in any use case)</li>
+</ul>
+
+
+<h1 id="EAGLESequencerSimulator-Specifications-Datasizeandperformanceconstraints">Data size and performance constraints</h1>
+
+<p>This section is analysing and setting constraints for a large use-case scenario:</p>
+<ul>
+	<li>Human genome =&gt; 3.2 GBases in reference</li>
+	<li>60x coverage =&gt; 200 GBases</li>
+	<li>202 bases per paired read =&gt; 1G paired reads</li>
+	<li>8 lanes, 32 tiles/lane =&gt; 256 tiles =&gt; 4M paired reads/tile or 800 MBases/tile</li>
+</ul>
+
+
+<h3 id="EAGLESequencerSimulator-Specifications-Inputs.1">Inputs</h3>
+
+<p>Input fasta files: 6.4GB for diploid human</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-Outputs.1">Outputs</h3>
+
+<h4 id="EAGLESequencerSimulator-Specifications-BCLfiles">BCL files</h4>
+
+<ul>
+	<li>4MB / BCL file</li>
+	<li>202 BCL files / tile</li>
+	<li>800MB / tile</li>
+	<li>256 tiles =&gt; 202*256 = 51,700 BCL files</li>
+	<li>200 GB total size</li>
+</ul>
+
+
+<p>We need to generate this under 4 hours (Requirement is under 2 hours for 30x coverage)</p>
+
+<h4 id="EAGLESequencerSimulator-Specifications-BAMfiles">BAM files</h4>
+
+<ul>
+	<li>~300 bytes per read in SAM format =&gt; 600 GB uncompressed</li>
+	<li>10x compression to BAM =&gt; 60GB of BAM files</li>
+</ul>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-Metadata(minimuminformationtodoBCL+Metadata=&gt;BAM)">Metadata (minimum information to do BCL+Metadata=&gt;BAM)</h4>
+
+<ul>
+	<li>10 bytes/read? =&gt; 10 GB</li>
+</ul>
+
+
+<h1 id="EAGLESequencerSimulator-Specifications-Usecases">Use cases</h1>
+
+<p>System level flow, used to figure out some requirements and use cases:<br />
+<img class="confluence-embedded-image" height="239" width="320" src="attachments/1709472/1638722.jpg" data-image-src="attachments/1709472/1638722.jpg"></p>
+
+<h2 id="EAGLESequencerSimulator-Specifications-Usecase1:UsingEAGLEtovalidateCASAVAVariantCalling">Use case 1: Using EAGLE to validate CASAVA Variant Calling</h2>
+
+
+<h3 id="EAGLESequencerSimulator-Specifications-Usecase1a:Userrunningthegenomemutator">Use case 1a: User running the genome mutator</h3>
+
+<p>How does the user know which parameters to use?</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-Usecase1b:Userrunningthesequencersimulator">Use case 1b: User running the sequencer simulator</h3>
+
+<p>How does the user know which parameters to use?</p>
+
+<h3 id="EAGLESequencerSimulator-Specifications-Usecase1c:UserrunningCASAVAandvalidatingresults">Use case 1c: User running CASAVA and validating results</h3>
+
+
+<p>After running the simulator, the user obtains a simulated Run folder and extra analysis files.</p>
+
+<p>He then runs CASAVA and obtains an alignment and some called variants.</p>
+
+<p>Manually, or by using an automated tool that we will implement later, the output variants can be classified as:</p>
+<ul>
+	<li>Correct = correctly detected variants</li>
+	<li>False negatives = variants that were simulated (i.e. present in the Genome Mutator's input variant list) but not detected by the tool under test</li>
+	<li>False positives = variants that were detected without having ever been simulated</li>
+</ul>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-FalseNegativesanalysis">False Negatives analysis</h4>
+
+<p>Possible use case:</p>
+
+<ul>
+	<li>How many reads cover the event? -&gt; Easy with BAM and samtools</li>
+	<li>If manual analysis: See them in IGV -&gt; Easy with BAM</li>
+	<li>If automatic analysis: How easy was it to detect this variant?
+	<ul>
+		<li>Either report an &quot;ease of detection&quot; score that was calculated by the simulator</li>
+		<li>Or calculate it now by analysing:
+		<ul>
+			<li>Genome Mutator stage:
+			<ul>
+				<li>On which alleles has it been applied? (and on how many alleles has it not been applied)</li>
+				<li>How many other variants have been applied close to it?</li>
+			</ul>
+			</li>
+			<li>Sequencer Simulator stage:
+			<ul>
+				<li>How many reads cover the event?</li>
+			</ul>
+			</li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+</ul>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-FalsePositivesanalysis">False Positives analysis</h4>
+
+<ul>
+	<li>Manually look at the area with IGV</li>
+</ul>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-Nextstepofanalysis">Next step of analysis</h4>
+
+<p>Once the covering reads have been found, assuming that the coverage was enough, the user will want to know why either the aligner or the variant caller didn't do a proper job.</p>
+
+<p>In order to analyse the aligner, we need to know exactly where in the BCL file each read is (lane, tile, position).</p>
+
+
+<h2 id="EAGLESequencerSimulator-Specifications-Crossreferencesbetweenfiles">Cross references between files</h2>
+
+
+<p>The following files are expected to be used by the user:</p>
+<ul>
+	<li>Variants1: Genome Mutator input</li>
+	<li>BCL: Sequencer Simulator output</li>
+	<li>BAM1: Sequencer Simulator output</li>
+	<li>BAM2: CASAVA aligner output</li>
+	<li>Variants2: CASAVA variant caller output</li>
+</ul>
+
+
+<p>The use cases for results analysis are:</p>
+
+<h4 id="EAGLESequencerSimulator-Specifications-VariantfromVariants1-&gt;IGV">Variant from Variants1 -&gt; IGV</h4>
+
+<p>Easy, by using variant's position</p>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-VariantfromVariants1-&gt;supportingBCLreads">Variant from Variants1 -&gt; supporting BCL reads</h4>
+
+
+<p>May seem trivial by using the position</p>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-Variant-&gt;IGVB">Variant -&gt; IGV B</h4>
+
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-BCLread-&gt;BAM">BCL read -&gt; BAM</h4>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-BAMread-&gt;BCL">BAM read -&gt; BCL</h4>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-BAMread-&gt;referenceallele+position">BAM read -&gt; reference allele+position</h4>
+
+
+<h4 id="EAGLESequencerSimulator-Specifications-position-&gt;">position -&gt;</h4>
+
+
+
+<h2 id="EAGLESequencerSimulator-Specifications-Tobesorted">To be sorted</h2>
+
+
+<h3 id="EAGLESequencerSimulator-Specifications-The&#39;Easeofdetection/confidence&#39;property">The 'Ease of detection/confidence' property</h3>
+
+<p>The analysis tools used to verify the output of the tested (external) tools will report:</p>
+<ul>
+	<li>Correct items = correctly aligned reads / correctly detected variants</li>
+	<li>False negatives = reads/variants that were simulated but not detected by the tool under test</li>
+	<li>False positives = reads/variants that were detected by the tool under test without having ever been simulated</li>
+</ul>
+
+
+<p>But more categories will be necessary as false negatives and false  positives will need to be explained: some variants might be very well  covered by other variants, or even not being covered by any read at all,  making them undetectable, in which case we cannot expect any variant  caller to detect them. On the other hand, some variants might be applied  clearly, far from other variants and with a high coverage, in which  case it will be important to highlight it if it happens to be an  undetected false negative.<br />
+The 'Ease of detection' property is intended to reflect this, to be used to explain the &quot;why&quot; question for each false negative.</p>
+
+<p>What affects the 'Ease of detection'?</p>
+<ul>
+	<li>Number of reads (coverage) (if no BCL reads covers the event, ease_of_detection should probably be 0)</li>
+	<li>Number of events around it</li>
+	<li>Number of times the k-mers including this event are present in the  reference: a read in a repeated region will be harder to align correctly</li>
+</ul>
+
+
+
+<h2 id="EAGLESequencerSimulator-Specifications-Unsorted,frommeetingwithCome24/10/2011">Unsorted, from meeting 24/10/2011</h2>
+
+<p>Input to tool: Model Q, model noise</p>
+
+<p>A few strategies are possible for efficient BCL writing:</p>
+<ul>
+	<li>Thing to avoid: opening 100 bcl files and writing 1 byte in each at a time</li>
+	<li>per tile: prepare all reads in RAM, then output BCL files for this tile in parallel with the processing of the next tile</li>
+	<li>per BCL file: read all inputs to RAM, and then process and write each BCL in order<br />
+We can use highly multithreaded writing threads, but this needs to be configurable as tool input, as isilon will deal best with hundreds, while a local HD will be happier with 1.</li>
+</ul>
+
+
+<p>RAM usage:</p>
+<ul>
+	<li>The 6.4Gbases of FASTA can be stored in RAM from the start, especially if we use 2 bits per base.</li>
+</ul>
+
+
+<p>Multiplexed output: Can be ignored in phase 1's implementation, but will need to be given some thoughts for:</p>
+<ul>
+	<li>command line arguments: how do we let the user specify all this potential mess?
+	<ul>
+		<li>&quot;User should be able to specify which sample goes in which lane&quot;</li>
+	</ul>
+	</li>
+	<li>RAM usage: multiple references can quickly use a lot of RAM.</li>
+</ul>
+
+
+<p>Running time:</p>
+<ul>
+	<li>Writing human BCL at 30x coverage = 100GB @ 30MB/s = 1 hour</li>
+	<li>We should be able to keep Writing+Processing under 2 hours</li>
+</ul>
+
+
+<p>Don't produce BAM: Produce BCL metadata (in binary format) from which BAM will be made</p>
+
+<h2 id="EAGLESequencerSimulator-Specifications-MeetingwithCome28/10/2011">Meeting 28/10/2011</h2>
+
+<ul>
+	<li>Include adapter sequence when insert size is too small, then add most-common-color with low quality<br />
+See:
+	<ul>
+		<li><a href="http://www.illumina.com/technology/mate_pair_sequencing_assay.ilmn" class="external-link" rel="nofollow">http://www.illumina.com/technology/mate_pair_sequencing_assay.ilmn</a></li>
+		<li><a href="http://www.illumina.com/technology/paired_end_sequencing_assay.ilmn" class="external-link" rel="nofollow">http://www.illumina.com/technology/paired_end_sequencing_assay.ilmn</a></li>
+	</ul>
+	</li>
+	<li>Generate coordinates with poisson distribution (using matrix at pixel resolution (or sub-pixel, later, for more noise modelling) or bernouilli process)</li>
+	<li>at the edges of each tile, model that the cameras won't see all the pixels, and that some cameras will have slighty different views, leading to some 'N' at the outside, then same letter many times, then the correct letters)</li>
+</ul>
+
+
+<p><img class="confluence-embedded-image" height="239" width="320" src="attachments/1709472/1638724.jpg" data-image-src="attachments/1709472/1638724.jpg"></p>
+
+
+<h1 id="EAGLESequencerSimulator-Specifications-Validation">Validation</h1>
+
+<p>Investigate whether the simulated sample genome and reads are representative of real sequenced data, and which kind of input variants and parameters are needed to make them so.</p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709472/1638721.jpg">Talk with Brett.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709472/1638722.jpg">Simulator use case.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709472/1638724.jpg">EAGLE meeting 28Oct2011 2.JPG</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709472/1638727.png">CasavaRunFolder.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE - Possible conflicts between variants</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE - Possible conflicts between variants
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Sep 22, 2011 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLE-Possibleconflictsbetweenvariants-Analysis">Analysis</h1>
+
+
+<h2 id="EAGLE-Possibleconflictsbetweenvariants-Rootoftheproblem">Root of the problem</h2>
+
+<p>Tumour variants are described relatively to the reference genome, and not relatively to the normal cells' genome.</p>
+
+<p><strong>Consequence 1:</strong> Variants can be described at locations that don't exist in normal cells.</p>
+
+<p><strong>Consequence 2:</strong> Some locations on the normal cells' genome are unreachable: it is impossible for our simulator to simulate variants at locations that were not present in the reference genome (but that are present in the normal cells of the individual).</p>
+
+<p>For example, if the normal cells are = reference genome + insertion of 100 bases at location 100, then, we have no way to specify any SNP/Indel between locations 100 and 200 of the normal cells.</p>
+
+<ul>
+	<li>This is probably ok for translocations, as they are hand-written, coming from an external source that only knows the reference locations</li>
+	<li>This might be a problem for a proper distribution of SNP&amp;indel noise, as none will appear in the bases that are part of the normal genome but not part of the reference genome.
+	<ul>
+		<li>This is especially important as those might be the ones affecting the most the alignment.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p><strong>Consequence 3:</strong> Some &quot;reference genome&quot; locations are ambiguous as they correspond to multiple bases in the normal cell's genome (in the case of insertions).</p>
+
+<h2 id="EAGLE-Possibleconflictsbetweenvariants-Whichlocationsareaffected?">Which locations are affected?</h2>
+
+<p>We must distinguish locations of bases (to identify SNP and deletions) and locations &quot;between bases&quot; (to identify insertions and translocations).</p>
+
+<p>The distinction is even more important as the VCF file complicates matters somehow: for example an insertion at location 100 is described in VCF as an insertion at location 99 with 1 reference base unchanged.</p>
+
+<p><br class="atl-forced-newline" /></p>
+
+<p>Terminology for this document:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<p>base#:                       1                       2                       3                       4                       5                       6                       7</p>
+
+<p>location#:    1                       2                       3                       4                       5                       6                       7                       8</p>
+
+<h3 id="EAGLE-Possibleconflictsbetweenvariants-Precisevariants:"><span style="text-decoration: underline;">Precise variants:</span></h3>
+
+<p>Precise variants are when they are not imprecise <img class="emoticon emoticon-cheeky" src="s/en_GB/3396/9edc97f62fedb1d22a8ce3c36f168cc178fbcdea.29/_/images/icons/emoticons/tongue.png" data-emoticon-name="cheeky" alt="(tongue)"/> (see imprecise variants below)</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-Insertion">Insertion</h4>
+
+<p>Precise insertion of M bases at location N: affects location N only</p>
+
+<p>Example: Insertion of &quot;AA&quot; at location 3 affects the highlighted elements:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-Deletion">Deletion</h4>
+
+<p>Precise deletion of M bases at location N: affects locations [N+1;N+M-1] and bases [N;N+M-1]</p>
+
+<p>Example: Deletion of 2 bases at location 3 affects the highlighted elements:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-SNP">SNP</h4>
+
+<p>Affects base N, no location affected</p>
+
+<p>Example: SNP GàT at location 3 affects the highlighted elements:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-Translocation">Translocation</h4>
+
+<p>Precise translocation: affects locations N1 and N2</p>
+
+<p>Example: Translocation between location 3 and another chromosome (not shown) affects the highlighted elements:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<h3 id="EAGLE-Possibleconflictsbetweenvariants-Imprecisevariants:"><span style="text-decoration: underline;">Imprecise variants:</span></h3>
+
+<p>A variant is <em>imprecise</em>if it could have been specified at a different location without changing the final result.</p>
+
+<p>The degree of uncertainty <em>k</em> is the number of locations (other than the specified one) that would lead to the same result (=<em>equivalent variants</em>).</p>
+
+<p>The elements affected by an imprecise variant are all those bases and locations present between the first affected element of the left-most possible equivalent variant (by definition this one is the one specified in VCF) and the last affected element of the right-most possible equivalent variant.</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-Insertion.1">Insertion</h4>
+
+<p>Imprecise insertion of M bases at location N: affects locations [N;N+Mk] and bases [N;N+Mk-1]</p>
+
+<p>Example: Insertion of &quot;GT&quot; at location 3: k=1, as location 5 would be the same. Elements affected:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-Deletion.1">Deletion</h4>
+
+<p>Imprecise deletion of M bases at location N: affects locations [N+1;N+Mk] and bases [N;N+Mk]</p>
+
+<p>Example: Deletion of 1 base at location 5: k=1, as location 6 would be the same. Elements affected:</p>
+
+<p>          ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-SNP.1">SNP</h4>
+
+<p>Cannot be imprecise.</p>
+
+<h4 id="EAGLE-Possibleconflictsbetweenvariants-Translocation.1">Translocation</h4>
+
+<p>Imprecise translocation: affects locations [N1;N1+k] and bases [N1;N1+k-1]</p>
+
+<p>+ locations [N2;N2+k] and bases [N2;N2+k-1]</p>
+
+<p>Example: Translocation between chr1:3 and chr2:4 (in red) is imprecise with a degree of uncertainty of 2 (2 equivalent translocations shown in blue). Affects the highlighted elements:</p>
+
+<p>chr1:     ?   A   ?   C   ?   G   ?   T   ?   A   ?   A   ?   G   ?</p>
+
+<p>chr2:     ?   A   ?   A   ?   A   ?   G   ?   T   ?   C   ?   C   ?</p>
+
+<p><strong><span style="text-decoration: underline;">Note 1</span></strong>:Take extra care with translocations that connect to a reversed strand, as the bases of 1 strand need to be matched to reverse complementary bases of the other strand.</p>
+
+<p><strong><span style="text-decoration: underline;">Note 2</span></strong>: Adjust the +/- signs for translocations on reverse strands</p>
+
+<h1 id="EAGLE-Possibleconflictsbetweenvariants-Extranotes">Extra notes</h1>
+
+<p>The (im)precision of a variant can get affected by a previous variant, leading to cases where 3 consecutive variants may conflict even though the variants weren't conflicting 2 by 2.</p>
+
+<p>For example, the degree of uncertainty of a deletion of 1 base at position 2 in &quot;ACCCACCCT&quot; is 3.</p>
+
+<p>But if the deletion is preceded by a SNP AàC at position 5, the degree of uncertainty of the same deletion becomes 7.</p>
+
+<p>This probably will never happen in SAGE, as we only have 2 stages of variants (normal then tumour). We would need a 3<sup>rd</sup> stage to see any consequence of this extra uncertainty.</p>
+
+
+
+<h1 id="EAGLE-Possibleconflictsbetweenvariants-Appendix1:Earlyanalysis:Examplesofconflicts">Appendix 1: Early analysis: Examples of conflicts</h1>
+
+
+<h2 id="EAGLE-Possibleconflictsbetweenvariants-Deletions">Deletions</h2>
+
+<p>Normal: deletion of 5 bases at location 100</p>
+
+<p>Tumour: deletion of 3 bases at location 101</p>
+
+<p>ð In real, the 5 bases weren't existing in the normal cells, and 2 insertions of 1 base each (at locations 100 and 104) happened</p>
+
+<p>ð This is a problem, as our current tool based on breakpoints would apply these 2 variants in such a way that the result is the 5D deletion, losing the 2 inserted bases</p>
+
+<p>o  We could mark the deleted bases to allow detection of conflicts. This would work for deletions, let's see if there are other variants involved in conflicts.</p>
+
+<p>Normal: deletion of 3 bases at location 100</p>
+
+<p>Tumour: no deletion</p>
+
+<p>ð In real, the 3 bases weren't existing in the normal cells, and an insertion of 3 bases happened</p>
+
+<h2 id="EAGLE-Possibleconflictsbetweenvariants-Insertions">Insertions</h2>
+
+<p>Normal: insertion of 5 bases at location 100</p>
+
+<p>Tumour: insertion of 3 bases at location 100</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

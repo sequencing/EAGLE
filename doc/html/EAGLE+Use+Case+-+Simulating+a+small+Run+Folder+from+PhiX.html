@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simulating a small Run Folder from PhiX</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simulating a small Run Folder from PhiX
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Oct 07, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Preamble">Preamble</h1><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.<img class="confluence-embedded-image confluence-thumbnail image-right" width="100" confluence-query-params="effects=border-simple,shadow-kn" src="attachments/thumbnails/1711448/1638806" data-image-src="attachments/1711448/1638806.jpg?effects=border-simple,shadow-kn"><br /> We are using EAGLE to simulate a small Run Folder from PhiX by going through the following steps:</p><ol><li>Sample simulation, by applying known mutations to a PhiX reference genome</li><li>Sequencing simulation with 1 tile in 1 lane</li></ol><h3 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Inputandconfigurationfiles">Input and configuration files</h3><p>Actually, instead of PhiX we decided to use a lovely Enterobacteriophage.</p><p>In this example we will use the following inputs:<img class="confluence-embedded-image image-right" width="10%" confluence-query-params="effects=border-simple,shadow-kn" src="attachments/1711448/1638807.jpg?effects=border-simple,shadow-kn" data-image-src="attachments/1711448/1638807.jpg?effects=border-simple,shadow-kn"></p><ul><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-Genomes">Our Enterobacteriophage reference genome</a></li><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-RunInfo">RunInfo_PairedReads1x1Tiles.xml</a></li><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-Variants">Variants/OneOfEachType.vcf</a></li></ul><h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Initialisation">Initialisation</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads1x1Tiles.xml \
+  --reference-genome=/illumina/scratch/iGenomes/Enterobacteriophage_lambda/NCBI/1993-04-28/Sequence/Chromosomes/ \
+  --variant-list=$EAGLE_SHARE/Variants/OneOfEachType.vcf \
+  --coverage-depth=30
+</pre>
+</div></div><h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Execution">Execution</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE
+make
+</pre>
+</div></div><p>This should take about 10 seconds to complete and generate a Run Folder full of BCL files, ready to be aligned by your preferred aligner tool.</p><p>You can also generate BAM files (for visualisation in IGV for example):</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make bam</pre>
+</div></div><h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Results">Results</h1><p>The main result is the generated Run Folder.<br /> Based on the chromosome length (48502 bases), the read length (202 bases) and the desired coverage (30x), the simulator generated 7203 paired reads.</p><p>You can inspect the Run Folder by hand.</p><p>Visualising the results in IGV, you may get something as beautiful as this:<br /> <img class="confluence-embedded-image image-center" width="90%" confluence-query-params="effects=drop-shadow" src="attachments/1711448/1638811.jpg?effects=drop-shadow" data-image-src="attachments/1711448/1638811.jpg?effects=drop-shadow"></p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711448/1638806.jpg">Phage_lambda.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711448/1638808.jpg">ArtificialT4Bacteriophage.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711448/1638807.jpg">ArtificialT4Bacteriophage.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711448/1638811.jpg">EagleScreenshot_IGV_Enterobacteriophage1.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

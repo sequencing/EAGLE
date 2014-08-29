@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Refining our Human sequencing simulation (diploid version)</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Refining our Human sequencing simulation (diploid version)
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-RefiningourHumansequencingsimulation(diploidversion)-Preamble">Preamble</h1><p><img class="confluence-embedded-image image-right" width="20%" src="attachments/1711525/1638812.jpg" data-image-src="attachments/1711525/1638812.jpg"><br /> Based on our previous <a href="EAGLE%2BUse%2BCase%2B-%2BSimulating%2Ba%2Btypical%2BHiSeq%2Brun%2Bfrom%2Ba%2BHuman%2Bsample%2B%2528haploid%2Bversion%2529.html">EAGLE Use Case - Simulating a typical HiSeq run from a Human sample (haploid version)</a>, we now want to generate a real human:</p><ul><li>diploid</li><li>either XX or XY</li><li>with a bunch of chrM</li></ul><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-RefiningourHumansequencingsimulation(diploidversion)-Initialisation">Initialisation</h1><p>All this magic is done during the preparation of the sample genome, processed by the <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html#DetaileddescriptionofEAGLEtools-GenomeMutator">Genome Mutator</a> tool (which takes a reference genome as input and produces the sample genome).</p><p><a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html#DetaileddescriptionofEAGLEtools-EAGLEConfigurator">configureEAGLE</a> can pass any command line parameter to the Genome Mutator via --genome-mutator-options.<br /> For example:</p><ul><li>configureEAGLE --genome-mutator-options=&quot;--organism-ploidy=2 --ploidy-chromosome=chrY --ploidy-level=0 --ploidy-chromosome=chrM --ploidy-level=100&quot; <strong>for a female Human with 100 chrM</strong></li><li>configureEAGLE --genome-mutator-options=&quot;--organism-ploidy=2 --ploidy-chromosome=chrX --ploidy-level=1 --ploidy-chromosome=chrY --ploidy-level=1 --ploidy-chromosome=chrM --ploidy-level=100&quot; <strong>for a male Human with 100 chrM</strong></li></ul><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/ \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --coverage-depth=30 \
+  --genome-mutator-options=&quot;--organism-ploidy=2 --ploidy-chromosome=chrY --ploidy-level=0 --ploidy-chromosome=chrM --ploidy-level=100&quot;
+
+cd EAGLE
+</pre>
+</div></div><h1 id="EAGLEUseCase-RefiningourHumansequencingsimulation(diploidversion)-Execution">Execution</h1><p>Same as in the previous tutorial (look back for more ways to run EAGLE):</p><h3 id="EAGLEUseCase-RefiningourHumansequencingsimulation(diploidversion)-Runningonlocalmachinewith8processors">Running on local machine with 8 processors</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make -j 8
+</pre>
+</div></div><p>This should take about 1 hour to complete.</p><h3 id="EAGLEUseCase-RefiningourHumansequencingsimulation(diploidversion)-Runningoncluster">Running on cluster</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">psubmake -j 48
+</pre>
+</div></div><p>or</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">ssh ukch-dev-lndt01 # recommended (see below)
+cd [same directory as before]
+make -j 48 sge
+</pre>
+</div></div><p>This should take about X minutes to complete.</p><h1 id="EAGLEUseCase-RefiningourHumansequencingsimulation(diploidversion)-Results">Results</h1><p>You can see that the EAGLE/sample_genome folder contains the desired number of alleles for each chromosome.<br /> With IGV you can check that chrM has a much higher coverage than the other chromosomes (as we specified a ploidy of 100).</p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711525/1638812.jpg">eaglets-in-nest.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

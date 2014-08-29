@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Using a different template length distribution</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Using a different template length distribution
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-Usingadifferenttemplatelengthdistribution-Preamble">Preamble<img class="confluence-embedded-image confluence-thumbnail image-right" width="300" confluence-query-params="effects=border-simple,shadow-kn" src="attachments/thumbnails/3834925/4128825" data-image-src="attachments/3834925/4128825.jpg?effects=border-simple,shadow-kn"></h1><p>By default, EAGLE uses an template length (a.k.a. insert length) distribution extracted from a real HiSeq run (after pruning values under 150 bases long), as shown on the right -&gt;</p><p>We explainhere how to specify your own insert length distribution.</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-Usingadifferenttemplatelengthdistribution-Templatelengthdistributionfile">Template length distribution file</h1><p>By default, EAGLE uses the distribution described in:<br />${EAGLE_SHARE}/TemplateLengthTables/DefaultTemplateLengthTable.tsv</p><p>This file just contains 2 columns: template length, and proportion of reads having this insert length.<br />The second column gets automatically normalised during EAGLE execution, so it can contain absolute number of reads instead of relative proportions.</p><p>This default distribution is centered around 320 and contains lines such as:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">150     7998
+151     8027
+152     8128
+153     8438
+[...]
+318     117160
+319     117452
+320     117166
+321     116275
+[...]
+996     6
+997     7
+998     4
+999     2</pre>
+</div></div><p>Modifying this file (or generating a new one with the same structure) allows you to simulate any insert length distribution.</p><p>For example, the following file would generate 2 types of paired reads: half with an insert size of 200 bases, and half with an insert size of 700 bases.</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;"># MyTemplateLengthTable.tsv:
+# Important: make sure that the 2 columns are tab-separated (and not separated by space characters)
+# Generate with: echo -e &quot;200\t1\n700\t1&quot; &gt; MyTemplateLengthTable.tsv
+200     1
+900     1</pre>
+</div></div><p>Note: As another example, <a href="EAGLE%2BUse%2BCase%2B-%2BLong%2Breads%2Bsimulation.html">EAGLE Use Case - Long reads simulation</a> is using this technique to generate insert lengths from 10000 to 11000 cycles.</p><p>You can then pass your new distribution as an argument to configureEAGLE:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --template-length-table=MyTemplateLengthTable.tsv \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads1x1Tiles.xml \
+  --reference-genome=/illumina/scratch/iGenomes/Enterobacteriophage_lambda/NCBI/1993-04-28/Sequence/Chromosomes/ \
+  --variant-list=$EAGLE_SHARE/Variants/OneOfEachType.vcf \
+  --coverage-depth=30
+
+cd EAGLE
+make bam</pre>
+</div></div><h1 id="EAGLEUseCase-Usingadifferenttemplatelengthdistribution-Results">Results</h1><p>Using <a href="http://ukch-confluence.illumina.com/pages/viewpage.action?pageId=1708044">PUMA Metrics</a>, we can analyse the generated BAM file and generate its template length statistics graph:</p><p><img class="confluence-embedded-image confluence-thumbnail" width="300" confluence-query-params="effects=border-simple,blur-border" src="attachments/thumbnails/3834925/4128826" data-image-src="attachments/3834925/4128826.jpg?effects=border-simple,blur-border"></p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/3834925/4128825.jpg">default_insert_length.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/3834925/4128826.jpg">insert_length_200_700.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

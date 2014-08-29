@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Long reads simulation</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Long reads simulation
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-Longreadssimulation-Preamble">Preamble<img class="confluence-embedded-image confluence-thumbnail image-right" width="300" confluence-query-params="effects=border-simple,shadow-kn" src="attachments/thumbnails/3834889/4128817" data-image-src="attachments/3834889/4128817.jpg?effects=border-simple,shadow-kn"></h1><p>We show here how to use EAGLE to simulate long (10k cycles) reads sequencing.</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><p>Warning: You probably want to run this on a local hard drive, rather than on isilon (see Note 1 below).</p><h1 id="EAGLEUseCase-Longreadssimulation-Initialisation">Initialisation</h1><p>Prepare the RunInfo.xml, which tells EAGLE how many tiles, lanes etc. are wanted.</p><p>We can just reuse an existing RunInfo.xml and change the number of cycles from 101 to 10k:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+sed &#39;s/101/10000/&#39; \
+  ${EAGLE_SHARE}/RunInfo/RunInfo_SingleRead1x1Tiles.xml \
+  &gt; RunInfo_SingleRead1x1Tiles_10000cycles.xml
+</pre>
+</div></div><p>Prepare a Quality table for 10k cycles, by scaling an existing table:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">${EAGLE_LIBEXEC}/scaleQualityTable.pl \
+  --input=${EAGLE_SHARE}/QualityTables/DefaultQualityTable.read1.length101.qval \
+  --cycles=10000 --output=QualityTable.read1.length10000.qval
+
+</pre>
+</div></div><p>Prepare a template length distribution with insert lengths greater than the 10k read length:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">awk &#39;BEGIN { OFS=&quot;\t&quot; } { $1+=10000; print $0 }&#39; \
+  ${EAGLE_SHARE}/TemplateLengthTables/DefaultTemplateLengthTable.tsv \
+  &gt; TemplateLengthTable.10k.tsv
+</pre>
+</div></div><p>Prepare a list of variants (empty in this example):</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">echo &quot;&quot; &gt; empty.vcf
+</pre>
+</div></div><p>Prepare the EAGLE run:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">configureEAGLE.pl \
+  --reference-genome=/illumina/scratch/eagle/References/iGenomes_hg19_with_fai/chr21.fa \
+  --run-info=RunInfo_SingleRead1x1Tiles_10000cycles.xml \
+  --quality-table=QualityTable.read1.length10000.qval \
+  --template-length-table=TemplateLengthTable.10k.tsv \
+  --variant-list=empty.vcf \
+  --coverage-depth=1 \
+  EAGLE_10k
+
+cd EAGLE_10k
+</pre>
+</div></div><h1 id="EAGLEUseCase-Longreadssimulation-Execution">Execution</h1><p>The usual execution strategies described in <a href="EAGLE%2B-%2BPerformance%2Band%2Bresources%2Brecommendations.html#EAGLE-Performanceandresourcesrecommendations-CPUUsage">EAGLE - Performance and resources recommendations</a> are available. For example on a single machine:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make      # to generate the Run folder
+make bam  # to generate an eagle.bam file
+</pre>
+</div></div><p>Note 1: It works well on a local hard drive. However, if you try it on Isilon, it takes forever to create the directory structure of the Run folder with 10000 sub-directories…</p><p>Note 2: the “make bam” feature has not been released yet, and I just noticed that single-end reads are marked in the BAM file as a paired-end read with missing partner. But it’s readable in IGV.</p><p>Note 3: Any parallel activity of EAGLE would happen at the tile level… so if you only want to generate 1 tile, it’s not useful to run on multiple CPUs (hmm… it can still generate the BAM file and the run folder in parallel). If you want multiple tiles, then you can use “make –j XXX” or submit to the grid in parallel.</p><h1 id="EAGLEUseCase-Longreadssimulation-Results">Results</h1><p>A random location in the generated BAM file shows some of the ~10k long reads:</p><p><img class="confluence-embedded-image" width="900" confluence-query-params="effects=border-simple,shadow-kn" src="attachments/3834889/4128824.jpg?effects=border-simple,shadow-kn" data-image-src="attachments/3834889/4128824.jpg?effects=border-simple,shadow-kn"></p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/3834889/4128817.jpg">Genomics_Spotlight_Shines_on_Nanopores-Bioengeering-hero.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/3834889/4128824.jpg">long_reads.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

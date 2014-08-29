@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - 2x250 realistic Human sequencing simulation</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - 2x250 realistic Human sequencing simulation
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-2x250realisticHumansequencingsimulation-Preamble">Preamble</h1><p><br />Based on our previous <a href="EAGLE%2BUse%2BCase%2B-%2BRefining%2Bour%2BHuman%2Bsequencing%2Bsimulation%2B%2528diploid%2Bversion%2529.html">EAGLE Use Case - Refining our Human sequencing simulation (diploid version)</a>, we now throw in all our options to make it 2x250 and as realistic as we can:</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-2x250realisticHumansequencingsimulation-Initialisation">Initialisation</h1><p>The new parameters and configuration files for 2x250 are:</p><ul><li><p>--run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads2x251Cycles2x64Tiles.xml</p></li><li><p>--motif-quality-drop-table=$EAGLE_SHARE/MotifQualityDropTables/DefaultMotifQualityDropTable.tsv <span style="font-family: Arial , Helvetica , FreeSans , sans-serif;font-size: 10.0pt;line-height: 13.0pt;"> = realistic quality scores around motifs such as homopolymers</span></p></li><li><p><span>--template-length-table=$EAGLE_SHARE/TemplateLengthTables/TemplateLengthTableFrom2x250Run.tsv</span></p></li><li><p>--quality-table=/home/ljanin/install/EAGLE-release/share/EAGLE/QualityTables/NewQualityTable.read1.length251.qtable2 --quality-table=/home/ljanin/install/EAGLE-release/share/EAGLE/QualityTables/NewQualityTable.read2.length251.qtable2     = Better quality table extracted from real 2x250 runs</p></li></ul><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads2x251Cycles2x64Tiles.xml  \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/ \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --coverage-depth=30 \
+  --genome-mutator-options=&quot;--organism-ploidy=2 --ploidy-chromosome=chrX --ploidy-level=1 --ploidy-chromosome=chrY --ploidy-level=1 --ploidy-chromosome=chrM --ploidy-level=100&quot; \
+  --motif-quality-drop-table=$EAGLE_SHARE/MotifQualityDropTables/DefaultMotifQualityDropTable.tsv \
+  --template-length-table=$EAGLE_SHARE/TemplateLengthTables/TemplateLengthTableFrom2x250Run.tsv \
+  --quality-table=/home/ljanin/install/EAGLE-release/share/EAGLE/QualityTables/NewQualityTable.read1.length251.qtable2 \
+  --quality-table=/home/ljanin/install/EAGLE-release/share/EAGLE/QualityTables/NewQualityTable.read2.length251.qtable2
+
+cd EAGLE
+</pre>
+</div></div><h1 id="EAGLEUseCase-2x250realisticHumansequencingsimulation-Execution">Execution</h1><p>Same as in the previous tutorial (look back for more ways to run EAGLE):</p><h3 id="EAGLEUseCase-2x250realisticHumansequencingsimulation-Runningonlocalmachinewith8processors">Running on local machine with 8 processors</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make -j 8
+</pre>
+</div></div><p>This should take about 1 hour to complete.</p><h3 id="EAGLEUseCase-2x250realisticHumansequencingsimulation-Runningoncluster">Running on cluster</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">psubmake -j 48
+</pre>
+</div></div><p>or</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">ssh ukch-dev-lndt01 # recommended (see below)
+cd [same directory as before]
+make -j 48 sge
+</pre>
+</div></div><p>This should take about X minutes to complete.</p><h1 id="EAGLEUseCase-2x250realisticHumansequencingsimulation-Results">Results</h1><p>yes <img class="emoticon emoticon-smile" src="s/en_GB/3396/9edc97f62fedb1d22a8ce3c36f168cc178fbcdea.29/_/images/icons/emoticons/smile.png" data-emoticon-name="smile" alt="(smile)"/></p><p> </p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

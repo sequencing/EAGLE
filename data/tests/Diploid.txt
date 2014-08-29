@@ -1,0 +1,11 @@
+insertion
+deletion
+indel
+large_deletion
+transloc_left
+transloc_right
+reversed_events
+full_deletion
+duplication
+zygosity
+conflict_deletion_translocation

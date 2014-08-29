@@ -1,0 +1,44 @@
+#!/bin/env bash
+source ${0%/*}/common.sh
+
+MUTATOR_EXE=$1
+BUILD_DIR=@CMAKE_BINARY_DIR@
+TEST_SET=$2
+TEST_ID=$3
+
+DATA_DIR=${BUILD_DIR}/Testing/data
+OUT_DIR=${BUILD_DIR}/Testing/${TEST_SET}_${TEST_ID}
+
+mkdir -p "${OUT_DIR}"
+
+# Test 1: run mutator on provided variant list
+${MUTATOR_EXE} --whole-genome=${DATA_DIR}/Genomes/acgt \
+               --variant-list=${DATA_DIR}/givenInputs/${TEST_ID}.vcf \
+               --sample-genome=${OUT_DIR}/sample_genome_1 \
+               --annotated-variant-list=${OUT_DIR}/canonical_1.vcf \
+               --organism-ploidy=1 \
+               --force >&  ${OUT_DIR}/test_1.log
+
+cat ${OUT_DIR}/sample_genome_1/*.fa > ${OUT_DIR}/sample_genome_1.fa
+
+diff ${OUT_DIR}/sample_genome_1.fa ${DATA_DIR}/expectedOutputs/${TEST_ID}.fa > ${OUT_DIR}/unexpectedOutput_1.diff
+
+[ ! -s ${OUT_DIR}/unexpectedOutput_1.diff ] || (cat ${OUT_DIR}/unexpectedOutput_1.diff && exit 1)
+
+
+# Test 2 deactivated
+exit 0
+
+# Test 2: run mutator on modified variant list which was output from test 1
+${MUTATOR_EXE} --whole-genome=${DATA_DIR}/Genomes/acgt \
+               --variant-list=${OUT_DIR}/canonical_1.vcf \
+               --sample-genome=${OUT_DIR}/sample_genome_2 \
+               --annotated-variant-list=${OUT_DIR}/canonical_2.vcf \
+               --organism-ploidy=1 \
+               --force >&  ${OUT_DIR}/test_2.log
+
+cat ${OUT_DIR}/sample_genome_2/*.fa > ${OUT_DIR}/sample_genome_2.fa
+
+diff ${OUT_DIR}/sample_genome_2.fa ${DATA_DIR}/expectedOutputs/${TEST_ID}.fa > ${OUT_DIR}/unexpectedOutput_2.diff
+
+[ ! -s ${OUT_DIR}/unexpectedOutput_2.diff ] || (cat ${OUT_DIR}/unexpectedOutput_2.diff && exit 2)

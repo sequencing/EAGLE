@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE - Performance and resources recommendations</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE - Performance and resources recommendations
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on May 31, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLE-Performanceandresourcesrecommendations-Introduction">Introduction</h1>
+
+<p>Our target was to be able to generate a simulated Run Folder from a Human reference with 30x coverage <strong>under 1 hour</strong> when running on a single 8-core machine.</p>
+
+<h1 id="EAGLE-Performanceandresourcesrecommendations-Typicalperformance">Typical performance</h1>
+
+<p>Human genome sequenced to 8 lanes x 32 tiles per lane, 30x coverage.<br />
+Running on ukch-tst-lnts08 (24x 2.67GHz cores, 80GB RAM).<br />
+Generates 95GB across 50,000 BCL files.</p>
+
+<h3 id="EAGLE-Performanceandresourcesrecommendations-Samplepreparation">Sample preparation</h3>
+
+<p>Sample genome generation takes ~6 minutes on any platform.<br />
+Fragment generation takes ~3 minutes.<br />
+These 2 processes need to be run in sequence, making this initialisation <strong>9 minutes</strong>.</p>
+
+<h3 id="EAGLE-Performanceandresourcesrecommendations-RunFolderpreparation">Run Folder preparation</h3>
+
+<p>The creation of the directory structure takes from a few seconds to a few minutes, depending on the disk (local disk/network disk/overloaded network disk).</p>
+
+<p>This process runs in parallel with the Sample Preparation, is shorter and consumes 0% CPU, so is pretty much invisible.</p>
+
+
+<h3 id="EAGLE-Performanceandresourcesrecommendations-Sequencingsimulation">Sequencing simulation</h3>
+
+<p>All the tiles can be generated concurrently with each other. It begins with a CPU and RAM intensive stage where the tile is prepared in RAM. Then an IO-bound stage where the RAM is flushed to disk. Depending on the disk write cache policy, the 2nd stage can be either instantaneous or a bottleneck.</p>
+
+
+<p>Each tile gets generated in RAM in 1min13 with -j 8, 2min05 with -j 24 <img class="confluence-embedded-image image-right" width="20%" src="attachments/1711391/1638815.jpg" data-image-src="attachments/1711391/1638815.jpg"><br />
+When writing to local disk, each tile gets flushed under 3s. We are CPU-bound (100% CPU used) and the generation completes in <strong>40 minutes with -j 8, or 24 minutes with -j 24</strong>.<br />
+When writing to Isilon, the generation completes in (56 minutes with -j 8, 34 minutes with -j 24, or <strong>8.5 minutes with a distributed -j 99</strong>).</p>
+
+<p>When writing to an Amazon cloud network drive, the generation takes 40 minutes with -j 8: as fast as on a local drive thanks to the disk write cache policy.</p>
+
+<h1 id="EAGLE-Performanceandresourcesrecommendations-RAMUsage">RAM Usage</h1>
+
+<p>Sample genome generation loads the entire reference in RAM, so for a human sequencing simulation it will need 3GB of RAM available.<br />
+Fragment generation and Run Folder creation don't consume any RAM.</p>
+
+
+<p>Sequencer Simulation prepares 1 BCL tile in RAM + the (much smaller) filter file. It also loads the chromosomes one by one to RAM. Therefore, the RAM consumption of each simulateSequencer process (1 process per tile) is: genomeSize * coverage / numberOfTiles + numberOfReadsInTile + maxChromosomeSize.</p>
+
+<p>A typical human 30x 256 tiles simulation would therefore need ~650MB per process.</p>
+
+
+
+
+
+<h1 id="EAGLE-Performanceandresourcesrecommendations-CPUUsageCPUUsage">CPU Usage<span class="confluence-anchor-link" id="EAGLE-Performanceandresourcesrecommendations-CPUUsage"></span></h1>
+
+
+<p>Depending on your available resources:</p>
+
+<h3 id="EAGLE-Performanceandresourcesrecommendations-Runningonlocalmachinewith1processor">Running on local machine with 1 processor</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+make
+</pre>
+</div></div>
+
+<h3 id="EAGLE-Performanceandresourcesrecommendations-Runningonlocalmachinewith8processors">Running on local machine with 8 processors</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+make -j 8
+</pre>
+</div></div>
+
+<h3 id="EAGLE-Performanceandresourcesrecommendations-Runningoncluster">Running on cluster</h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+psubmake -j 48
+</pre>
+</div></div>
+<p>or</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+ssh ukch-dev-lndt01 # recommended (see below)
+cd [same directory as before]
+make -j 48 sge
+</pre>
+</div></div>
+
+<p>Differences between the 2 methods:</p>
+<ul>
+	<li><em>psubmake</em> will execute the sequential first stage (~8 minutes, 3GB RAM) on 1 grid cpu</li>
+	<li><em>make sge</em> will execute the sequential first stage on the local machine (needs 3GB RAM)</li>
+	<li><em>make sge</em> relies on intermediate files, and should therefore be run on ukch-dev-lndt01 or equivalent due to write lag.</li>
+	<li>the second stage will be distributed on the grid in both cases.</li>
+</ul>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711391/1638814.jpg">eagledive.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711391/1638815.jpg">eagle_power_dive.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

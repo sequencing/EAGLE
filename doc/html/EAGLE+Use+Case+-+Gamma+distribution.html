@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Gamma distribution</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Gamma distribution
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Aug 28, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-Gammadistribution-Preamble">Preamble</h1>
+
+<p>This is a more advanced version of the tutorial <a href="EAGLE%2BUse%2BCase%2B-%2BSimulating%2Ba%2Buniform%2Breads%2Bdistribution%2Bin%2Bour%2BPhiX%2Bsimulation.html">EAGLE Use Case - Simulating a uniform reads distribution in our PhiX simulation</a>.</p>
+
+<p>We are first extracting a segment of a chromosome (a few million bases long).<br />
+We then want to generate reads over this region by using a Gamma distribution.</p>
+
+<h1 id="EAGLEUseCase-Gammadistribution-Initialisation">Initialisation</h1>
+
+<p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.<br />
+For the moment only the snapshot version will work:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+EAGLE_PATH=/illumina/development/EAGLE/EAGLE-snapshot-20120308
+PATH=$EAGLE_PATH/bin:$PATH
+
+EAGLE_SHARE=$EAGLE_PATH/share/EAGLE-1.0.0
+EAGLE_LIBEXEC=$EAGLE_PATH/libexec/EAGLE-1.0.0
+</pre>
+</div></div>
+
+<h1 id="EAGLEUseCase-Gammadistribution-Segmentextraction">Segment extraction</h1>
+
+<p>In this example, we extract <code>chrX:31137343-33357725</code> (2,220,383 bases).</p>
+
+<p>There are several ways (creating a VCF file with a deletion before and another deletion after the segment, or using the fastaDump tool and post-process its output, etc.) but the easiest way is to use a default ploidy level of 0 and a copy number of 1 for the segment you are interested in:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+$EAGLE_PATH/bin/applyVariants \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chrX.fa \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --sample-genome=./my_sample
+</pre>
+</div></div>
+
+<p>This brings <em>chrX</em> from the Human reference into <code>./my_sample</code>. Then create the following tab-separated file:</p>
+<div class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style: solid;"><b>segments.tab</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+#CHR	FIRST_POS	LAST_POS	GROUP_NUMBER
+chrX	31137343	33357725	2
+</pre>
+</div></div>
+
+<p>The group number has to be an <em>integer &gt; 1</em>. Then run:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+$EAGLE_LIBEXEC/applyCopyNumber.pl --sample-genome=./my_sample --copy-number=segments.tab 
+</pre>
+</div></div>
+
+<p>This generates an additional <code>./my_sample/CNV_2.fa</code> (and its <em>*.fai</em> counterpart) that contains the portions of DNA that we are interested in.</p>
+
+<p>If you are interested in multiple segments, just list them all in segments.tab (using a different group number so that they end up in different files). If these multiple segments come from various chromosomes, you need to add these to the <code>--reference-genome</code> parameter in <code>applyVariants</code>, and remember to set the default ploidy to '0' for these too (see the next section).</p>
+
+
+<h1 id="EAGLEUseCase-Gammadistribution-Readsgeneration">Reads generation</h1>
+
+<p>First we generate our EAGLE workspace.<br />
+Let's say we want: Average coverage of 100x + single reads:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_SingleRead1x1Tiles.xml \
+  --reference-genome=./my_sample \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --quality-table=$EAGLE_SHARE/QualityTables/DefaultQualityTable.qval \
+  --coverage-depth=100 \
+  --genome-mutator-options=&quot;--ploidy-chromosome=chrX --ploidy-level=0&quot; \
+  --fragments-allocator-options=&quot;--tls=101:101:101:10:10:FRp:RFm&quot;
+</pre>
+</div></div>
+
+<p>Note: The --tls option sets all fragments to be 101 bases long. You should remove this option if generating paired reads.</p>
+
+
+<p>We then want to generate our default fragments files:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+cd EAGLE
+make fragments
+ls -l fragments.pos
+</pre>
+</div></div>
+
+<p>You should see that fragments.pos is 4396798 bytes long.<br />
+Each values is encoded on 2 bytes, which means that we have generated 2198399 reads (note that this corresponds to 100x of our 2220383 bases with reads of length 101 bases (2220383*100/101=2198399).</p>
+
+<p>Now the R bit: generating a list of position intervals based on a Gamma based distribution:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+R
+x&lt;-rgamma(2198399, shape=.01, rate=1)
+y&lt;-round(x/sum(x)*2000000)
+f &lt;- file(&quot;fragments.pos&quot;, &quot;wb&quot;)
+writeBin(as.integer(y),f, size=2)
+close(f)
+quit(&quot;no&quot;)
+</pre>
+</div></div>
+
+<p>Now to simulate the sequencing:</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+make
+</pre>
+</div></div>
+<p>or</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+make bam
+</pre>
+</div></div>
+
+<p>This should take about 1min30s to complete.</p>
+
+<h1 id="EAGLEUseCase-Gammadistribution-Results">Results</h1>
+
+<p><img class="confluence-embedded-image image-center" width="90%" src="attachments/1712127/1638861.jpg" data-image-src="attachments/1712127/1638861.jpg"></p>
+
+<p>From top to bottom, we used Gamma shape parameters smaller and smaller.</p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1712127/1638861.jpg">EagleScreenshot_IGV_GammaDistribution.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

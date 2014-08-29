@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2">
+  <Run Id="111206_EAS987_0567_FC1234TST" Number="5" TileNameMethod="1">
+    <Flowcell>FC1234TST</Flowcell>
+    <FlowcellLayout LaneCount="8" SurfaceCount="2" SwathCount="2" TileCount="8"/>
+    <Reads>
+      <Read FirstCycle="1" LastCycle="101"/>
+      <Read FirstCycle="102" LastCycle="108">
+        <Index/>
+      </Read>
+      <Read FirstCycle="109" LastCycle="209"/>
+    </Reads>
+  </Run>
+</RunInfo>

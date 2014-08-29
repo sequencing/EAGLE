@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE - Simulating Reality - Strategy - observations-metrics-simulation</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE - Simulating Reality - Strategy - observations-metrics-simulation
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Mar 13, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Introduction">Introduction</h1>
+
+<p>One strategy to make our simulated datasets more realistic is to take input from data analysis experts.<br />
+After a few iterations, the cycle seems to happen as follows:</p>
+<ul>
+	<li>Observation
+	<ul>
+		<li>Either: experts look at a simulated dataset in IGV. They notice some (coarse grain) differences with what they are used to see from real datasets</li>
+		<li>Or: they notice (large) differences in some metrics between a simulated dataset and real datasets</li>
+	</ul>
+	</li>
+	<li>Suggested action
+	<ul>
+		<li>Either (most of the time): experts come up with the easiest possible implementation to make their observation become true in the simulated dataset</li>
+		<li>Or (rarely): they come up with a precise, physically-based guess (or set thereof).</li>
+	</ul>
+	</li>
+</ul>
+
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Problemswithobservations">Problems with observations</h3>
+
+<ul>
+	<li>The observations are always very rough, imprecisely qualified (due to the random nature of the datasets, not because of the experts): for example &quot;this mismatch rate value shouldn't be 4%, it should be around 0.5%&quot; doesn't tell us whether 0.8% is acceptable or not.
+	<ul>
+		<li>This makes the testing of the new implementation imprecise - both during development and for final testing.</li>
+	</ul>
+	</li>
+	<li>If the observation came from an observation in IGV, it is usually even harder to describe precisely: for example, &quot;the errors seem to accumulate in some regions of the genome&quot;.
+	<ul>
+		<li>Often, we (software engineers) are not even able to see the expert's observation, because we lack the knowledge of what is a &quot;usual variation&quot;, necessary to identify those unexpected variations (of course we can see it when the expert shows it to us in one dataset, but we can't reliably identify it in new datasets, especially when the simulator improves and the difference becomes more and more subtle).</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>We would benefit from having a proper characterisation of each observation, measurable in an automated way: metrics.</p>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Problemswithsuggestedactions">Problems with suggested actions</h3>
+
+<p>Our knowledge of what we are simulating is poor. Even experts have difficulties explaining some coarse grain observations (e.g. &quot;why is the error rate higher in this particular region?&quot;).<br />
+For this reason, our simulation was implemented at a very high level (with quality tables, mismatch tables).<br />
+Fitting the observations to our simulation (to make it more realistic), however, can be done either</p>
+<ul>
+	<li>at this same high level, by adding &quot;corner cases&quot; for each observed feature, with an &quot;appearance model&quot; that can be anywhere between random and empirical values</li>
+	<li>by refining some high level parts to more detailed lower level parts</li>
+</ul>
+
+
+<p>The later is only possible if we have enough knowledge of the new lower level parts. It also requires more time and consideration to implement. On the other hand, if implemented correctly, those more detailed behaviours usually come together and lead to better results in unexpected cases.<br />
+The former is quick, but also short-term: corner cases eventually start conflicting with each other, destroying each other's &quot;special behaviour&quot;. It is extremely rare to see a positive synergy coming out of corner cases.</p>
+
+<p>We see that a big risk is that one implementation breaks a previous one. Regression testing would be possible if we had a proper characterisation of each observation, measurable in an automated way: metrics.</p>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Strategy">Strategy</h3>
+
+<p>As concluded from each &quot;problems&quot; section, metrics will save us! (TODO: liaise with <a href="http://skaros.chuk.illumina.com:8090/display/AnUK/Third+Party+Metrics" class="external-link" rel="nofollow">this</a> and <a href="http://skaros.chuk.illumina.com:8090/pages/viewpageattachments.action?pageId=1712094&amp;highlight=WGS_Metrics_7-MAR-12.docx#Third+Party+Metrics-attachment-WGS_Metrics_7-MAR-12.docx" class="external-link" rel="nofollow">that</a>).</p>
+
+<p>The other conclusion is that high level simulation will probably be necessary to integrate features quickly for short-term results, but in the long term we would benefit from moving to lower level simulation, provided we manage to understand the required details.</p>
+
+<p>A last unknown concerns where in the random-to-empirical range we should model the high level simulation corner cases.</p>
+
+
+
+
+
+<h1 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Listof...">List of ...</h1>
+
+<ul>
+	<li>Error rate varies by region</li>
+	<li>Low telomere coverage</li>
+	<li>Centromeres: ?</li>
+	<li>Homopolymer sequences often have indel errors introduced during sequencing</li>
+</ul>
+
+
+
+<h2 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Errorratevariesbyregion">Error rate varies by region</h2>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Observation">Observation</h3>
+
+<p>Expert users: Adrian, Fiona, Nondas<br />
+In IGV, in real datasets, we notice that errors seem to accumulate more in some regions than others</p>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Suggestedaction">Suggested action</h3>
+
+<p>Extract the position ranges of those regions by analysing a real dataset and;<br />
+Implement different quality tables for these regions than for the rest of the genome.</p>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Metrics">Metrics</h3>
+
+<h2 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Lowtelomerecoverage">Low telomere coverage</h2>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Observation.1">Observation</h3>
+
+<p>Expert user: Phil.<br />
+In IGV, in real datasets, we notice that telomeres always have a lower-than-average coverage.</p>
+
+<p>Question to ask: Check what he meant by &quot;telomeres&quot; as the reference at the UCSC_gaps telomeres are full of 'N', so nothing would ever align there.</p>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Suggestedaction.1">Suggested action</h3>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Metrics.1">Metrics</h3>
+
+<h2 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Homopolymers">Homopolymers</h2>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Observation.2">Observation</h3>
+
+<p>LJ: Every time I check a region with problems across multiple reads, it is due to a deleted or inserted base in a homopolymer.</p>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Metrics.2">Metrics</h3>
+
+<h3 id="EAGLE-SimulatingReality-Strategy-observations-metrics-simulation-Action">Action</h3>
+
+<p>Homopolymer filter (SAGE-118)</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

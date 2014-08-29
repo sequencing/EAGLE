@@ -1,0 +1,5 @@
+# x	x->A	x->C	x->G	x->T	del	x->insertedA	x->insertedC	x->insertedG	x->insertedT
+A	1	0	0	0	0	0	0	0	0
+C	0	1	0	0	0	0	0	0	0
+G	0	0	1	0	0	0	0	0	0
+T	0	0	0	1	0	0	0	0	0

@@ -1,0 +1,387 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Phase 2 - Analysis Framework - Requirements</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Phase 2 - Analysis Framework - Requirements
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on May 04, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEPhase2-AnalysisFramework-Requirements-RequirementsGathering">Requirements Gathering</h1>
+
+<p>I added some &quot;post-specs&quot; <span style="color: rgb(0,0,0);">annotations</span> <span style="color: rgb(255,102,0);">in orange</span> to describe how we plan to address each requirement.</p>
+
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Requirements-Requirementsfromvariouspeople">Requirements from various people</h2>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Roman(iSAAC)">Roman (iSAAC)</h3>
+
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Requirements-Usecase1">Use case 1</h4>
+
+<ul>
+	<li>Roman finds a pile-up in a real iSAAC alignment by using IGV and wants to understand where the reads come from, in order to figure out if the pile-up could have been avoided by aligning reads better</li>
+	<li>I look at my simulated dataset and also see a pile-up at the same place</li>
+	<li>I can track where those reads came from</li>
+	<li>I'd also like to track if some reads that should have aligned in this pile-up actually aligned somewhere else</li>
+</ul>
+
+
+<p>It is already possible to do this, but it takes several minutes to track each read, which is not great for pile-ups of 10,000 reads...</p>
+
+<p><span style="color: rgb(255,102,0);">eagleTrackReads --region=chr10:42385240-</span><span style="color: rgb(255,102,0);">42385240 --output-text</span><br />
+<span style="color: rgb(255,102,0);">=&gt;</span><br />
+<span style="color: rgb(255,102,0);">N correctly aligned reads:</span><br />
+<span style="color: rgb(255,102,0);">  read 1</span><br />
+<span style="color: rgb(255,102,0);">  read 2</span><br />
+<span style="color: rgb(255,102,0);">N False Positive reads:</span><br />
+<span style="color: rgb(255,102,0);">  read 3, should map to other loc X</span><br />
+<span style="color: rgb(255,102,0);">N False Negative reads:</span><br />
+<span style="color: rgb(255,102,0);">  read4, should map here, loc Y</span></p>
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Richard&amp;Ole(Grouper)">Richard &amp; Ole (Grouper)</h3>
+
+
+<p>1) General alignment testing</p>
+<ul class="alternate">
+	<li>Iterate through all generated reads checking their alignment to the generated position</li>
+	<li>At least count them but as a refinement can then break down into categories of misalignment (e.g. resulting in false chimeric pair)</li>
+	<li>As a simple case, skip regions affected by structural variants. A more sophisticated approach would suggest where reads affected by such variants should align to the reference (rather than sample genome). The latter could be complicated, e.g. an evenly split read could correctly align to one of two reference genome positions.</li>
+</ul>
+
+
+<p>2) False positive variant call.<br />
+Will have the evidence reads for the call &amp; where they were mapped - want to look up (by ID) where they came from.</p>
+
+<p>3) False negative variant call.<br />
+Given an event in VCF format, report the reads affected - the ones that the variant caller should have detected as evidence.<br />
+A simple approach might be to report all reads in the vicinity of the event junctions - hopefully at least excluding reads from the other strand in the heterozygous case. A more sophisticated approach would filter this down to split reads and those expected to be anomalously mapped (e.g. a read pair is generated that spans a deletion, so the correct reference positions are anomalously far apart. Note: For the simulator, the question is simply whether the mapping separation has changed; variant callers have to start from whether the separation is outside the statistical norm.).</p>
+
+<p>4) Event coverage check.<br />
+An event location might have no reads mapped to it. Is this because no reads were generated at that location (due to random coverage) or because the affected reads were mapped elsewhere?</p>
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --variants=simulatedVariants.vcf --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallIsaacAndGrouper</span></p>
+
+<p><span style="color: rgb(255,102,0);">eagleVcfSubtraction</span> <span style="color: rgb(255,102,0);">--simulated-variants=.../eagle/simulatedVariants.vcf --called-variants=.../grouper/calledVariants.vcf --output-text --show-reads-stats --output-bam=variants.bam</span><br />
+<span style="color: rgb(255,102,0);">=&gt;</span><br />
+<span style="color: rgb(255,102,0);">N correctly called variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 1</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">  variant 2</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">N False Positive variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 3, didn't exist in simulated variants</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">N False Negative variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 4, didn't get called</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">+ variants.bam contains all these reads</span></p>
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Fiona(Strelkavalidation)">Fiona (Strelka validation)</h3>
+
+<p>Aim: Identifying how accurate Strelka is (specificity/sensitivity).</p>
+
+
+<p>Same requirements as for Grouper, but in a Normal+Tumour simulation scenario:<br />
+Make graph of FP/FN(/TP/TN) to find best Q cutoff for various Tumour coverage, Normal coverage (and purity)</p>
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --workflow=normal+tumour --normal-variants=normalVariants.vcf --tumour-only-variants=tumourOnlyVariants.vcf --normal-coverage=60 --tumour-overall-coverage=60 --tumour-purity=1.0 --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallIsaacAndStrelka (--post-run-vcf=.../strelka/calledVariants.vcf --analyse-vcf)?</span></p>
+
+<p><span style="color: rgb(255,102,0);">eagleVcfSubtraction</span> <span style="color: rgb(255,102,0);">--simulated-variants=.../eagle/tumourOnlyVariants.vcf  --called-variants=.../strelka/calledVariants.vcf --output-text</span><br />
+<span style="color: rgb(255,102,0);">=&gt;</span><br />
+<span style="color: rgb(255,102,0);">N correctly called variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 1</span><br />
+<span style="color: rgb(255,102,0);">  variant 2</span><br />
+<span style="color: rgb(255,102,0);">N False Positive variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 3, didn't exist in simulated variants</span><br />
+<span style="color: rgb(255,102,0);">N False Negative variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 4, didn't get called</span></p>
+
+<p>Other test: check how Strelka handles CN.</p>
+
+<p><span style="color: rgb(255,102,0);">Same flow + use the --tumour-only-cnv=tumourOnlyCNV.tab option.</span></p>
+
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Adrian">Adrian</h3>
+
+<p>Analysing aligned data systematically<br />
+- looking at regions that are very strange<br />
+- table: reads id, where it was sampled, pos where it was aligned<br />
+Wants to be able to see specific regions interactively.</p>
+
+<p><span style="color: rgb(255,102,0);">eagleTrackReads --region=chr1</span> <span style="color: rgb(255,102,0);">--output-bam=chr1info.bam</span><br />
+<span style="color: rgb(255,102,0);">=&gt;</span><br />
+<span style="color: rgb(255,102,0);">Large BAM file showing all the TP/FP/FN and corrected FP/FN in different read groups</span></p>
+
+<p><span style="color: rgb(255,204,0);">OR, if the previous tool would take too long to run:</span></p>
+
+<p><span style="color: rgb(255,102,0);">On-the-fly generation for IGV (http-server/cgi-bin/query.cgi? -style)</span></p>
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Nick(IvoryTower)">Nick (Ivory Tower)</h3>
+
+
+<p>I think it would be interesting as a first step to see whether EAGLE displays the same behaviour that we see in real builds.<br />
+So for example if you have 2 x 200X builds from the same sample, what are the SNP discordances?<br />
+Do you see discordant SNPS where there is a biased allele frequency?<br />
+There's some suggestion that this might be due to mapping problems, in which case they ought to show up in EAGLE.</p>
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --variants=simulatedVariants.vcf</span> <span style="color: rgb(255,102,0);">--coverage=200 --random-seed=1 --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallIsaacAndGrouper EAGLE1</span><br />
+<span style="color: rgb(255,102,0);">configureEAGLE --variants=simulatedVariants.vcf</span> <span style="color: rgb(255,102,0);">--coverage=200 --random-seed=2 --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallIsaacAndGrouper EAGLE2</span></p>
+
+<p><span style="color: rgb(255,102,0);">eagleVcfSubtraction</span> <span style="color: rgb(255,102,0);">--simulated-variants=.../EAGLE1/simulatedVariants.vcf  --called-variants=.../EAGLE1/grouper/calledVariants.vcf --output-bam=variants.bam</span><br />
+<span style="color: rgb(255,102,0);">eagleVcfSubtraction</span> <span style="color: rgb(255,102,0);">--simulated-variants=.../EAGLE2/simulatedVariants.vcf  --called-variants=.../EAGLE2/grouper/calledVariants.vcf --output-bam=variants.bam</span></p>
+
+<p><span style="color: rgb(255,102,0);">diff</span> <span style="color: rgb(255,102,0);">EAGLE1/grouper/snp.vcf</span> <span style="color: rgb(255,102,0);">EAGLE2/grouper/snp.vcf</span><br />
+<span style="color: rgb(255,102,0);">+ manual BAM visualisation in IGV</span></p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Sergii">Sergii</h3>
+
+
+<ul>
+	<li>Generate tumor DNA fragments from a large VCF file + Copy Numbers</li>
+	<li>Generate normal DNA fragments just with VCF variants</li>
+	<li>Merge normal + tumour and generate Run folder</li>
+	<li>Align with BWA</li>
+</ul>
+
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --workflow=normal+tumour  --normal-variants=normalVariants.vcf  --tumour-only-variants=tumourOnlyVariants.vcf --tumour-only-cnv=tumourOnlyCNV.tab --normal-coverage=60  --tumour-overall-coverage=60 --tumour-purity=0.6 --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallBWA</span></p>
+
+
+<p><span style="color: rgb(255,102,0);">Note: We need to update our CNV.tab specs so that the user uses post-genome-mutator allele contig names intead of ref contig names.</span></p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Wendy">Wendy</h3>
+
+<p>Project using EAGLE simulation was Gamma distribution, but no need for post-analysis.</p>
+
+<blockquote>
+<p>When we plotted the allele frequency of the non-ref allele, there's of course a peak at .5, but then there's another one around .25. one explanation is duplicated genes that look very similar.<br />
+Using read tracking, would it be possible to see how many reads are aligned to where they should be aligned to?</p>
+
+<p>The problem is that these positions don't appear in all genomes, was only noticeable when we tried to call de novo mutations with trios. So it may need extra modelling to test the hypothesis.... But assuming we model it right, it would be a matter of comparing the BAM file that went through an aligner, and the BAM file that was generated by EAGLE, and find areas that have significantly more mis-aligned reads?</p></blockquote>
+
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Requirements-Requirementsforvariousdatasetssimulatedwithrelationships">Requirements for various datasets simulated with relationships</h2>
+
+
+
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Cancer-Normalanalysis">Cancer-Normal analysis</h3>
+
+<p>One thing we don't have at the moment is a generator/model of cancer variants. We can only get empirical data.</p>
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --workflow=normal+tumour  --normal-variants=normalVariants.vcf  --tumour-only-variants=tumourOnlyVariants.vcf --normal-coverage=60  --tumour-overall-coverage=60 --tumour-purity=1.0 --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallIsaacAndStrelka</span></p>
+
+
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Triosanalysis">Trios analysis</h3>
+
+<p>Note: No requirements gathered, but seems needed.</p>
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --workflow=trio  --father-variants=fatherVariants.vcf  --mother-variants=motherVariants.vcf --allele-from-father=1 --allele-from-mother=1 --father-coverage=30 --mother-coverage=30 --kid-coverage=60 --kid-sex=M</span></p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Cancertimeseriesanalysis">Cancer time series analysis</h3>
+
+<p>Not needed.</p>
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Requirements-Requirementsforbusinessneeds">Requirements for business needs</h2>
+
+
+
+<ul>
+	<li>Knowing where to put efforts in the future ( = detecting our tools' deficiencies to address them efficiently)</li>
+	<li>Understanding where our tools are better, and publicise our tools if they are actually better
+<br class="atl-forced-newline" /></li>
+</ul>
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Toolimprovement/debugging">Tool improvement / debugging</h3>
+
+<p>Requires: Detection + Interactive browsing for analysis</p>
+<ul>
+	<li>Text</li>
+	<li>Graphical</li>
+</ul>
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Toolvalidation(&amp;regressiontesting)">Tool validation (&amp; regression testing)</h3>
+
+<p>Requires: Classification + Automated metrics handling<br />
+Metrics checked vs threshold</p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Toolbenchmarking">Tool benchmarking</h3>
+
+<p>Requires: Classification + Automated metrics handling<br />
+Metrics reported</p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Toolscomparison">Tools comparison</h3>
+
+<p>Requires: Classification + Automated metrics handling<br />
+Metrics compared (e.g. Comparing number of correctly aligned reads by different aligners)</p>
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Requirements-Usecases">Use cases</h2>
+
+
+
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-AlignmentAnalysis">Alignment Analysis</h3>
+
+
+
+
+<p>Mostly covered by Roman and Adrian's requirements reported above.</p>
+
+
+<p>In general, alignment analysis would really come in support to variant calling analysis, as aligned reads are not end-user material =&gt; we don't really care if an aligner did a bad job at a unused location, as long as the next tools (e.g. variant caller) are not affected.</p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-VariantCallingAnalysis">Variant Calling Analysis</h3>
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Requirements-Mainusecase1,requiredforGrouperandStrelkavalidation">Main use case 1, required for Grouper and Strelka validation</h4>
+
+<p>Detection of false-positive and false-negative called variants.<br />
+For each false-negative (missing call): figure out why the contributing reads were not enough, which reads were misaligned and why.<br />
+For each false-positive (extra call): figure out why it was called. If it was due to misaligned reads, figure out where they should have been aligned, and why they didn't get aligned there.</p>
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Requirements-Extendedusecase1">Extended use case 1</h5>
+
+<p>The classification of variants may be extended: instead of being just {correctly detected, FP, FN}, the qualities, type of variants, expected ease of detection properties could also be used.</p>
+
+<p>The classification can also be extended with post-analysis results.</p>
+
+<p>Reads can also be classified:</p>
+
+<ul>
+	<li>resulting in false chimeric pair</li>
+	<li>...</li>
+</ul>
+
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Requirements-Usecase2:Improvingonealignerbycheckingifanotheroneworksbetter">Use case 2: Improving one aligner by checking if another one works better</h4>
+
+
+<p>Instead of checking all the reads that were misaligned by (for example) iSAAC, we restrict our interest to the reads that led to incorrect variant calling. We want to only use 1 variant caller, but they are usually tightly coupled with their own aligner, so:</p>
+
+<ul>
+	<li>Simulate a dataset with EAGLE</li>
+	<li>Simulated dataset gets aligned by both iSAAC and BWA</li>
+	<li>Variant calling is run on iSAAC alignement</li>
+	<li>Each variant that was miscalled is checked against the reads of both iSAAC and BWA</li>
+</ul>
+
+
+<p>The idea is that variants may be miscalled because iSAAC didn't align some reads properly, in which case we want to see if BWA did a better job at it.<br />
+If BWA did a better job, we could analyse why, and eventually use it to improve iSAAC.</p>
+
+<p><span style="color: rgb(255,102,0);">configureEAGLE --variants=simulatedVariants.vcf --post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallIsaacAndGrouper</span> <span style="color: rgb(255,102,0);">--post-run-cmd=</span><span style="color: rgb(255,102,0);">scriptToCallBWA</span></p>
+
+<p><span style="color: rgb(255,102,0);">eagleVcfSubtraction</span> <span style="color: rgb(255,102,0);">--simulated-variants=.../eagle/simulatedVariants.vcf  --called-variants=.../grouper/calledVariants.vcf --output-text  --show-reads-stats --output-bam=variantsIsaac.bam</span><br />
+<span style="color: rgb(255,102,0);">=&gt;</span><br />
+<span style="color: rgb(255,102,0);">N correctly called variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 1</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">  variant 2</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">N False Positive variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 3, didn't exist in simulated variants</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">N False Negative variants:</span><br />
+<span style="color: rgb(255,102,0);">  variant 4, didn't get called</span><br />
+    <span style="color: rgb(255,102,0);">n TP, n FP, n FN</span><br />
+<span style="color: rgb(255,102,0);">+ variantsIsaac.bam contains all these reads</span></p>
+
+<p><span style="color: rgb(255,102,0);">eagleVcfSubtraction</span> <span style="color: rgb(255,102,0);">--simulated-variants=.../eagle/simulatedVariants.vcf  --called-variants=.../grouper/calledVariants.vcf --output-text  --show-reads-stats --output-bam=variantsBWA.bam</span> <span style="color: rgb(255,102,0);"><strong>--use-other-aligner-data=</strong></span><span style="color: rgb(255,102,0);">...BWA...</span></p>
+
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Requirements-Resultsoutput">Results output</h4>
+
+<p>IGV is a great way to visualise a &quot;small&quot; (good ~10 reads, up to ~100 reads) group of results concentrated around the same genomic position (good ~1kbases, up to 100 kbases).</p>
+
+<p>When studying a larger number of reads such as a pile-up of 10,000 reads, it becomes impossible to fit them all in IGV. One alternative is to use command line tools for such cases.</p>
+
+<p>When studying multiple reads that spawn across distant locations (for example if we have 60 reads that were supposed to be aligned at 1 location but that were aligned to a few other locations), it also becomes cumbersome to click on each of them and compare if their 60 mapped locations are the same or not. In this case again, the user will probably be better of using command line tools.</p>
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Requirements-Whatwewanttosee/trackinIGV">What we want to see/track in IGV</h5>
+
+<p>The use of read groups with colours will probably be the way to go to identify:</p>
+
+<ul>
+	<li>Reads that were aligned correctly (True Positives)</li>
+	<li>Reads that were aligned here (False Positives at this loc) but should have been aligned somewhere else (False Negatives at this other loc)
+	<ul>
+		<li>We need a way to jump between the 2 locations easily</li>
+	</ul>
+	</li>
+	<li>and vice-versa: Reads that should have been aligned here (False Negative at this loc),  but were aligned elsewhere (False Positive at this other loc) or were  not aligned at all</li>
+</ul>
+
+
+<p>There is a complication: paired reads</p>
+<ul>
+	<li>if one read of a pair is correctly aligned but the other one isn't, we can have a different colour.</li>
+</ul>
+
+
+<h6 id="EAGLEPhase2-AnalysisFramework-Requirements-Performanceconsiderations">Performance considerations</h6>
+
+<ul>
+	<li>Generating a full genome BAM file for this is possible, but will take a long time.</li>
+</ul>
+
+
+<p>Alternatives would be:</p>
+<ul>
+	<li>Having a command-line tool that generates a BAM file for the reads related to 1 user-specified region</li>
+	<li>Having an on-the-fly IGV generator/server like Phil is using for CRAM</li>
+</ul>
+
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Requirements-Whatwewanttosee/trackwhenusingacommand-linetool">What we want to see/track when using a command-line tool</h5>
+
+<p>The above-mentioned &quot;command-line tool that generates a BAM file for the reads related to 1 user-specified region&quot;, followed by &quot;samtools view&quot; would allow the user to track a good number of useful things.</p>
+
+<p>The drawback of this method is that linked reads (the 2 reads of a pair and the perfect alignment/misaligned read) are disjoint in BAM, needing some &quot;sort by read ID&quot; post-processing to bring them back together<br />
+=&gt; It would be better if the BAM generator tool had an option for a different non-bam output, showing the same info in different ways.</p>
+
+
+<h1 id="EAGLEPhase2-AnalysisFramework-Requirements-Extras">Extras</h1>
+
+<p>One aim of this EAGLE Analysis sub-project is to figure out which associations are useful, and how fast each of these trackings need to go to be useful...<br />
+Another aim seems to be that we want to track further that just at the simulator's boundaries, for example to validate Grouper, we would track reads until Grouper's inputs (i.e. until the aligner's output), and then also parse Grouper's outputs to compare them with the simulation VCF inputs...</p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Requirements-Somethingwedon&#39;tplantodo">Something we don't plan to do</h3>
+
+<p>Comparing 2 variant callers by feeding them the same BAM file is tempting, but would be biased in practice due to the mapping qualities. As an example, GATK and Grouper expect different mapping qualities for the same &quot;real qualities&quot; of alignment... so we can't just feed them the same simulated.bam file, and even if we decided to generate 2 different bam files, we wouldn't know what quality values to use to give them equivalent meanings.</p>
+
+<p>Our simulated.bam file will stay a debugging file rather than an input file to external tools.</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

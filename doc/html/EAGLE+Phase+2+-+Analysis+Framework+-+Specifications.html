@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Phase 2 - Analysis Framework - Specifications</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Phase 2 - Analysis Framework - Specifications
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on May 14, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEPhase2-AnalysisFramework-Specifications-Introduction">Introduction</h1>
+
+<p>These specs were built to satisfy the <a href="EAGLE%2BPhase%2B2%2B-%2BAnalysis%2BFramework%2B-%2BRequirements.html">gathered requirements</a>.</p>
+
+<h1 id="EAGLEPhase2-AnalysisFramework-Specifications-SimulatorFront-ends">Simulator Front-ends</h1>
+
+<p>The EAGLE simulator is the entity converting a reference genome + a set of variants to a Run folder.<br />
+Already some people are using it in multiple stages to simulate more complex datasets, in particular for CNV and purity. Tracking items across those multiple stages will be hard, even more when the user manually runs various tools. Tracking would be eased if the multiple tools were organised and called always in the same manner by EAGLE.</p>
+
+<p>The following workflows need to be integrated in EAGLE:</p>
+<ul>
+	<li>Copy Number Variations:<br />
+Generation of 1 sample genome with CNV: taking as an example a diploid genome, the user should be able to specify which of the VCF variants need to go on allele 1, which ones on allele 2, and which allele get replicated.<br />
+Do we need to implement random allocations when the user didn't specify anything?</li>
+	<li>Purity:<br />
+Generation and merge of 2 sets of DNA fragments with different coverage, from 2 different sample genomes.</li>
+	<li>Normal-Tumour:<br />
+Generation of 2 distinct Run folders sharing some of their input variants</li>
+	<li>Trios:<br />
+Generation of 3 distinct Run folders sharing some of their input variants</li>
+</ul>
+
+
+<p><span style="color: rgb(255,102,0);">Estimated: 2 weeks</span></p>
+
+
+<h1 id="EAGLEPhase2-AnalysisFramework-Specifications-AnalysisFront-ends">Analysis Front-ends</h1>
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Specifications-OnceoneormultipleRunfoldershavebeengenerated,whatdowedowiththem?">Once one or multiple Run folders have been generated, what do we do with them?</h5>
+
+<p>We will have 2 analysis points: BAM and VCF(+CNV info)<br />
+The BAM analysis will identify mis-aligned reads, with an attempt to explain them with read+ref values.<br />
+The VCF analysis will identify mis-called variants, with an attempt to explain them with reads [mis-]alignments.</p>
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Specifications-Doweletusersrunthealigner(s)themselves,ordoweprovideflows/Makefilestodoit?">Do we let users run the aligner(s) themselves, or do we provide flows/Makefiles to do it?</h5>
+
+<p>This one is annoying: it would be really useful for ease-of-use (and easy adoption) if the aligner was running automatically.<br />
+But there are so many different configurations, including the fact that iSAAC for example needs to run on a completely different kind of machine than EAGLE for best performance.<br />
+We will also need it for ourselves, for validation tests.</p>
+
+<p>I propose that we specify a script API, which will be called by our workflows:<br />
+scriptToCallAligner --inputRunFolder=X --inputReference=X --outputBam=X<br />
+(we will need to be careful with --inputReference, as the reference for the aligner will probably always be different from (but included in) the Genome Mutator's reference).</p>
+
+<p>or/and:<br />
+scriptToCallAlignerAndVariantCaller --inputRunFolder=X --inputReference=X --outputBam=X --outputVcf=X</p>
+
+<p>Allowing multiple occurrences of the command line parameter could allow multiple aligners to be launched on the same simulated data.</p>
+
+<p><span style="color: rgb(255,102,0);">Estimated: 1 week</span></p>
+
+<h1 id="EAGLEPhase2-AnalysisFramework-Specifications-Analysistools">Analysis tools</h1>
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Specifications-VCFsubtraction">VCF subtraction</h2>
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Specifications-Inputs">Inputs</h4>
+
+<ul>
+	<li>VCF before</li>
+	<li>VCF after</li>
+	<li>Read tracking paths if required</li>
+</ul>
+
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Specifications-Outputs">Outputs</h4>
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Specifications---output-text">--output-text</h5>
+
+<p>VCF variants sorted by category:</p>
+<ul>
+	<li>True Positives</li>
+	<li>False Positives</li>
+	<li>False Negatives
+	<ul>
+		<li>Each with an optional list of reads for each variant</li>
+	</ul>
+	</li>
+</ul>
+
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Specifications---output-bam">--output-bam</h5>
+
+<p>The list of reads goes to a bam file</p>
+
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Specifications-Process">Process</h4>
+
+<ul>
+	<li>Identify TP/FP/FN</li>
+	<li>Either:
+	<ul>
+		<li>Report counts of TP/FP/FN</li>
+		<li>Call BAM subtraction for each associated regions</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p><span style="color: rgb(255,102,0);">Estimated: 1 week, requires next item</span></p>
+
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Specifications-BAM-EAGLEsubtraction">BAM-EAGLE subtraction</h2>
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Specifications-Inputs.1">Inputs</h4>
+
+<ul>
+	<li>Region of interest, either on reference genome or on sample genome (or  do we make a separate tool able to convert between the 2?)</li>
+	<li>Aligned sorted.bam</li>
+	<li>EAGLE folder with tracking metadata</li>
+</ul>
+
+
+
+<h4 id="EAGLEPhase2-AnalysisFramework-Specifications-Resultsoutput">Results output</h4>
+
+<p>IGV is a great way to visualise a &quot;small&quot; (good ~10 reads, up to ~100  reads) group of results concentrated around the same genomic position  (good ~1kbases, up to 100 kbases).</p>
+
+<p>When studying a larger number of reads such as a pile-up of 10,000  reads, it becomes impossible to fit them all in IGV. One alternative is  to use command line tools for such cases.</p>
+
+<p>When studying multiple reads that spawn across distant locations (for  example if we have 60 reads that were supposed to be aligned at 1  location but that were aligned to a few other locations), it also  becomes cumbersome to click on each of them and compare if their 60  mapped locations are the same or not. In this case again, the user will  probably be better of using command line tools.</p>
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Specifications-Whatwewanttosee/trackinIGV">What we want to see/track in IGV</h5>
+
+<p>The use of read groups with colours will probably be the way to go to identify:</p>
+<ul>
+	<li>Reads that were aligned correctly (True Positives)</li>
+	<li>Reads that were aligned here (False Positives at this loc) but  should have been aligned somewhere else (False Negatives at this other  loc)
+	<ul>
+		<li>We need a way to jump between the 2 locations easily</li>
+	</ul>
+	</li>
+	<li>and vice-versa: Reads that should have been aligned here (False  Negative at this loc),  but were aligned elsewhere (False Positive at  this other loc) or were  not aligned at all</li>
+</ul>
+
+
+<p>There is a complication: paired reads</p>
+<ul>
+	<li>if one read of a pair is correctly aligned but the other one isn't, we can have a different colour.</li>
+</ul>
+
+
+<h6 id="EAGLEPhase2-AnalysisFramework-Specifications-Performanceconsiderations">Performance considerations</h6>
+
+<ul>
+	<li>Generating a full genome BAM file for this is possible, but will take a long time.</li>
+</ul>
+
+
+<p>Alternatives would be:</p>
+<ul>
+	<li>Having a command-line tool that generates a BAM file for the reads related to 1 user-specified region</li>
+	<li>Having an on-the-fly IGV generator/server like Phil is using for CRAM</li>
+</ul>
+
+
+<h5 id="EAGLEPhase2-AnalysisFramework-Specifications-Whatwewanttosee/trackwhenusingacommand-linetool">What we want to see/track when using a command-line tool</h5>
+
+<p>The above-mentioned &quot;command-line tool that generates a BAM file for  the reads related to 1 user-specified region&quot;, followed by &quot;samtools  view&quot; would allow the user to track a good number of useful things.</p>
+
+<p>The drawback of this method is that linked reads (the 2 reads of a  pair and the perfect alignment/misaligned read) are disjoint in BAM,  needing some &quot;sort by read ID&quot; post-processing to bring them back  together<br />
+=&gt; It would be better if the BAM generator tool had an option for a  different non-bam output, showing the same info in different ways.</p>
+
+<h3 id="EAGLEPhase2-AnalysisFramework-Specifications-Performance">Performance</h3>
+
+<p>Tracking reads (those that are mapped or should have been mapped) for 1 specific region should be done in a few seconds, even for pile-ups of 10k reads.<br />
+Let's say max 1 sec per 1000 reads.</p>
+
+<p><span style="color: rgb(255,102,0);">Requires BAM aligned on ref, estimated 2-3 weeks</span></p>
+
+
+<p><span style="color: rgb(255,102,0);">Estimated:</span></p>
+<ul>
+	<li><span style="color: rgb(255,102,0);">1 week for text mode</span></li>
+	<li><span style="color: rgb(255,102,0);">1 week for static IGV</span></li>
+	<li><span style="color: rgb(255,102,0);">1 week for on-the-fly IGV</span></li>
+</ul>
+
+
+<h2 id="EAGLEPhase2-AnalysisFramework-Specifications-Metrics">Metrics</h2>
+
+<p>The use of metrics appears in Tool validation (regression testing), benchmarking and comparison.</p>
+
+<p>Typical metrics: number of TP/FP/FN, either for aligned reads or called variants</p>
+
+<p>=&gt; No need for PUMA at the moment, as these numbers will be obtained faster by <em>eagleTrackReads</em> and <em>eagleVcfSubtraction</em>.</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

@@ -1,0 +1,36 @@
+################################################################################
+##
+## Copyright (c) 2014 Illumina, Inc.
+##
+## This file is part of Illumina's Enhanced Artificial Genome Engine (EAGLE),
+## covered by the "BSD 2-Clause License" (see accompanying LICENSE file)
+##
+## description Top level makefile to run validation tests.
+##
+## authors Lilian Janin
+##
+################################################################################
+
+
+override SHELL:=/bin/bash
+
+EAGLE_DATADIR   = @EAGLE_FULL_DATADIR@
+VALIDATION_DIR := $(EAGLE_DATADIR)/validation
+
+NULL    :=
+SPACE   :=$(NULL) $(NULL)
+
+AND      = &&
+OR       = ||
+MKDIR    = mkdir -p
+WIPE_OUT = rm -rf
+TIME     = /usr/bin/time -v -o $(OUTPUT_DIR)/time.log --append
+
+
+all: $(shell ls $(VALIDATION_DIR)|grep test|grep -v Human)
+
+test%:
+	mkdir -p $@ \
+	$(AND) cd $@ \
+	$(AND) $(MAKE) -f ${VALIDATION_DIR}/$@/Makefile \
+

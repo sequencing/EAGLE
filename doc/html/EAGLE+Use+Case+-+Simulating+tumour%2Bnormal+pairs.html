@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simulating tumour+normal pairs</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simulating tumour+normal pairs
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Oct 07, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-Simulatingtumour+normalpairs-Preamble">Preamble</h1><p>This is an introduction to <strong><em>configureEAGLE_Normal+Tumour.pl</em></strong>, front-end tool to launch the simulation of a pair of Run folders for cancer analysis, followed by their alignment and subtraction.<br /> It supports copy number variations, mutations and sample purity.</p><p>Here we show how to simulate the sequencing of a Human genome pair with purity=70%.</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-Simulatingtumour+normalpairs-Wholegenomesequencingsimulation">Whole genome sequencing simulation</h1><p>Create a &quot;tumour variants file&quot;:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">echo -e &quot;chr21\t40000000\t.\tG\tT\t0\tPASS\tSVTYPE=SNP&quot; &gt; tumourOnlyVariants.vcf
+</pre>
+</div></div><p>Initialise your EAGLE working directory:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE_Normal+Tumour.pl \
+  --shared-variants=/illumina/scratch/eagle/RealisticInputs/dbSnp_set2_UCSC.vcf \
+  --tumour-only-variants=tumourOnlyVariants.vcf \
+  --normal-coverage=30 \
+  --tumour-overall-coverage=30 \
+  --tumour-purity=0.7 \
+  --reference-genome=/illumina/scratch/eagle/References/iGenomes_hg19_with_fai/ \
+  --isaac-sorted-reference=/illumina/development/iSAAC/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/iSAACIndex.20120126/genome.fa-32mer-6bit-SortedReference.xml \
+  --strelka-reference-genome=/illumina/scratch/eagle/References/iGenomes_hg19_single_file/genome.fa \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml
+</pre>
+</div></div><p>Launch the simulation:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE
+make -j 80
+</pre>
+</div></div><h1 id="EAGLEUseCase-Simulatingtumour+normalpairs-Onlychromosome21(forfasterresults)">Only chromosome 21 (for faster results)</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">echo -e &quot;chr21\t40000000\t.\tG\tT\t0\tPASS\tSVTYPE=SNP&quot; &gt; tumourOnlyVariants.vcf
+
+grep chr21 /illumina/scratch/eagle/RealisticInputs/dbSnp_set2_UCSC.vcf &gt; dbSnp_set2_UCSC_chr21.vcf
+
+configureEAGLE_Normal+Tumour.pl \
+  --shared-variants=dbSnp_set2_UCSC_chr21.vcf \
+  --tumour-only-variants=tumourOnlyVariants.vcf \
+  --normal-coverage=30 \
+  --tumour-overall-coverage=30 \
+  --tumour-purity=0.7 \
+  --reference-genome=/illumina/scratch/eagle/References/iGenomes_hg19_with_fai/chr21.fa \
+  --isaac-sorted-reference=/illumina/scratch/eagle/References/forISAAC/HumanChr21-6bit/chr21.fa-32mer-6bit-SortedReference.xml \
+  --strelka-reference-genome=/illumina/scratch/eagle/References/iGenomes_hg19_with_fai/chr21.fa \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml
+
+cd EAGLE
+make -j 80
+</pre>
+</div></div><h1 id="EAGLEUseCase-Simulatingtumour+normalpairs-Onlysomeparts">Only some parts</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make all    # = runs everything: normal+tumour builds simulations + isaac on each of them + strelka
+make tumour # = only run the simulation for the tumour build
+make normal # = only run the simulation for the normal build
+</pre>
+</div></div><h1 id="EAGLEUseCase-Simulatingtumour+normalpairs-Results">Results</h1>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

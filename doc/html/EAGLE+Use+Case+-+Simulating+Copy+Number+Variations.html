@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simulating Copy Number Variations</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simulating Copy Number Variations
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-SimulatingCopyNumberVariations-Introduction">Introduction</h1><p>We describe here the use of <em>applyCopyNumber.pl</em>, a tool to generate a VCF file with tandem duplications to simulate copy number variations.</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-SimulatingCopyNumberVariations-EAGLEforCopyNumberAnalysis,byexample">EAGLE for Copy Number Analysis, by example</h1><p>In this example we show how to simulate a few Copy Numbers on Human chr21.<br /> We made it haploid for simplicity, and we also didn't use any variants.<br /> If you want to add your own variants, the first occurrence of None.vcf may be replaced by the variants that you want replicated on every &quot;allele&quot;, while the 2nd None.vcf may be replaced by the variants that you only want on one allele at a time.</p><p>Generate an intermediate Sample Reference:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+configureEAGLE.pl \
+--run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+--reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chr21.fa \
+--variant-list=$EAGLE_SHARE/Variants/None.vcf \
+--coverage-depth=30 \
+EAGLE_CNA_intermediate
+
+cd EAGLE_CNA_intermediate
+make sample
+cd ..
+</pre>
+</div></div><p>Create the following tab-separated CN.tab file:</p><div class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style: solid;"><b>CN.tab</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">#CHR	FIRST_POS	LAST_POS	COPY_NUMBER
+chr21	20000000	20010000	3
+chr21	20020000	20030000	2
+chr21	20030001	20040000	5
+chr21	20040001	20050000	1
+chr21	20050001	20060000	0
+</pre>
+</div></div><p>Note that the chromosome names above need to refer to the sample genome e.g. in most cases you will have to write something like chr21_allele1  or chr21_allele2.</p><p>Run:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">$EAGLE_LIBEXEC/applyCopyNumber.pl --copy-number=CN.tab --vcf=CN.vcf
+</pre>
+</div></div><p>This generates the file CN.vcf.</p><p>Now we are using this new VCF file as a source to generate the real, final, simulation.<br /> We need to add the special ploidy definitions:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">configureEAGLE.pl \
+--run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+--reference-genome=EAGLE_CNA_intermediate/sample_genome \
+--variant-list=CN.vcf \
+--coverage-depth=30 \
+EAGLE_CNA
+</pre>
+</div></div><p>Note that we are taking into account that there is 1 copy already coming from the original reference, which needs to be subtracted from the --ploidy-level parameters.</p><p>Now we can complete the simulation:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE_CNA
+make -j 8
+</pre>
+</div></div><h2 id="EAGLEUseCase-SimulatingCopyNumberVariations-Results">Results</h2><p>After CASAVA alignment (process described in <a href="EAGLE%2BUse%2BCase%2B-%2BInterfacing%2BEAGLE%2Bwith%2BCASAVA.html">EAGLE Use Case - Interfacing EAGLE with CASAVA</a>), we can admire our Copy Numbers in IGV:<br /> <img class="confluence-embedded-image image-center" src="attachments/1711055/1638829.jpg" data-image-src="attachments/1711055/1638829.jpg"></p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711055/1638829.jpg">EagleScreenshot_IGV_chr21_CNA.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

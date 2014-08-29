@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Data Files</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Data Files
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jul 27, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEDataFiles-Locations">Locations</h1><p>All the data files are located in</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">EAGLE_SHARE = $EAGLE_PATH/share/EAGLE
+</pre>
+</div></div><h1 id="EAGLEDataFiles-GenomesGenomes">Genomes<span class="confluence-anchor-link" id="EAGLEDataFiles-Genomes"></span></h1><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>File</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>$EAGLE_SHARE/Genomes/E_coli.fa</p></td><td class="confluenceTd"><p>E.Coli reference</p></td></tr><tr><td class="confluenceTd"><p>/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes</p></td><td class="confluenceTd"><p>Human reference</p></td></tr><tr><td class="confluenceTd"><p>/illumina/scratch/iGenomes/PhiX/NCBI/1993-04-28/Sequence/Chromosomes</p></td><td class="confluenceTd"><p>PhiX reference</p></td></tr><tr><td class="confluenceTd"><p>/illumina/scratch/iGenomes/Enterobacteriophage_lamdba/NCBI/1993-04-28/Sequence/Chromosomes</p></td><td class="confluenceTd"><p>Small PhiX-like reference with 1 circular chromosome</p></td></tr></tbody></table></div><h1 id="EAGLEDataFiles-RunInfoRunInfo">RunInfo<span class="confluence-anchor-link" id="EAGLEDataFiles-RunInfo"></span></h1><p>Files located in $EAGLE_SHARE/RunInfo:</p><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>File</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>RunInfo_PairedReads1x1Tiles.xml</p></td><td class="confluenceTd"><p>Configuration file for generation of paired reads in 1 lane x 1 tile</p></td></tr><tr><td class="confluenceTd"><p>RunInfo_PairedReadsBarcode1x1Tiles.xml</p></td><td class="confluenceTd"><p>Configuration file for generation of paired reads + barcode in 1 lane x 1 tile</p></td></tr><tr><td class="confluenceTd"><p>RunInfo_PairedReadsBarcode8x32Tiles.xml</p></td><td class="confluenceTd"><p>Configuration file for generation of paired reads + barcode in 8 lanes x 32 tiles per lane</p></td></tr><tr><td class="confluenceTd"><p>RunInfo_SingleRead1x1Tiles.xml</p></td><td class="confluenceTd"><p>Configuration file for generation of single reads in 1 lane x 1 tile</p></td></tr><tr><td class="confluenceTd"><p>RunInfo_SingleRead2x2Tiles.xml</p></td><td class="confluenceTd"><p>Configuration file for generation of single reads in 2 lanes x 2 tiles per lane</p></td></tr></tbody></table></div><h1 id="EAGLEDataFiles-QualityTablesQualityTables">Quality Tables<span class="confluence-anchor-link" id="EAGLEDataFiles-QualityTables"></span></h1><p>Files located in $EAGLE_SHARE/QualityTables:</p><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>File</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>DefaultQualityTable.read1.length101.qval</p></td><td class="confluenceTd"><p>Empirical table obtained from the analysis of real Basecalls</p></td></tr><tr><td class="confluenceTd"><p>DefaultQualityTable.read2.length101.qval</p></td><td class="confluenceTd"><p>Read 2 qualities, to be used with read 1 table</p></td></tr><tr><td class="confluenceTd"><p>DefaultQualityTable.barcode.length7.qval</p></td><td class="confluenceTd"><p>Barcode qualities, currently all set to Q40</p></td></tr><tr><td class="confluenceTd"><p>ZeroErrorQ50QualityTable.qval</p></td><td class="confluenceTd"><p>(removed in latest version) Q50 for all bases, which is the special value for zero sequencing errors</p></td></tr></tbody></table></div><h1 id="EAGLEDataFiles-WorkflowsWorkflows">Workflows<span class="confluence-anchor-link" id="EAGLEDataFiles-Workflows"></span></h1><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>File</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>$EAGLE_SHARE/Workflows/default.mk</p></td><td class="confluenceTd"><p>Our only workflow so far, which takes care of everything</p></td></tr></tbody></table></div><h1 id="EAGLEDataFiles-VariantsVariants">Variants<span class="confluence-anchor-link" id="EAGLEDataFiles-Variants"></span></h1><p>Files located in $EAGLE_SHARE/Variants:</p><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>File</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>None.vcf</p></td><td class="confluenceTd"><p>Empty file, for tests with no variants</p></td></tr><tr><td class="confluenceTd"><p>OneAtTelomere.vcf</p></td><td class="confluenceTd"><p>One SNP at position chr:1, for telomere tests</p></td></tr><tr><td class="confluenceTd"><p>OneOfEachType.vcf</p></td><td class="confluenceTd"><p>Contains a short insertion, a SNP, short deletion and large deletion. Expect a chromosome called &quot;chr&quot; longer than 10Kbases</p></td></tr><tr><td class="confluenceTd"><p>Stephens2009.vcf</p></td><td class="confluenceTd"><p>Richard's set of translocations, expect a Human reference</p></td></tr></tbody></table></div>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

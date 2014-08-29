@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Interfacing EAGLE with CASAVA</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Interfacing EAGLE with CASAVA
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-InterfacingEAGLEwithCASAVA-Preamble">Preamble</h1><p>Interfacing EAGLE with CASAVA can be useful for various reasons:</p><ul><li>to validate or benchmark the aligner</li><li>to validate or benchmark the variant caller</li><li>to generate aligned BAM files that can be viewed in IGV</li></ul><h1 id="EAGLEUseCase-InterfacingEAGLEwithCASAVA-Disclaimer">Disclaimer</h1><p>Interfacing EAGLE with external tools is planned for EAGLE 2.0, as part of the EAGLE Analysis framework.<br /> Phase 2 hasn't started yet, so this isn't ready.</p><p>However, we have some ad-hoc solutions used internally for <a href="EAGLE%2BSystem%2BTesting%2BFramework.html">system level testing</a>, which we share here.<br /> <span style="color: rgb(255,0,0);">Warning: the location of the files described on this page is extremely likely to change in the future.</span></p><h1 id="EAGLEUseCase-InterfacingEAGLEwithCASAVA-EAGLESystemTests">EAGLE System Tests</h1><p>EAGLE's system validation directory is <em>$EAGLE_SHARE/validation/</em><br /> In the <em>test1</em> subdirectory, you can find the files <em>Makefile</em> and <em>config.mk</em></p><p>The <em>Makefile</em> contains all the dependencies to run CASAVA at Illumina Chesterford. If you are based at another site, you may need to copy it and adjust the paths. Otherwise you will be able to reuse the Makefile directly.<br /> By copying and editing your own config.mk, you can specify your own configureEAGLE parameters.</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+cp $EAGLE_SHARE/validation/test1/config.mk my_config.mk
+vi my_config.mk
+</pre>
+</div></div><div class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style: solid;"><b>my_config.mk (for Enterobacteriophage example)</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">EAGLE_TEST_REF       = /illumina/scratch/iGenomes/Enterobacteriophage_lamdba/NCBI/1993-04-28/Sequence/Chromosomes
+VARIANTS_VCF         = $(EAGLE_DATADIR)/Variants/None.vcf
+RUN_INFO_XML         = $(EAGLE_DATADIR)/RunInfo/RunInfo_PairedReads1x1Tiles.xml
+DEPTH                = 30
+
+CASAVA_ANALYSIS      = eland_pair
+CASAVA_USE_BASES     = y*n,y*n
+</pre>
+</div></div><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make -f $EAGLE_PATH/share/EAGLE-1.0.0/validation/test1/Makefile CONFIG_MK=./my_config.mk
+</pre>
+</div></div><p>This will run EAGLE followed by CASAVA.<br /> Note that it internally launches everything with &quot;-j 8&quot;, even though it is not specified on the command line.</p><h1 id="EAGLEUseCase-InterfacingEAGLEwithCASAVA-IfyoualreadyhavegeneratedanEAGLERunFolder">If you already have generated an EAGLE Run Folder</h1><p>In that case, you can use the same Makefile, the same my_config.mk - although some line will now be unused:</p><div class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style: solid;"><b>my_config.mk (for Human chr21 example)</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">EAGLE_TEST_REF       = /illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chr21.fa
+#unused here: VARIANTS_VCF         = $(EAGLE_DATADIR)/Variants/None.vcf
+#unused here: RUN_INFO_XML         = $(EAGLE_DATADIR)/RunInfo/RunInfo_PairedReads1x1Tiles.xml
+#unused here: DEPTH                = 30
+
+CASAVA_ANALYSIS      = eland_pair
+CASAVA_USE_BASES     = y*n,y*n
+</pre>
+</div></div><p>, and bypass the configureEAGLE stage by <em>touching eagle.log</em> and telling make where your Run folder is located:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">touch eagle.log # bypass configureEAGLE
+
+make -f $EAGLE_PATH/share/EAGLE-1.0.0/validation/test1/Makefile CONFIG_MK=./my_config.mk RUN_FOLDER=./myRunFolder
+</pre>
+</div></div>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

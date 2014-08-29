@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE - Phase 2</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE - Phase 2
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on May 04, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLE-Phase2-Introduction">Introduction</h1>
+
+<p>EAGLE Phase 1 was completed in February 2012, marked by the release of EAGLE version 1.0.<br />
+Phase 2 can now start, and will expand EAGLE Simulation in several directions.</p>
+
+<h1 id="EAGLE-Phase2-Addressingbusinessneeds">Addressing business needs</h1>
+
+<p>Now that we have a good base to build upon, our primary objective is to target corporate goals.<br />
+We believe that EAGLE can address a broad range of business needs and create many new opportunities.</p>
+
+<p>EAGLE could address the corporate goals in the following manner:</p>
+<ol>
+	<li>Support development's software and data analysis needs
+	<ol>
+		<li>Make most other projects more efficient by providing ways to identify problems early and precisely</li>
+		<li>Provide ways to identify where to put efforts in current and future Illumina projects</li>
+		<li>Simulate non-existing instruments to allow early software validation and reduce future time-to-market</li>
+	</ol>
+	</li>
+	<li>Support competitive analysis, provide Illumina with competitive knowledge
+	<ol>
+		<li>Identify where Illumina tools are better
+		<ol>
+			<li>Benchmark / Compare / Find tools weak points (bwa+gatk vs Isaac?)</li>
+			<li>Results can be used to publicise Illumina tools if and where they are actually better</li>
+		</ol>
+		</li>
+		<li>Identify and fix issues before competitors can use them against us
+		<ol>
+			<li>If we don't do it first, competitors may report Illumina's deficiencies first before we could address them, then we will anyway need to spend time to verify the claims and fix our tools. Better be prepared and do it first.</li>
+		</ol>
+		</li>
+	</ol>
+	</li>
+	<li>Quality control / FDA regulations
+	<ol>
+		<li>Use data produced by EAGLE as Illumina's golden standard during validation/verification testing of the sequencers for FDA regulated projects</li>
+		<li>Provide ways of quantifying tools accuracy
+		<ol>
+			<li>Key feature for &quot;FDA testing / regulatory aspect&quot; - Understanding of what we simulate == understanding of what gets or doesn't get tested in a simulated environment</li>
+			<li>for Xprize? (Advance validated definition of human genome)</li>
+		</ol>
+		</li>
+	</ol>
+	</li>
+	<li>Make BaseSpace a successful platform (ideas only here)
+	<ol>
+		<li>Provide a set of simulated datasets that expose specific properties useful for testing future BaseSpace tools</li>
+		<li>Make datasets visible as if they were present, but actually generated on the fly when needed, therefore taking up no space</li>
+		<li>Provide EAGLE as a &quot;dataset generator tool&quot; with simple user interface to feed other BaseSpace tools</li>
+	</ol>
+	</li>
+</ol>
+
+
+
+<h1 id="EAGLE-Phase2-Strategy">Strategy</h1>
+
+<p>Our aim is to address the business needs listed in the previous section, and to focus efforts for best business value.</p>
+<ol>
+	<li>Be proactive in getting more users</li>
+	<li>Query those users to figure out what they need, to identify current business needs/problems</li>
+	<li>Identify EAGLE developments required to solve those needs</li>
+	<li>Identify which developments may help multiple other projects to advance / address multiple business needs</li>
+	<li>Focus development for best business value</li>
+</ol>
+
+
+<h1 id="EAGLE-Phase2-Criteriaforsuccess">Criteria for success</h1>
+
+<p>We want to &quot;address business needs&quot; and &quot;focus efforts for best business value&quot;<br />
+So the criteria for success could be:</p>
+<ul>
+	<li>How many business needs did we address?</li>
+	<li>What business value did we create through our actions?</li>
+</ul>
+
+
+<h1 id="EAGLE-Phase2-Phase2directions">Phase 2 directions</h1>
+
+<ol>
+	<li><a href="EAGLE%2BPhase%2B2%2B-%2BDissemination.html">Dissemination</a></li>
+	<li><a href="EAGLE%2BPhase%2B2%2B-%2BSimulating%2BReality.html">On simulating reality, filtering reality</a>
+	<ol>
+		<li>Quantify how close to reality the simulated datasets are<br />
+- because that's the first question everyone asks<br />
+- because that means that'd be the most convincing argument for it<br />
+=&gt; being able to describe precisely what is real, what is not, and why<br />
+Why is it useful?<br />
+- Better understanding of the realness of our simulation goes together    with a better understanding of where the sequencing errors come from,    which may ultimately allow us to improve the analysis tools.<br />
+- Understanding of what we simulate == understanding of what gets or    doesn't get tested in a simulated environment : Key feature for &quot;FDA    testing / regulatory aspect&quot;</li>
+		<li>Make the simulated datasets as real as possible<br />
+Based on the previous analysis.<br />
+Why is it useful?<br />
+- to test features of the tools that are useful in real datasets (e.g.   it may be counter-productive to optimise a variant caller to better   detect deletions in a very simple simulated environment, as it may   worsen the detection in a real environment).</li>
+		<li>Determine which properties of a real dataset can be tested independently vs properties that have to be simulated together</li>
+		<li>Simulate non-existing instruments</li>
+	</ol>
+	</li>
+	<li><a href="EAGLE%2BPhase%2B2%2B-%2BAnalysis%2BFramework.html">Build an EAGLE Analysis framework around the EAGLE Simulation</a>
+	<ol>
+		<li>Specs,Design&amp;Build Analysis framework<br />
+- Mostly simulated items backtracking and comparison tools<br />
+- Could also benefit from using a workflow management system<br />
+- Will need BAM generation</li>
+		<li>Use EAGLE to Benchmark / Compare / Find tools weak points (bwa+gatk vs Isaac?)<br />
+Answers business needs:
+<br class="atl-forced-newline" />
+- useful to know where to put efforts in the future
+<br class="atl-forced-newline" />
+- useful to understand where our tools are better, and publicise our tools if they are actually better
+<br class="atl-forced-newline" />
+- if we don't do it first, others may run other simulators  and  report Illumina 's deficiencies first before we could address them,   then we will anyway need to verify the claims, then improve our tools.   so better be prepared and do it first.</li>
+		<li>Simulate non-reality: identify and simulate features that lead to best analysis</li>
+		<li>(Feedback from Come): Multi sample analysis</li>
+	</ol>
+	</li>
+	<li><a href="EAGLE%2BPhase%2B2%2B-%2BBaseSpace.html">Contribute to Basespace</a>
+	<ol>
+		<li>Generate a set of simulated datasets that expose specific properties useful for testing future BaseSpace tools</li>
+		<li>Provide EAGLE as a &quot;dataset generator tool&quot; with simple user interface to feed other BaseSpace tools</li>
+	</ol>
+	</li>
+	<li><a href="EAGLE%2BPhase%2B2%2B-%2BFeatures%2Bdevelopment.html">Features development</a><br />
+Implementation of features requested by users, that don't require a grand analysis of reqs/specs cycle<br />
+e.g. User-specified random seeds, parsing of VCF GenoType field, etc.</li>
+</ol>
+
+
+
+<h3 id="EAGLE-Phase2-Focusdevelopmentforbestbusinessvalue">Focus development for best business value</h3>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

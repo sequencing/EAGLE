@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Sequencer Simulator - Design</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Sequencer Simulator - Design
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Dec 19, 2011 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h2 id="EAGLESequencerSimulator-Design-FragmentsAllocator">Fragments Allocator</h2>
+
+
+<h3 id="EAGLESequencerSimulator-Design-Pickingrandomfragments">Picking random fragments</h3>
+
+<p>The random generation of the fragment positions and lengths took some time to figure out, but here is the answer:</p>
+
+<p>For each non-circular chromosome, we want an equal probability of getting any {position,length} fragment,<br />
+with 0&lt;position&lt;=chromLength<br />
+and minFragmentLength&lt;=length&lt;=maxFragmentLength.</p>
+
+<p>The difficulty is that we obviously also need position+length-1&lt;=chromLength.</p>
+
+<p>Solution: enumerate all valid intervals, and randomly pick a number representing one interval.</p>
+
+<p>The number of valid intervals is (assuming maxFragmentLength&lt;chromLength):<br />
+<strong>(maxLength-minLength+1)*(chromLength-maxFragmentLength+1) + (maxLength-minLength)*(maxLength-minLength+-1)/2</strong></p>
+
+<p>Then we need to convert the random number R to the interval it represents:</p>
+<ul>
+	<li>if R &lt; (maxLength-minLength+1)*(chromLength-maxFragmentLength+1) : a div and modulo give us the position and length</li>
+	<li>else: our iterative implementation of random numbers may benefit from an iterative approach to find the position in the triangle</li>
+</ul>
+
+
+<h3 id="EAGLESequencerSimulator-Design-Outputfileformat">Output file format</h3>
+
+<p>Requirements:</p>
+<ul>
+	<li>Contains for each fragment/insert:
+	<ul>
+		<li>Read 1 pos</li>
+		<li>Read 2 pos</li>
+		<li>Allocated tile</li>
+	</ul>
+	</li>
+	<li>Sorted by read for BAM output</li>
+	<li>Number of bytes as small as possible</li>
+	<li>Optimised for sequential read access</li>
+</ul>
+
+
+<p>We consider 1G fragments.<br />
+The sorted positions of reads (1&amp;2) can be sorted efficiently using their deltas.</p>
+
+
+<h4 id="EAGLESequencerSimulator-Design-Idea1:">Idea 1:</h4>
+
+<p>1 entry per paired read =&gt; 1G entries</p>
+
+<ul>
+	<li>1 sorted file for read1 deltas: 1B/entry</li>
+	<li>1 sorted file for read2 deltas: 1B/entry</li>
+	<li>1 file for index(paired_read2)-index(read1): 2B/entry</li>
+	<li>1 file for tile allocation : 2B/entry</li>
+</ul>
+
+
+<p>=&gt; 6GB</p>
+
+
+<h4 id="EAGLESequencerSimulator-Design-Idea2:">Idea 2:</h4>
+
+<p>1 entry per paired read =&gt; 1G entries</p>
+
+<ul>
+	<li>{ read1 deltas, distance(read1,paired_read2) } : 3B/entry</li>
+	<li>1 file for tile allocation : 2B/entry</li>
+</ul>
+
+
+<p>=&gt; 5GB</p>
+
+
+<h4 id="EAGLESequencerSimulator-Design-Idea2b:">Idea 2b:</h4>
+
+<p>1 entry per paired read =&gt; 1G entries</p>
+
+<ul>
+	<li>read1 deltas: 1B/entry</li>
+	<li>fragment length deltas: 2B/entry</li>
+	<li>1 file for tile allocation : 2B/entry</li>
+</ul>
+
+
+<p>=&gt; 5GB</p>
+
+
+<h4 id="EAGLESequencerSimulator-Design-Idea3:">Idea 3:</h4>
+
+<p>1 entry per read =&gt; 2G entries</p>
+
+<ul>
+	<li>{ read1&amp;2 deltas, index_distance(read1,paired_read2) } : 3B/entry</li>
+	<li>1 file for tile allocation : 2B/entry</li>
+</ul>
+
+
+<p>=&gt; 8 or 10GB</p>
+
+
+<h4 id="EAGLESequencerSimulator-Design-Idea4:">Idea 4:</h4>
+
+<p>We could also only store the reads that differ from the re-generatable ones...</p>
+
+
+<h1 id="EAGLESequencerSimulator-Design-Qualitymodel">Quality model</h1>
+
+<p>We're given a table with, for each cycle, the probability of having different qualities.<br />
+What is missing is the dependency from cycle to cycle.<br />
+The first implementation implements independent probabilities from 1 cycle to the next.<br />
+A better implementation could choose the next cycle &quot;close to&quot; the first cycle.</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

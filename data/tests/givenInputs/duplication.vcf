@@ -1,0 +1,9 @@
+#CHROM	POS	ID	REF	ALT	QUAL	FILT	INFO
+# Tandem duplication
+chr1	140	.	A	A[chr1:71[	0	PASS	SVTYPE=BND
+chr1	71	.	A	]chr1:140]A	0	PASS	SVTYPE=BND
+# Tandem triplication (Copy Number=3 on allele 1)
+chr2	140	.	C	C[chr2:71[	0	PASS	SVTYPE=BND
+chr2	71	.	C	]chr2:140]C	0	PASS	SVTYPE=BND
+chr2	140	.	C	C[chr2:71[	0	PASS	SVTYPE=BND
+chr2	71	.	C	]chr2:140]C	0	PASS	SVTYPE=BND

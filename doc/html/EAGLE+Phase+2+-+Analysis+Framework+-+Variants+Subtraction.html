@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Phase 2 - Analysis Framework - Variants Subtraction</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Phase 2 - Analysis Framework - Variants Subtraction
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jul 05, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Introduction">Introduction</h1><p>The aim of this tool or set of tools is to compare two VCF files: the VCF file that was simulated, and the VCF file containing the called variants.</p><h1 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-OriginalspecsforVCFsubtraction">Original specs for VCF subtraction</h1><h4 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Inputs">Inputs</h4><ul><li>VCF before</li><li>VCF after</li><li>Read tracking paths if required</li></ul><h4 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Outputs">Outputs</h4><h5 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction---output-text">--output-text</h5><p>VCF variants sorted by category:</p><ul><li>True Positives</li><li>False Positives</li><li>False Negatives<ul><li>Each with an optional list of reads for each variant</li></ul></li></ul><h5 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction---output-bam">--output-bam</h5><p>The list of reads goes to a bam file</p><h4 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Process">Process</h4><ul><li>Identify TP/FP/FN</li><li>Either:<br /><ul><li>Report counts of TP/FP/FN</li><li>Call BAM subtraction for each associated regions</li></ul></li></ul><h1 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Usecases">Use cases</h1><p>Two initial use cases:</p><ul><li>Fiona's Strelka analysis</li><li>Ole's Grouper development</li></ul><h2 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Fiona&#39;sStrelkaanalysis">Fiona's Strelka analysis</h2><p>The analysis flow for Strelka is as follows:</p><ul><li>configureEAGLE_Normal+Tumour is used to simulate 2 Run folders: 1 normal and 1 tumour</li><li>each Run folder is aligned with iSAAC, each generating a sorted.bam</li><li>Strelka uses the 2 sorted.bam to deduce the tumour-only variants<br /><ul><li>Each variant guessed by Strelka is qualified by a quality score, which can be used to filter in&amp;out FN and FP</li></ul></li><li>We want to compare these called variants with the original variants simulated only in the tumour</li></ul><p>Notes:</p><ul><li>It is not a simple one-to-one subtraction, as it involves taking the quality score threshold into account, and rather as an explorable dimension than as a fixed parameter.</li><li>Called variants are always distinguished between SNPs and indels as separate files, most often per chromosome. Maybe structural variants also come as another file.</li></ul><h2 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Ole&#39;sGrouperdevelopment">Ole's Grouper development</h2><p>The analysis flow for Grouper is as follows:</p><ul><li>configureEAGLE is used to simulate 1 Run folder</li><li>the Run folder is aligned with iSAAC, generating a sorted.bam</li><li>iSAAC also runs Grouper as part of its internal CASAVA variant calling</li></ul><h1 id="EAGLEPhase2-AnalysisFramework-VariantsSubtraction-Prototype1">Prototype 1</h1><p>&quot;compareVCF eagle-tumour-only.vcf strelka-calls/all.vcf&quot; outputs all the variants qualified with either FP/FN/TP/FP+FN. Their QSS score can be analysed afterwards.</p><p>What we need as an output is a good classification of the variants:</p><ul style="list-style-type: square;"><li>FP/FN/TP/FP+FN, possibly subdivided in:<br /><ul style="list-style-type: square;"><li>hom-&gt;hom, hom-&gt;het, etc.</li><li>ref-&gt;non-ref, non-ref-&gt;ref, non-ref-&gt;non-ref?</li><li>for FP (variants called that never got simulated):<br /><ul style="list-style-type: square;"><li>explained by the ratios of FP/FN/TP reads aligned at this location</li></ul></li><li>for FN (variants that didn't get called):<br /><ul style="list-style-type: square;"><li>FP reads at this location?</li><li>FN reads at this location?</li><li>unlucky coverage of 1 allele?</li></ul></li></ul></li><li>by QSS score</li><li>by &quot;importance of mistake&quot;:<br /><ul style="list-style-type: square;"><li>for FP:</li></ul></li></ul><p>Would the most useful be to</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

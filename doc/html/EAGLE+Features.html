@@ -1,0 +1,349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Features</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Features
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Apr 17, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEFeatures-Introduction">Introduction</h1>
+
+<p><span style="color: rgb(255,0,0);">This page is under Construction...</span></p>
+
+
+<h1 id="EAGLEFeatures-Features">Features</h1>
+
+<ul>
+	<li>Specifying the reference genome to use</li>
+</ul>
+
+
+<p>configureEAGLE --reference-genome=&lt;path/to/ReferenceDir&gt;, -r &lt;path/to/ReferenceDir&gt;</p>
+
+<ul>
+	<li>Applying variants from a VCF file</li>
+</ul>
+
+
+<p>configureEAGLE     --variant-list=&lt;path/to/VariantList&gt;, -v &lt;/path/to/VariantList&gt;<br />
+<a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html#DetaileddescriptionofEAGLEtools-GenomeMutator">Supported variants are described there</a></p>
+
+<ul>
+	<li>Quality table</li>
+</ul>
+
+
+<p>configureEAGLE     --quality-table=&lt;PATH&gt;, -q &lt;PATH&gt;</p>
+
+<ul>
+	<li>Coverage depth</li>
+</ul>
+
+
+<p>configureEAGLE     --coverage-depth=&lt;NUM&gt;, -d &lt;NUM&gt; (=30)</p>
+
+
+<ul>
+	<li>Specifying ploidy</li>
+</ul>
+
+
+<p>applyVariants  -p [ --organism-ploidy ] arg (=1)<br />
+applyVariants  -c [ --ploidy-chromosome ] arg<br />
+applyVariants  -l [ --ploidy-level ] arg</p>
+
+<ul>
+	<li>Prefixing the sample genome chromosome names</li>
+</ul>
+
+
+<p>applyVariants   --add-prefix arg                  Prefix to add to the output contig names</p>
+
+<ul>
+	<li>Coverage depth</li>
+</ul>
+
+
+<p>allocateFragments  -d [ --coverage-depth ] arg (=30)     Desired coverage depth</p>
+
+<ul>
+	<li>Insert size / Template-length statistics</li>
+</ul>
+
+
+<p>allocateFragments    --tls arg (=380:400:420:10:10:FRp:RFm)</p>
+
+<ul>
+	<li>How to get a uniform coverage profile</li>
+</ul>
+
+
+<p>allocateFragments      -u [ --uniform-coverage ]</p>
+
+<ul>
+	<li>Controlling the allocation of reads to tiles</li>
+</ul>
+
+
+<p>allocateFragments        --tile-allocation-method {random, sequence, interleaved}</p>
+
+<ul>
+	<li>Specifying the Copy Number of various segments</li>
+</ul>
+
+
+<p><a href="EAGLE%2BUse%2BCase%2B-%2BSimulating%2BCopy%2BNumber%2BVariations.html">EAGLE Use Case - Simulating Copy Number Variations</a></p>
+
+<ul>
+	<li>Specifying purity</li>
+</ul>
+
+
+<p><a href="EAGLE%2BUse%2BCase%2B-%2BSimulating%2Bpurity%2Bin%2Btumour%2Bsamples%2B%2528chr21%2Bexample%2529.html">EAGLE Use Case - Simulating purity in tumour samples (chr21 example)</a></p>
+
+<ul>
+	<li>Tile naming scheme</li>
+</ul>
+
+
+<p>RunInfo/Run/TileNameMethod field of RunInfo.xml</p>
+
+<ul>
+	<li>Flowcell name</li>
+</ul>
+
+
+<p>RunInfo/Run/Flowcell field of RunInfo.xml</p>
+
+<ul>
+	<li>Number of surfaces</li>
+</ul>
+
+
+<p>RunInfo/Run/FlowcellLayout/SurfaceCount field of RunInfo.xml</p>
+
+<ul>
+	<li>Number of swaths</li>
+</ul>
+
+
+<p>RunInfo/Run/FlowcellLayout/SwathCount field of RunInfo.xml</p>
+
+<ul>
+	<li>Number of lanes</li>
+</ul>
+
+
+<p>RunInfo/Run/FlowcellLayout/LaneCount field of RunInfo.xml</p>
+
+<ul>
+	<li>Number of tiles</li>
+</ul>
+
+
+<p>RunInfo/Run/FlowcellLayout/TileCount field of RunInfo.xml (number of tiles per lane per surface per swath)<br />
+allocateFragments    -t [ --tiles ]</p>
+
+<ul>
+	<li>Number of reads</li>
+</ul>
+
+
+<p>Calculated from the coverage and reference length</p>
+
+<ul>
+	<li>Read structure (size, count, ...) in a cluster</li>
+</ul>
+
+
+<p>RunInfo/Run/Reads group of RunInfo.xml</p>
+
+<ul>
+	<li>Barcodes</li>
+</ul>
+
+
+<p>Barcode lengths and positions: RunInfo/Run/Reads group of RunInfo.xml</p>
+
+<p>Barcode values: currently hard-coded in simulateSequencer</p>
+
+<ul>
+	<li>Sequencing primers</li>
+</ul>
+
+
+<p>Currently hard-coded in simulateSequencer</p>
+
+<ul>
+	<li>Reads that go over the available DNA continue on barcodes/sequencing primers</li>
+</ul>
+
+
+<p>Coming soon: Hardcoded in simulateSequencer (doesn't actually try to do it at the moment)</p>
+
+<ul>
+	<li>Controlling output directory</li>
+</ul>
+
+
+<p>configureEAGLE &lt;path/to/EAGLE-dir (=./EAGLE)&gt;</p>
+
+<p>configureEAGLE --sample-genome=&lt;SAMPLE_NAME&gt;, -s &lt;SAMPLE_NAME&gt;</p>
+
+<p>configureEAGLE --run-folder=&lt;RUN_FOLDER_NAME&gt;, -r &lt;RUN_FOLDER_NAME&gt;</p>
+
+<p>configureEAGLE     --generate-run-id</p>
+
+<p>RunInfo/Run/Id field of RunInfo.xml</p>
+<ul>
+	<li>Using a specific RunInfo.xml</li>
+</ul>
+
+
+<p>configureEAGLE --run-info=&lt;path/to/RunInfo.xml&gt;, -i &lt;path/to/RunInfo.xml&gt;</p>
+<ul>
+	<li>Using a specific EAGLE workflow</li>
+</ul>
+
+
+<p>configureEAGLE     --workflow=&lt;WKF&gt;, -w &lt;WKF&gt; (=default)</p>
+<ul>
+	<li>Overwriting existing files</li>
+</ul>
+
+
+<p>configureEAGLE     --force</p>
+
+<p>configureEAGLE     --always-force</p>
+
+<ul>
+	<li>Sequencing errors</li>
+</ul>
+
+
+<p>For each base, we determine the quality and associated error rate by using the probabilities specified in the quality table.<br />
+When we decide to add an error, a hard-coded table contains the probabilities of each possible mismatch.</p>
+
+<ul>
+	<li>Reproducible / Unique datasets / Replicates</li>
+</ul>
+
+
+<p>configureEAGLE --random-seed=&lt;int&gt; can be used to change the random seeds used for the generation of qualities and mismatches.</p>
+
+<ul>
+	<li>Limit the number of parallel processes writing to disk simultaneously / Distribute BCL tile dump to disk over time</li>
+</ul>
+
+
+<p>simulateSequencer --max-concurrent-writers=arg (=0)</p>
+
+<ul>
+	<li>generate RTA Run Folder with BCL basecalls</li>
+</ul>
+
+
+<p>configureEAGLE + make<br />
+(internally uses simulateSequencer --generate-bcl-tile)</p>
+
+<ul>
+	<li>Generating only the Sample Genome</li>
+</ul>
+
+
+<p>configureEAGLE + make sample</p>
+
+<ul>
+	<li>Generating only the DNA fragment files</li>
+</ul>
+
+
+<p>configureEAGLE + make fragments</p>
+
+<ul>
+	<li>Generating only 1 tile</li>
+</ul>
+
+
+<p>configureEAGLE + make .L&lt;tile name&gt; (e.g. &quot;make .L001_1101&quot;)</p>
+
+<ul>
+	<li>generate BAM files</li>
+</ul>
+
+
+<p>Coming soon: configureEAGLE + make bam<br />
+(internally uses simulateSequencer --generate-bam)</p>
+
+
+<h1 id="EAGLEFeatures-Knownlimitations/bugs">Known limitations/bugs</h1>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Genome Mutator:
+	If a translocation &quot;bypasses&quot; a centromere, the &quot;centromere-free&quot; contig is still generated. Biologically, this contig would probably never survive.
+Fragments allocator:
+	Mistake: we calculate total number of reads based on coverage depth + sample genome size instead of ref genome size =&gt; too many for diploid samples
+		Should use nbReads as main option, with fallback on coverageDepth if nbReads is not provided
+Quality model:
+	seems to work without generating stats - Can leave it like that until someone needs more
+        We&#39;re not doing anything special for mismatches involving &#39;N&#39;: N-&gt;x and x-&gt;N(the 2nd one is fixed in GIT version, and the first one should be done at the Genome Mutator level) 
+Pass filter:
+        Very simple implementation: All clusters with 64 &#39;N&#39; or more are marked as &quot;Not Passed Filter&quot;. Others pass.
+        Non-PF reads are contributing to the computed coverage depth. They shouldn&#39;t.
+Coordinates:
+	seems to work with sequential numbers. Do we really need to generate proper coordinates? - Can leave it like that until someone needs more
+BCL
+	reads in bcl tiles are not in random order (they are written in the order they are generated, so they end up being sorted by position)
+	filter files are generated according to RTA1.8, but there is a more recent spec
+All:
+	Circular chromosomes not handled
+Sequencing simulation:
+	We support single-end reads and paired-end reads, but not mate pair library (although the current implementation should allow it easily)
+</pre>
+</div></div>
+
+<h1 id="EAGLEFeatures-OurTODOlist">Our TODO list</h1>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Fragments allocator:
+	Quality thresholds:
+		need to add this functionality
+	Add command line argument to specify lane subset
+SequencerSimulator
+	We may be able to improve performance by:
+		writing Bcl in separate thread
+		prefetch fasta in separate thread
+ALL
+	We need to generate &#39;N&#39;s at the perimeter of the flowcells
+	check why all tools are cpu-bound rather than io-bound (prob. due to random number generation)
++	Support multiplexing
+++      Add BAM generation
+</pre>
+</div></div>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

@@ -1,0 +1,150 @@
+################################################################################
+##
+## Copyright (c) 2014 Illumina, Inc.
+##
+## This file is part of Illumina's Enhanced Artificial Genome Engine (EAGLE),
+## covered by the "BSD 2-Clause License" (see accompanying LICENSE file)
+##
+## description Master makefile to run validation tests.
+##
+## authors Mauricio Varea, Lilian Janin
+##
+################################################################################
+
+EAGLE_BINDIR               = @EAGLE_FULL_BINDIR@
+EAGLE_DATADIR              = @EAGLE_FULL_DATADIR@
+EAGLE_ETCDIR               = @EAGLE_FULL_ETCDIR@
+EAGLE_CONFIGURE            = $(EAGLE_BINDIR)/configureEAGLE.pl
+
+CASAVA_CONFIGURE_BCL2FASTQ = ${CASAVA_PATH}/bin/configureBclToFastq.pl
+CASAVA_CONFIGURE_ALIGNMENT = ${CASAVA_PATH}/bin/configureAlignment.pl
+CASAVA_CONFIGURE_BUILD     = ${CASAVA_PATH}/bin/configureBuild.pl
+CASAVA_TASK_SERVER         = ${CASAVA_PATH}/bin/taskServer.pl
+
+VALIDATION_DIR            := $(EAGLE_DATADIR)/validation
+VALIDATION_TEST_NAME       = @EAGLE_TEST@
+CONFIG_MK                 ?= $(VALIDATION_DIR)/$(VALIDATION_TEST_NAME)/config.mk
+
+OUTPUT_DIR                ?= $(shell pwd)
+EAGLE_DIR                 ?= $(OUTPUT_DIR)/EAGLE
+CASAVA_DIR                ?= $(OUTPUT_DIR)/CASAVA
+RUN_FOLDER                ?= $(EAGLE_DIR)/RunFolder
+UNALIGNED_FOLDER          ?= $(CASAVA_DIR)/Unaligned
+ALIGNED_FOLDER            ?= $(CASAVA_DIR)/Aligned
+BUILD_FOLDER              ?= $(CASAVA_DIR)/Build
+
+EAGLE_TEST_REF            ?= UNDEFINED
+CASAVA_PATH               ?= /illumina/development/casava/CASAVA-for-EAGLE
+SAMTOOLS                  ?= /illumina/development/samtools/samtools-0.1.18/samtools
+
+EAGLE_TEST_REF_EXPANDED    = $(shell ls ${EAGLE_TEST_REF}/*.fa || ls ${EAGLE_TEST_REF})  ## does it break with *.fa.fai ? 
+
+
+include $(CONFIG_MK)
+override SHELL:=/bin/bash
+
+NULL    :=
+SPACE   :=$(NULL) $(NULL)
+
+AND      = &&
+OR       = ||
+MKDIR    = mkdir -p
+PRINTF   = printf
+TOUCH    = touch
+WIPE_OUT = rm -rf
+TIME     = /usr/bin/time -v -o $(OUTPUT_DIR)/time.log --append
+
+ifneq (,$(QUALITY_TABLE_QVAL))
+  QUALITY_TABLE_QVAL_OPTION = --quality-table=$(QUALITY_TABLE_QVAL)
+endif
+ifneq (,$(MISMATCH_TABLE_TSV))
+  MISMATCH_TABLE_TSV_OPTION = --mismatch-table=$(MISMATCH_TABLE_TSV)
+endif
+
+test: system-test
+
+system-test: casava-tests # isaac-tests
+
+casava-tests: SortedBamAnalysis
+
+.PRECIOUS: $(OUTPUT_DIR)/eagle.log
+eagle: $(OUTPUT_DIR)/eagle.log
+$(OUTPUT_DIR)/eagle.log: $(RUN_INFO_XML) $(EAGLE_TEST_REF) $(VARIANTS_VCF)
+	( $(TIME) $(EAGLE_CONFIGURE) $(EAGLE_DIR) \
+	          --run-info=$< \
+	          --reference-genome=$(word 2,$^) \
+	          $(VARIANTS_VCF:%=--variant-list=%) \
+	          $(QUALITY_TABLE_QVAL_OPTION) \
+	          $(MISMATCH_TABLE_TSV_OPTION) \
+	          --coverage-depth=$(DEPTH) \
+	          --run-folder=RunFolder \
+	          --always-force \
+	          $(EAGLE_EXTRAS) \
+	  $(AND) cd $(EAGLE_DIR) \
+	  $(AND) $(TIME) $(MAKE) -j 8) &> $@
+
+
+.PRECIOUS: $(OUTPUT_DIR)/demux.log
+CasavaDemux: $(OUTPUT_DIR)/demux.log
+$(OUTPUT_DIR)/demux.log: $(OUTPUT_DIR)/eagle.log $(CASAVA_DIR)/.sentinel
+	( ${CASAVA_CONFIGURE_BCL2FASTQ} --input-dir=$(RUN_FOLDER)/Data/Intensities/BaseCalls --output-dir=$(UNALIGNED_FOLDER) \
+	  $(AND) cd $(UNALIGNED_FOLDER) \
+	  $(AND) $(TIME) $(MAKE) -j 8) &> $@
+
+.PRECIOUS: $(OUTPUT_DIR)/aligner.log
+CasavaAlign: $(OUTPUT_DIR)/aligner.log
+ALIGNMENT_CONFIG = 'ANALYSIS $(CASAVA_ANALYSIS)\nUSE_BASES $(CASAVA_USE_BASES)\n'
+$(CASAVA_DIR)/config.txt: $(OUTPUT_DIR)/demux.log
+	$(PRINTF) $(ALIGNMENT_CONFIG) > $@
+
+$(OUTPUT_DIR)/aligner.log: $(CASAVA_DIR)/config.txt
+	( ${CASAVA_CONFIGURE_ALIGNMENT} $< --make \
+	                                --EXPT_DIR=$(UNALIGNED_FOLDER) \
+	                                --OUT_DIR=$(ALIGNED_FOLDER) \
+	                                $(EAGLE_TEST_REF_EXPANDED:%=--SAMTOOLS_GENOME=%) \
+	                                --CHROM_NAME_VALIDATION=off \
+	                                $(ALIGNMENT_EXTRAS) \
+	  $(AND) cd $(ALIGNED_FOLDER) \
+	  $(AND) $(TIME) $(MAKE) -j 8) &> $@
+
+.PRECIOUS: $(OUTPUT_DIR)/builder.log
+CasavaBuild: $(OUTPUT_DIR)/builder.log
+SAMPLE_DIRS = $(wildcard $(ALIGNED_FOLDER)/Project_FC1234TST/Sample_*)
+$(OUTPUT_DIR)/configure_build.log: $(OUTPUT_DIR)/aligner.log
+	( $(TIME) ${CASAVA_CONFIGURE_BUILD} --outDir=$(BUILD_FOLDER) \
+	                                    ${SAMPLE_DIRS:%=--inSampleDir=%} \
+	                                    $(EAGLE_TEST_REF_EXPANDED:%=--samtoolsRefFile=%) \
+	                                    --variantsWriteRealigned ) &> $@
+
+$(OUTPUT_DIR)/builder.log: $(OUTPUT_DIR)/configure_build.log
+	( $(TIME) ${CASAVA_TASK_SERVER} --tasksFile=$(shell ls -t $(BUILD_FOLDER)/tasks.*.txt|head -1) --host=localhost --jobsLimit=8 --mode=local ) &> $@
+
+SortedBamAnalysis: $(OUTPUT_DIR)/sortedBamAnalysis.log
+$(OUTPUT_DIR)/sortedBamAnalysis.log: $(OUTPUT_DIR)/builder.log
+	@( echo "=== SUMMARY ===" \
+	  $(AND) echo -n "Number of generated clusters: " \
+	  $(AND) ( dc -e "`cat $(EAGLE_DIR)/fragments.length | wc -c` 2/p" ) \
+	  $(AND) echo -n "=> Number of reads if pairs : " \
+	  $(AND) ( dc -e "`cat $(EAGLE_DIR)/fragments.length | wc -c` p" ) \
+	  $(AND) echo -n "Number of aligned reads     : " \
+	  $(AND) $(SAMTOOLS) view -c $(BUILD_FOLDER)/$(shell ls $(BUILD_FOLDER) | grep Parsed_ | head -1)/*/bam/sorted.bam \
+	  $(AND) ( cat $(BUILD_FOLDER)/export/c*/0000/dupCount.txt 2> /dev/null || echo "(no duplicate reads)" ) \
+	  $(AND) echo -n "Number of detected snps     : " \
+	  $(AND) ( grep -v '^#' $(BUILD_FOLDER)/$(shell ls $(BUILD_FOLDER) | grep Parsed_ | head -1)/*/snps.txt | wc -l ) \
+	  $(AND) echo -n "Number of detected indels   : " \
+	  $(AND) ( grep -v '^#' $(BUILD_FOLDER)/$(shell ls $(BUILD_FOLDER) | grep Parsed_ | head -1)/*/indels.txt | wc -l ) \
+	   ) &> $@ \
+	  $(AND) cat $@
+
+
+.PRECIOUS: %/.sentinel
+%/.sentinel:
+	$(MKDIR) $* $(OR) ( $(SLEEP) 5 $(AND) $(MKDIR) $* ); $(TOUCH) $@
+
+clean:
+	$(WIPE_OUT) \
+	    $(EAGLE_DIR)/sample_genome $(RUN_FOLDER) \
+	    $(UNALIGNED_FOLDER) $(ALIGNED_FOLDER) $(BUILD_FOLDER) \
+	    $(OUTPUT_DIR)/eagle.log $(OUTPUT_DIR)/demux.log $(OUTPUT_DIR)/aligner.log $(OUTPUT_DIR)/builder.log \
+	    $(OUTPUT_DIR)/configure_build.log $(OUTPUT_DIR)/sortedBamAnalysis.log \
+	    $(OUTPUT_DIR)/time.log

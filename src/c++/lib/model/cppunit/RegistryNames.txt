@@ -1,0 +1,6 @@
+Contig
+StructuralVariant
+Genotype
+IntervalGenerator
+Fragment
+Phred

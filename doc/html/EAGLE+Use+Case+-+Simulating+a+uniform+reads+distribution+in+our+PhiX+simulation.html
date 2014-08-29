@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simulating a uniform reads distribution in our PhiX simulation</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simulating a uniform reads distribution in our PhiX simulation
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-SimulatingauniformreadsdistributioninourPhiXsimulation-Preamble">Preamble</h1><p>Based on our previous <a href="EAGLE%2BUse%2BCase%2B-%2BSimulating%2Ba%2Bsmall%2BRun%2BFolder%2Bfrom%2BPhiX.html">PhiX Run folder generation</a>, we now want to generate special distributions of reads for easy visual debugging with IGV.</p><p>This can of course be applied to the Human sequencing simulation. We are doing it here on a small genome to show the results more easily in IGV screenshots, and because it takes seconds instead of minutes to run the simulation.</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-SimulatingauniformreadsdistributioninourPhiXsimulation-Initialisation">Initialisation</h1><p>The distribution of reads is controlled by the <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html#DetaileddescriptionofEAGLEtools-FragmentsAllocator">Fragments Allocator</a> tool.<br /> You can see from the tool's help (allocateFragments --help) that several options are useful to control the distribution of reads:</p><ul><li>--tls: Template-length statistics to specify the min, median and max lengths of DNA fragments in the sample prep</li><li>--uniform-coverage: Generates equally-spaced reads across all tiles with a fixed template length equal to the specified median</li><li>--tile-allocation-method: random/sequence/interleaved</li></ul><p>Here we illustrate the use of --uniform-coverage:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads1x1Tiles.xml \
+  --reference-genome=/illumina/scratch/iGenomes/Enterobacteriophage_lambda/NCBI/1993-04-28/Sequence/Chromosomes/ \
+  --variant-list=$EAGLE_SHARE/Variants/OneOfEachType.vcf \
+  --coverage-depth=30 \
+  --fragments-allocator-options=&quot;--uniform-coverage&quot;
+</pre>
+</div></div><h1 id="EAGLEUseCase-SimulatingauniformreadsdistributioninourPhiXsimulation-Execution">Execution</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE
+make
+</pre>
+</div></div><p>This should take about 10 seconds to complete.</p><h1 id="EAGLEUseCase-SimulatingauniformreadsdistributioninourPhiXsimulation-Results">Results</h1><p>After &quot;make bam&quot; or alignment, we can visualise the BAM file in IGV:<br /> <img class="confluence-embedded-image image-center" width="90%" src="attachments/1711471/1638813.jpg" data-image-src="attachments/1711471/1638813.jpg"></p><p>You can see the effect of the simulated fragment length, set to 400 by default in this uniform distribution mode (adjustable with --tls), and the fact that we didn't specify the chromosome to be circular.</p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711471/1638813.jpg">EagleScreenshot_IGV_Enterobacteriophage_uniform.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simulating a typical HiSeq run from a Human sample (haploid version)</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simulating a typical HiSeq run from a Human sample (haploid version)
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Preamble">Preamble</h1><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.<img class="confluence-embedded-image confluence-external-resource image-right" width="25%" src="http://www.illumina.com/images/systems/hiseq_2000.jpg" data-image-src="http://www.illumina.com/images/systems/hiseq_2000.jpg"></p><p>We are using EAGLE to simulate a typical HiSeq run from a diploid male Human sample by going through the following steps:</p><ol><li>Sample simulation, by applying known mutations to a Human reference genome</li><li>Sequencing simulation with 8 lanes and 32 tiles per lane</li></ol><h3 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Inputandconfigurationfiles">Input and configuration files</h3><p>In this example we will use the following inputs:</p><ul><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-Genomes">Human reference genome</a></li><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-RunInfo">RunInfo_PairedReadsBarcode8x32Tiles.xml</a></li><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-Variants">Variants/None.vcf</a><br /> Note: We are running the simulator in its default haploid mode for this example.</li></ul><h1 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Initialisation">Initialisation</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/ \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --coverage-depth=30
+
+cd EAGLE
+</pre>
+</div></div><h1 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Execution">Execution</h1><p>Depending on your available resources:</p><h3 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Runningonlocalmachinewith1processor">Running on local machine with 1 processor</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make
+</pre>
+</div></div><p>This should take about 8 hours to complete.</p><h3 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Runningonlocalmachinewith8processors">Running on local machine with 8 processors</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make -j 8
+</pre>
+</div></div><p>This should take about 1 hour to complete.</p><h3 id="EAGLEUseCase-SimulatingatypicalHiSeqrunfromaHumansample(haploidversion)-Runningoncluster">Running on cluster</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">psubmake -j 48
+</pre>
+</div></div><p>or</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">ssh ukch-dev-lndt01 # recommended (see below)
+cd [same directory as before]
+make -j 48 sge
+</pre>
+</div></div><p>This should take about 25 minutes to complete (it doesn't scale well compared to the local machine because of the slower cluster machines and because of the sequential first stage).</p><p>Differences between the 2 methods:</p><ul><li><em>psubmake</em> will execute the sequential first stage (~8 minutes, 3GB RAM) on 1 grid cpu</li><li><em>make sge</em> will execute the sequential first stage on the local machine (needs 3GB RAM)</li><li><em>make sge</em> relies on intermediate files, and should therefore be run on ukch-dev-lndt01 or equivalent due to write lag.</li><li>the second stage will be distributed on the grid in both cases</li></ul>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

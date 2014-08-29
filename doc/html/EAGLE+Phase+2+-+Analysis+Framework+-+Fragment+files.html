@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Phase 2 - Analysis Framework - Fragment files</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Phase 2 - Analysis Framework - Fragment files
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jul 11, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-Introduction">Introduction</h1><p>The Fragments Allocator tool, called after the Genome Mutator and before the Sequencer Simulator, simulates how the sample DNA in split into DNA fragments across all the tiles.</p><p>Several files are generated, some of them containing sequential information and others being index files.</p><h1 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-Thefiles">The files</h1><p>Main data:</p><ul><li>fragments.pos</li><li>fragments.length</li><li>fragments.tile</li><li>fragments.stats</li></ul><p>Indexes:</p><ul><li>fragments.pos.index</li><li>fragments.pos.shift</li></ul><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.pos">fragments.pos</h2><p>Each 2-bytes word represents the distance with the previous DNA fragment.</p><p>If the value is 0xFFFF, the next 3 words (6 bytes) encode the distance in big-endian order (most significant word first).</p><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.length">fragments.length</h2><p>Each 2-bytes word represents a fragment length, sequentially ordered by fragment number</p><p>Limitation: we can't encode fragments longer than 64k bases.</p><p>The file size is exactly 2x the number of fragments (and therefore equal to the number of reads in a paired reads simulation).</p><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.tile">fragments.tile</h2><p>Each 2-bytes word represents the tile number a fragment belongs to, sequentially ordered by fragment number.</p><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.stats">fragments.stats</h2><p>Each 4-bytes word represents the number of fragments in a tile, sequentially ordered by tile number.</p><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.pos.index">fragments.pos.index</h2><p>Purpose: Fast search of cluster number from global position; Fast translation of cluster number to global position</p><p>Version 1:</p><ul><li>8 bytes: version = 1</li><li>8 bytes: index interval ( = 1000 fragments as of July 2012, but is likely to change)</li><li>Following 8-bytes word: k<sup>th</sup> word = global position of the (k*indexInterval)<sup>th</sup> fragment</li></ul><p>Version 2 could be:</p><ul><li>8 bytes: version = 2</li><li>8 bytes: index interval ( = 1000 bases?)</li><li>Following 8-bytes word: k<sup>th</sup> word = fragment number at global position (k*indexInterval)</li></ul><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.pos.shift">fragments.pos.shift</h2><ul><li>4-bytes words: k<sup>th</sup> word = number of 2-word bytes that we need to add to find the position in fragments.pos that corresponds to the k<sup>th</sup> word of fragments.pos.index</li></ul><h2 id="EAGLEPhase2-AnalysisFramework-Fragmentfiles-fragments.tile.index">fragments.tile.index</h2><p>Purpose: Fast search or translation of tile fragment number to global fragment number</p><p><s>Idea 1: For each tile, save the global fragment number for each 1000th tile fragment</s></p><p><s>Idea 2: For each n*1000th global fragment (whose global position we can find using fragments.pos.index), save the fragment number for each tile</s></p><p><s>Idea 2b:</s> For each tile, for each n*1000th global fragment: save the tile fragment number</p><ul><li>4 bytes: version = 1</li><li>4 bytes: number of entries per tile</li><li>8 bytes: index interval - should be a multiple of the interval used by fragments.pos.index ( = 256,000 fragments as of July 2012, but is likely to change)</li><li>Following 8-bytes word: k<sup>th</sup> word = global position of the (k*indexInterval)<sup>th</sup> tile fragment</li><li>or</li><li>Following 8-bytes word: k<sup>th</sup> word = global fragment number of the (k*indexInterval)<sup>th</sup> tile fragment &lt;- v1?</li><li>or</li><li>Following 8-bytes word: k<sup>th</sup> word = tile fragment number at global position (k*indexInterval) &lt;- v2?</li><li>or</li><li>Following 8-bytes word: k<sup>th</sup> word = tile fragment number of (k*indexInterval)<sup>th</sup> global fragment</li></ul><p> </p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

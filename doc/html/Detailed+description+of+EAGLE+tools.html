@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : Detailed description of EAGLE tools</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : Detailed description of EAGLE tools
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Mar 14, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="DetaileddescriptionofEAGLEtools-TheEAGLEFramework">The EAGLE Framework</h1>
+
+<p>We describe here each EAGLE tool independently, explaining command line options and giving details on what each tool does (sometimes with links for developers to check the specs/architecture/design details).</p>
+
+
+<p>EAGLE has one main top-level tool:</p>
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> Tool </p></th>
+<th class="confluenceTh"><p> Executable name </p></th>
+<th class="confluenceTh"><p> Description </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#EAGLE Configurator</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> configureEAGLE.pl <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Top level tool to generate a user Makefile that will launch all the other EAGLE tools in an appropriate flow. <br class="atl-forced-newline" /> </p></td>
+</tr>
+</tbody></table></div>
+
+
+<p>EAGLE is made of the following front-end tools:</p>
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> Tool </p></th>
+<th class="confluenceTh"><p> Executable name </p></th>
+<th class="confluenceTh"><p> Description </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#Genome Mutator</a> </p></td>
+<td class="confluenceTd"><p> applyVariants </p></td>
+<td class="confluenceTd"><p> Simulation of a sample's nucleotide sequence by applying variants to a reference genome </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#Fragments Allocator</a> </p></td>
+<td class="confluenceTd"><p> allocateFragments </p></td>
+<td class="confluenceTd"><p> Simulation of DNA split into fragments </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#Run Folder Creator</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> createRunFolder <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Preparation of the directory structure for simulation output <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#Sequencer Simulator</a> </p></td>
+<td class="confluenceTd"><p> simulateSequencer </p></td>
+<td class="confluenceTd"><p> DNA sequencing simulation </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Analysis and feedback tools </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> (not yet available) <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#System testing framework</a> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+</tbody></table></div>
+
+
+<p>and back-end tools (located in the libexec/EAGLE-*/ subdirectory):</p>
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> Executable name </p></th>
+<th class="confluenceTh"><p> Description </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#fastaDump</a> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#getFragmentInfo.sh</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#getBclBases.sh</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#applyCopyNumber.pl</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#mergeSampleGenomes.pl</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <a href="Detailed%2Bdescription%2Bof%2BEAGLE%2Btools.html">#mergeFragments.pl</a> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+</tbody></table></div>
+
+
+<p>EAGLE also comes with <a href="EAGLE%2BData%2BFiles.html">EAGLE Data Files</a>.</p>
+
+<h3 id="DetaileddescriptionofEAGLEtools-EAGLEConfiguratorEAGLEConfigurator">EAGLE Configurator<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-EAGLEConfigurator"></span></h3>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: bash; gutter: false" style="font-size:12px;">
+Name:
+    Enhanced Artificial Genome Engine (EAGLE)
+
+Version:
+    EAGLE v1.0.0
+
+Description:
+    configureEAGLE.pl - Create and initialize the EAGLE folder.
+
+Usage:
+      configureEAGLE.pl [&lt;path/to/EAGLE-dir&gt;] \
+                        --reference-genome=&lt;path/to/ReferenceDir&gt; \
+                        --variant-list=&lt;path/to/Variants.vcf&gt; \
+                        --run-info=&lt;path/to/RunInfo.xml&gt; \
+                        [options]
+
+Arguments:
+    path/to/EAGLE-dir (=./EAGLE)
+        Output path of the configuration
+
+Options:
+    --run-info=&lt;path/to/RunInfo.xml&gt;, -i &lt;path/to/RunInfo.xml&gt;
+        Path to the RunInfo.xml to be used as input (mandatory)
+
+    --reference-genome=&lt;path/to/ReferenceDir&gt;, -r &lt;path/to/ReferenceDir&gt;
+        Path to the Reference (whole dir)
+
+    --variant-list=&lt;path/to/VariantList&gt;, -v &lt;/path/to/VariantList&gt;
+        Path to (*.vcf) files that describe the variations (multiple files
+        allowed)
+
+    --sample-genome=&lt;SAMPLE_NAME&gt;, -s &lt;SAMPLE_NAME&gt;
+        Override default sample genome dir name with SAMPLE_NAME
+
+    --run-folder=&lt;RUN_FOLDER_NAME&gt;, -r &lt;RUN_FOLDER_NAME&gt;
+        Override default RunFolder name with RUN_FOLDER_NAME
+
+    --generate-run-id
+        Generate the RunFolder name based on current date and other
+        parameters
+
+    --quality-table=&lt;PATH&gt;, -q &lt;PATH&gt;
+    (=/home/ljanin/install/EAGLE-release/etc/EAGLE-1.0.0/DefaultQualityTable
+    .qval)
+        Path to an alternative quality table
+
+    --coverage-depth=&lt;NUM&gt;, -d &lt;NUM&gt; (=30)
+        Coverage depth
+
+    --workflow=&lt;WKF&gt;, -w &lt;WKF&gt; (=default)
+        Valid workflows are: {default}
+
+    --genome-mutator-options=&lt;EXTRA_OPTIONS&gt;
+        Pass EXTRA_OPTIONS to the Genome Mutator tool
+
+    --fragments-allocator-options=&lt;EXTRA_OPTIONS&gt;
+        Pass EXTRA_OPTIONS to the Fragments Allocator tool
+
+    --run-folder-generator-options=&lt;EXTRA_OPTIONS&gt;
+        Pass EXTRA_OPTIONS to the Run Folder Generator tool
+
+    --sequencer-simulator-options=&lt;EXTRA_OPTIONS&gt;
+        Pass EXTRA_OPTIONS to the Sequencer Simulator tool
+
+    --force
+        Overwrite existing files (at configuration time)
+
+    --always-force
+        Configure Makefiles to support multiple writings to the same targets
+        (default behaviour is to require an explicit &quot;make clean&quot;)
+
+    --help, -h, -?
+        Brief help message
+
+    --version, -V
+        Version information
+
+    --man
+        Full documentation
+
+Note:
+  For more information, including examples, run:
+      /home/ljanin/install/EAGLE-release/bin/configureEAGLE.pl --man
+</pre>
+</div></div>
+
+
+
+<h3 id="DetaileddescriptionofEAGLEtools-GenomeMutator:Simulationofasample&#39;snucleotidesequenceGenomeMutator">Genome Mutator: Simulation of a sample's nucleotide sequence<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-GenomeMutator"></span></h3>
+
+<p><a href="EAGLE%2BGenome%2BMutator%2B-%2BArchitecture%2Band%2BDesign.html">EAGLE Genome Mutator - Architecture and Design</a></p>
+
+<h5 id="DetaileddescriptionofEAGLEtools-SupportedVariants">Supported Variants</h5>
+
+<p>Genome Mutator is following the <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41" class="external-link" rel="nofollow">VCF 4.1</a> format. But not all of it is supported.</p>
+
+<p>We support <strong>SNP, indels, translocations, duplications and inversions</strong> where the REF and ALT fields are:</p>
+<ul>
+	<li>either a list of nucleotides</li>
+	<li>or using the syntax <code>]chr:pos]</code> and <code>[chr:pos[</code></li>
+</ul>
+
+
+<p>But we don't support:</p>
+<ul>
+	<li>Variants where the ALT field contains &lt; and &gt; characters, such as <code>&lt;DEL&gt;</code> or <code>&lt;DUP&gt;</code></li>
+	<li>Variants where the chr part of <code>]chr:pos]</code> or <code>[chr:pos[</code> contains &lt; and &gt;. I.e. no contigs from assembly files are supported at the moment</li>
+	<li>Imprecise variants (how could we apply a variant that is not precisely specified?)</li>
+</ul>
+
+
+<p>So we don't support <code>&lt;DUP&gt;</code> duplications or the standard <code>&lt;INV&gt;</code> format. In the meantime, inversions and tandem duplications can be expressed with the translocation-like notation <code>]chr:pos]</code>. Duplications can also be modelled as CNV (see <a href="EAGLE%2BUse%2BCase%2B-%2BSimulating%2BCopy%2BNumber%2BVariations.html">EAGLE Use Case - Simulating Copy Number Variations</a>).</p>
+
+<h5 id="DetaileddescriptionofEAGLEtools-Usage">Usage</h5>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+       applyVariants [parameters] [options]
+
+Command-line parameters:
+  -r [ --reference-genome ] arg         [input]  Full path to the reference
+                                                 genome FASTA file (multiple
+                                                 references allowed)
+  -R [ --whole-genome ] arg             [input]  Full path to the reference
+                                                 genome dir (single directory
+                                                 containing multiple FASTA
+                                                 files)
+  -v [ --variant-list ] arg             [input]  Full path to the file
+                                                 containing the list of
+                                                 variants in VCF format
+                                                 (multiple lists allowed)
+  -s [ --sample-genome ] arg (=&quot;./sample_genome&quot;)
+                                        [output] Full path to the output
+                                                 directory that will contain
+                                                 the sample reference (may
+                                                 write multiple FASTA files)
+  -a [ --annotated-variant-list ] arg (=&quot;./canonical.vcf&quot;)
+                                        [output] Full path to the annotated
+                                                 variant list (single VCF file)
+
+Command-line options:
+  -p [ --organism-ploidy ] arg (=1) Default ploidy level: HAPLOID(1),
+                                    DIPLOID(2), TRIPLOID(3), TETRAPLOID(4),
+                                    etc.
+  -c [ --ploidy-chromosome ] arg    Name of chromosome to be forced at a ploidy
+                                    &#39;ploidy-level&#39;
+  -l [ --ploidy-level ] arg         Level of ploidy for chromosome
+                                    &#39;ploidy-chromosome&#39;
+  --prefix arg                      Prefix to add to the output contig (and
+                                    file) names
+
+  -h [ --help ]         Produce help message and exit
+  -V [ --version ]      Display version information
+  --force               Overwrite output files
+</pre>
+</div></div>
+
+<h3 id="DetaileddescriptionofEAGLEtools-FragmentsAllocatorFragmentsAllocator">Fragments Allocator<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-FragmentsAllocator"></span></h3>
+
+<p>Based on the requested coverage, generates paired reads positions and their allocation to random tiles</p>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+       allocateFragments [parameters] [options]
+
+Command-line parameters:
+  -s [ --sample-genome-dir ] arg [input]  Full path to the directory containing
+                                          the sample&#39;s genome FASTA files
+
+Command-line options:
+  -d [ --coverage-depth ] arg (=30)     Desired coverage depth
+  -t [ --tiles ] arg                    Number of desired tiles
+  -b [ --basesPerCluster ] arg (=202)   Number of bases per cluster of reads
+                                        (i.e. cluster length)
+  --tls arg (=380:400:420:10:10:FRp:RFm)
+                                        Template-length statistics in the
+                                        format &#39;min:median:max:lowStdDev:highSt
+                                        dDev:M0:M1&#39;, where M0 and M1 are the
+                                        numeric value of the models (0=FFp,
+                                        1=FRp, 2=RFp, 3=RRp, 4=FFm, 5=FRm,
+                                        6=RFm, 7=RRm) - only min and max are
+                                        currently used, but all are kept to
+                                        match iSAAC format
+  -u [ --uniform-coverage ]             Generates equally-spaced reads across
+                                        all tiles with a fixed template length
+                                        equal to the specified median
+  --tile-allocation-method arg (=random)
+                                        Possible values are: random, sequence
+                                        (we start filling tile 1 with reads
+                                        until full, then tile 2, etc.),
+                                        interleaved (read 1 goes to tile 1,
+                                        read 2 -&gt; tile 2, ..., read N -&gt; tile
+                                        N, read N+1 -&gt; tile 1, etc.)
+
+  -h [ --help ]         Produce help message and exit
+  -V [ --version ]      Display version information
+  --force               Overwrite output files
+</pre>
+</div></div>
+<h3 id="DetaileddescriptionofEAGLEtools-RunFolderCreatorRunFolderCreator">Run Folder Creator<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-RunFolderCreator"></span></h3>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+       createRunFolder &lt;path/to/RunFolder&gt; [parameters] [options]
+
+Command-line parameters:
+  -i [ --run-info ] arg [input]  Full path to the RunInfo.xml file
+
+Command-line options:
+  -t [ --tile-id ] arg  Comma-separated list of tile Ids
+
+  -h [ --help ]         Produce help message and exit
+  -V [ --version ]      Display version information
+  --force               Overwrite output files
+</pre>
+</div></div>
+
+<h3 id="DetaileddescriptionofEAGLEtools-SequencerSimulator:GenerationofreadsSequencerSimulator">Sequencer Simulator: Generation of reads<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-SequencerSimulator"></span></h3>
+
+<p><a href="EAGLE%2BSequencer%2BSimulator%2B-%2BSpecifications.html">EAGLE Sequencer Simulator - Specifications</a><br />
+<a href="EAGLE%2BSequencer%2BSimulator%2B-%2BArchitecture.html">EAGLE Sequencer Simulator - Architecture</a><br />
+<a href="EAGLE%2BSequencer%2BSimulator%2B-%2BDesign.html">EAGLE Sequencer Simulator - Design</a></p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+       simulateSequencer [parameters] [options]
+
+Command-line parameters:
+  --run-info arg                 [input]  Full path to the RunInfo.xml file
+  -s [ --sample-genome-dir ] arg [input]  Full path to the directory containing
+                                          the sample&#39;s genome FASTA files
+  -i [ --insert-positions ] arg  [input]  File containing the insert positions,
+                                          as generated by `generateInsertPositi
+                                          ons`
+  -q [ --quality-table ] arg     [input]  File containing the quality table: 1
+                                          line per cycle, tab-separated pairs
+                                          &quot;quality:occurrences&quot; items
+  -o [ --output-dir ] arg (=&quot;&quot;)  [output] Full path to the output directory
+
+Command-line options:
+  --generate-bcl-tile                Generates BCL tile identified by the
+                                     following parameters:
+  -n [ --read-count ] arg (=1000000) Number of reads
+  -m [ --lane-count ] arg (=8)       Number of lanes
+  -u [ --tiles-per-lane ] arg (=32)  Number of tiles per lane
+  -l [ --lane ] arg (=0)             Lane of the tile to be processed (1-based
+                                     value)
+  --tile-num arg (=0)                Tile number to be processed in the
+                                     specified lane (1-based value)
+  --tile-id arg (=0)                 Tile id corresponding to the provided tile
+                                     number for the desired naming scheme
+  --max-concurrent-writers arg (=0)  Number of EAGLE processes allowed to flush
+                                     their tile simultaneously (0=unlimited).
+                                     This is per computer. Some disks exhibit
+                                     better performance when this is set to 1.
+  --generate-bam                     Generates BAM file identified by the
+                                     following parameters:
+  --bin-num arg (=0)                 Bin number to generate
+  --bin-count arg (=1)               Total number of bins
+
+  -h [ --help ]         Produce help message and exit
+  -V [ --version ]      Display version information
+  --force               Overwrite output files
+</pre>
+</div></div>
+
+<h2 id="DetaileddescriptionofEAGLEtools-SystemtestingframeworkSystemTestingFramework">System testing framework<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-SystemTestingFramework"></span></h2>
+
+<p><a href="EAGLE%2BSystem%2BTesting%2BFramework.html">EAGLE System Testing Framework</a></p>
+
+
+<h2 id="DetaileddescriptionofEAGLEtools-fastaDumpfastaDump">fastaDump<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-fastaDump"></span></h2>
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+       fastaDump &lt;fasta1.fa&gt; [&lt;fasta2.fa&gt; [... &lt;fastaN.fa&gt;]]  [options]
+Or:
+       fastaDump &lt;fastaDir&gt;  [options]
+
+Command-line options:
+  -p [ --position ] arg (=1) Position to start dumping from. Can be either:
+                              a)        Number =&gt; a global position
+                              b) String:Number =&gt; contig name followed by
+                                                  a local position
+                              c) String        =&gt; just a contig name
+                                                  (starts from 1st position
+                                                  in that chromosome)
+
+  -n [ --size ] arg          Amount of bases to dump
+                             (defaults to until-the-end behaviour)
+
+  -h [ --help ]         Produce help message and exit
+  -V [ --version ]      Display version information
+</pre>
+</div></div>
+
+<h2 id="DetaileddescriptionofEAGLEtools-getFragmentInfo.shgetFragmentInfo.sh">getFragmentInfo.sh<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-getFragmentInfo.sh"></span></h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+      getFragmentInfo.sh &lt;laneNum(usually 1-8)&gt; &lt;tileNAME(1/2/3/4/21/22/...)&gt; &lt;posInTile(zero-based)&gt;
+</pre>
+</div></div>
+
+<h2 id="DetaileddescriptionofEAGLEtools-getBclBases.shgetBclBases.sh">getBclBases.sh<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-getBclBases.sh"></span></h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage:
+      getBclBases.sh &lt;laneNum(usually 1-8)&gt; &lt;tileNAME(1/2/3/4/21/22/...)&gt; &lt;posInTile(zero-based)&gt; &lt;firstCycle&gt; &lt;lastCycle&gt;
+</pre>
+</div></div>
+
+<h2 id="DetaileddescriptionofEAGLEtools-applyCopyNumber.plapplyCopyNumber.pl">applyCopyNumber.pl<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-applyCopyNumber.pl"></span></h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage: applyCopyNumber.pl [options]
+        -g, --sample-genome=PATH     - [input/output]   path to the sample genome directory
+        -c, --copy-number=PATH       - [input]          path to the CNV.tab file
+        --help                       - prints usage guide
+        --version                    - prints version information
+</pre>
+</div></div>
+
+<h2 id="DetaileddescriptionofEAGLEtools-mergeSampleGenomes.plmergeSampleGenomes.pl">mergeSampleGenomes.pl<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-mergeSampleGenomes.pl"></span></h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage: mergeSampleGenomes.pl [options]
+        -i, --dataset1=PATH          - 1st sample dataset directory
+        -j, --dataset2=PATH          - 2nd sample dataset directory
+        -o, --out-genome=PATH       - output directory to create
+        --help                       - prints usage guide
+        --version                    - prints version information
+</pre>
+</div></div>
+
+<h2 id="DetaileddescriptionofEAGLEtools-mergeFragments.plmergeFragments.pl">mergeFragments.pl<span class="confluence-anchor-link" id="DetaileddescriptionofEAGLEtools-mergeFragments.pl"></span></h2>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">
+Usage: mergeFragments.pl [options]
+        -i, --dataset1=PATH          - 1st dataset directory
+        -j, --dataset2=PATH          - 2nd dataset directory
+        --help                       - prints usage guide
+        --version                    - prints version information
+</pre>
+</div></div>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

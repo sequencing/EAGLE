@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Phase 2 - Simulating Reality</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Phase 2 - Simulating Reality
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Apr 02, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEPhase2-SimulatingReality-Introduction">Introduction</h1>
+
+<p>On simulating reality, filtering reality:</p>
+<ol>
+	<li>Quantify how close to reality the simulated datasets are<br />
+- because that's the first question everyone asks<br />
+- because that means that'd be the most convincing argument for it<br />
+=&gt; being able to describe precisely what is real, what is not, and why<br />
+Why is it useful?<br />
+- Better understanding of the realness of our simulation goes together    with a better understanding of where the sequencing errors come from, which may ultimately allow us to improve the analysis tools.<br />
+- Understanding of what we simulate == understanding of what gets or    doesn't get tested in a simulated environment : Key feature for &quot;FDA testing / regulatory aspect&quot;</li>
+	<li>Make the simulated datasets as real as possible<br />
+Based on the previous analysis.<br />
+Why is it useful?<br />
+- to test features of the tools that are useful in real datasets (e.g.   it may be counter-productive to optimise a variant caller to better detect deletions in a very simple simulated environment, as it may   worsen the detection in a real environment).</li>
+	<li>Determine which properties of a real dataset can be tested independently vs properties that have to be simulated together</li>
+	<li>Simulate non-existing instruments</li>
+</ol>
+
+
+<h1 id="EAGLEPhase2-SimulatingReality-Strategy">Strategy</h1>
+
+<p>Following user interest, we will start with the 2nd point: making the simulated datasets as real as possible.<br />
+Our current strategy is by using:</p>
+<ol>
+	<li>Expert feedback<br />
+&quot;Expert&quot; users tell us what they found looked wrong in IGV when comparing simulated datasets to real ones.<br />
+They suggest missing features in the simulation that may solve this issue.<br />
+We then come back to them to check the next iteration of the tools.<br />
+Problem: Some suggested features may be incorrect. They may actually appear correct by improving the simulated datasets under test, but might later be incompatible with other improvements, which will then break and worsen the results. In the worst case, we won't even notice the incompatibility and keep adding features that destroy each other's benefits.<br />
+To address this problem, we need to define metrics even for those expert-suggested features. These metrics will be used regularly for regression testing.</li>
+	<li>Metrics<br />
+Metrics can be created from
+	<ol>
+		<li>User input on specific issues</li>
+		<li>Analysis of larger issues</li>
+	</ol>
+	</li>
+</ol>
+
+
+<h1 id="EAGLEPhase2-SimulatingReality-Meetings,Logs">Meetings, Logs</h1>
+
+<p><a href="EAGLE%2B-%2BSimulating%2BReality%2B-%2BMeetings%252C%2BLogs%2B%2528page%2B1%2529.html">EAGLE - Simulating Reality - Meetings, Logs (page 1)</a></p>
+
+<h1 id="EAGLEPhase2-SimulatingReality-Taskscompleted">Tasks completed</h1>
+
+<ul>
+	<li>SAGE-114: Integrate Fiona's mismatch table (non-hard-coded mismatch table that also includes base insertions)<br />
+(no need for metrics in this case, as metrics will just reflect the empirical values)</li>
+	<li>SAGE-116: Quality tables with dependencies between qualities from cycle to cycle</li>
+	<li>SAGE-126: Create metrics for &quot;mismatches phasing&quot; problem: how mismatches get grouped together</li>
+</ul>
+
+
+<ul>
+	<li>SAGE-120: User-specified random seeds<br />
+(no need for metrics in this case, as it would reflect which random distribution we decide to use. There could however be an analysis of which random distribution we should use)</li>
+</ul>
+
+
+<ul>
+	<li>SAGE-118: Sequence context mismatch plugin</li>
+</ul>
+
+
+<ul>
+	<li>SAGE-117: Window-based quality tables</li>
+	<li>SAGE-125: Create metrics for &quot;mismatch rate changing across genome&quot;</li>
+</ul>
+
+
+<ul>
+	<li>SAGE-119: Telomere coverage analysis</li>
+	<li>SAGE-127: Create metrics for &quot;coverage is lower around centromeres&quot;</li>
+	<li>SAGE-133: Quality model with quality stability across cycles</li>
+</ul>
+
+
+<h1 id="EAGLEPhase2-SimulatingReality-Tasksinprogress">Tasks in progress</h1>
+
+<p><a href="http://10.46.146.88:8080/sr/jira.issueviews:searchrequest-printable/temp/SearchRequest.html?jqlQuery=project+%3D+SAGE+AND+resolution+%3D+Unresolved+AND+component+%3D+%22Simulating+Reality%22+ORDER+BY+updated+DESC&amp;tempMax=1000" class="external-link" rel="nofollow">JIRA View</a></p>
+
+<ul>
+	<li>SAGE-134: Telomere and ALU repeats in Sample genome</li>
+</ul>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

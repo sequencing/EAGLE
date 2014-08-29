@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Coverage affected by GC content</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Coverage affected by GC content
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-CoverageaffectedbyGCcontent-Preamble">Preamble<img class="confluence-embedded-image confluence-thumbnail image-right" width="300" confluence-query-params="effects=border-simple,shadow-kn" src="download/thumbnails/3834936/2033618688" data-image-src="attachments/3834936/4128827.jpg?effects=border-simple,shadow-kn"></h1><p>By default, EAGLE doesn't use GC content for any aspect of the simulation.</p><p>It can however be added easily.<br />When in use, it is affecting the Fragments Generation stage, where it adds a non-negligible amount of computation.</p><p>We show here how to make GC content affect the coverage of a Human chr21 sequencing simulation.</p><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h1 id="EAGLEUseCase-CoverageaffectedbyGCcontent-GCcoveragefittable">GC coverage fit table</h1><p>This is a tab-separated file with 3 columns:</p><ol><li>GC% (values between 0 and 100)</li><li>Coverage multiplier (i.e. desired BAM coverage divided by reference coverage, for this GC%)</li><li>(optional) Number of windows having this GC%, in the reference genome</li></ol><p>The file $EAGLE_SHARE/GcCoverageFitTables/Homo_sapiens.example1.tsv is provided as an example:</p><div class="code panel" style="border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;"><b>$EAGLE_SHARE/GcCoverageFitTables/Homo_sapiens.example1.tsv</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: plain; gutter: false" style="font-size:12px;">#GC_content(%)  Normalised coverage     Num_windows
+# Column 2 = desired_bam_coverage / ref_coverage , for this GC%
+# Column 3 is optional, but useful to generate a precise number of simulated reads
+0       1.0000000       816160
+2       1.0000000       837454
+4       1.0000000       1230102
+6       1.0000000       1686423
+8       1.0000000       2690638
+10      1.0000000       4577136
+12      1.0000000       8466363
+14      1.0000000       15558646
+16      1.0000000       27792248
+18      1.0000000       46884995
+20      1.0000000       74349369
+22      0.9372086       110098426
+24      0.8587064       152968446
+26      0.8275988       199597749
+28      0.8128749       246037956
+30      0.8242441       289323536
+32      0.8415586       325896697
+34      0.8624385       352660924
+36      0.8957215       367594666
+38      0.9272131       369846381
+40      0.9407128       359401798
+42      0.9439427       337560573
+44      0.9423469       309599878
+46      0.9532909       279275826
+48      0.9600580       250537075
+50      0.9655342       226879624
+52      1.0000000       209443315
+54      0.9408396       195419063
+56      0.8529945       179951097
+58      0.8020479       158698723
+60      0.7637538       130457722
+62      0.7508049       98833146
+64      0.7528954       69934612
+66      0.7699404       47315156
+68      0.7874073       31054265
+70      0.8171686       20192634
+72      0.8434613       13063899
+74      0.8709620       8579697
+76      0.9187793       5708161
+78      0.9797961       3881139
+80      1.0000000       2825989
+82      1.0000000       2141130
+84      1.0000000       1566763
+86      1.0000000       983890
+88      1.0000000       515041
+90      1.0000000       267514
+92      1.0000000       134815
+94      1.0000000       60581
+96      1.0000000       25091
+98      1.0000000       8896
+100     1.0000000       3762</pre>
+</div></div><p>The scale of the values in column 2 and 3 is not important, as they get normalised during runtime.</p><p>Intermediate values (for example for GC%=99) get interpolated (but not extrapolated, so it is recommended to provide lines for GC%=0 and GC%=100).</p><h1 id="EAGLEUseCase-CoverageaffectedbyGCcontent-Algorithm">Algorithm</h1><p>Based on the table previously described, the DNA Fragments Allocator will schedule the generation of more fragments than requested by the user, and will discard some based on the GC content of the genome wherever a fragment is generated.</p><p>Note: Even though the file described previously is usually generated using a moving window on the reference genome, the GC content calculated inside EAGLE is not based on a moving window. Instead, the GC% of a DNA fragment is the GC% of its sequence of bases.<br />This allows us to keep the algorithm independent of the reads and template lengths.</p><h1 id="EAGLEUseCase-CoverageaffectedbyGCcontent-EAGLEexample">EAGLE example</h1><p>Prepare the EAGLE run:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --reference-genome=/illumina/scratch/eagle/References/iGenomes_hg19_with_fai/chr21.fa \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads1x1Tiles.xml \
+  --gc-coverage-fit-table=$EAGLE_SHARE/GcCoverageFitTables/Homo_sapiens.example1.tsv \
+  --coverage-depth=30 \
+  EAGLE_GC_content_example
+
+cd EAGLE_GC_content_example
+</pre>
+</div></div><p>The usual execution strategies described in <a href="EAGLE%2B-%2BPerformance%2Band%2Bresources%2Brecommendations.html#EAGLE-Performanceandresourcesrecommendations-CPUUsage">EAGLE - Performance and resources recommendations</a> are available. For example on a single machine:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make      # to generate the Run folder
+</pre>
+</div></div><p>During the simulation, you may notice the following messages:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">Starting the generation of 7148004 fragments
+[...]
+Finished generation with 7411390 fragments (=ideal+3.7%)
+</pre>
+</div></div><p>This reflects how GC-affected coverage works: the user-specified 30x coverage depth should lead to 7,148,004 fragments, but the DNA Fragments Allocator generates more fragments than requested, and discards some based on the GC content. The final result is 3.7% higher than requested, giving a final 31.11x coverage (however, this 31.11x includes reads that don't pass filter, so the real final coverage is lower).</p><p>Note: the 3.7% of difference is dependent on the random seed, but may also be explained by the fact that our input file was generated for the full human genome, whereas we only simulate chr21 here.</p><p> </p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/3834936/4128827.jpg">Human GC content and coverage.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

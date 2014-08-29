@@ -1,0 +1,6 @@
+insertion
+deletion
+indel
+transloc_left
+transloc_right
+reversed_events

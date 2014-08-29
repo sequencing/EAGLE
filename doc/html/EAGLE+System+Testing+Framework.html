@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE System Testing Framework</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE System Testing Framework
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Mar 28, 2012 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLESystemTestingFramework-Introduction">Introduction</h1>
+
+<p>The EAGLE System Testing Framework is initially developed as a system level validation framework for the EAGLE tools.</p>
+
+<p>It will later be adapted for the validation of external tools.</p>
+
+<h2 id="EAGLESystemTestingFramework-Aims">Aims</h2>
+
+<p>Its first aim is to test the validity of EAGLE's outputs by running CASAVA on them, checking that nothing crashes, and checking that obvious variants are detected (hence correctly generated).</p>
+
+<p>As part of our test-driven development, this system testing framework is actually developed before the main EAGLE tools.</p>
+
+<h2 id="EAGLESystemTestingFramework-Ideas">Ideas</h2>
+
+<p>By generating some outputs that are extremely easy to align, we can assume that external tools such as CASAVA should align and call all the variants without making any mistake. Checking those variants against the ones provided as inputs of EAGLE should prove that EAGLE generated valid data.</p>
+
+<p>The next stage should add more complexity in the variants, their detection and the analysis of the errors.</p>
+
+<h2 id="EAGLESystemTestingFramework-Architecture">Architecture</h2>
+
+<p><img class="confluence-embedded-image" src="attachments/1709653/1638728.jpg" data-image-src="attachments/1709653/1638728.jpg"></p>
+
+<h2 id="EAGLESystemTestingFramework-Implementation">Implementation</h2>
+
+<p>Implemented by &quot;make test&quot; in &lt;EAGLE install&gt;/validation/test* directory.<br />
+It runs CASAVA on a set of validation tests.</p>
+
+
+<h3 id="EAGLESystemTestingFramework-Validationtests">Validation tests</h3>
+
+<p>The tests are intended to validate the various features of the simulator by going through the full flow.<br />
+It is useful (and important) to run these tests at the system level, as it allows us to validate that the combination of output files are in formats readable by CASAVA (or whatever post-run tools we decide to use).</p>
+
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> Test # <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Description <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Validation check <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Current results <br class="atl-forced-newline" /> </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 1-100 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Generic test on a small example: reference genome = PhiX (or Enterobacteriophage) </p></td>
+<td class="confluenceTd"><ul>
+	<li>Check that the validation runs through the complete tool flow and generates the final variant calls snps.txt and indels.txt</li>
+	<li>Check that the provided variants, and only those, get detected</li>
+	<li>Check that all reads get mapped? at least in the case of high coverage/low error rate)? Report those that don't get highlighted</li>
+</ul>
+</td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 1 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> non-circular, 30x coverage, 1 lane, 1 tile, 1 read of 101 bases, no barcode, no variants <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> passed <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 2 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 1 + 2 lanes, 2 tiles/lane </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 3 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 1 + 2 reads of 101 bases </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 4 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 3 + barcode  of 7 bases between the 2 reads </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 5 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 4 + 8 lanes, 32 tiles/lane </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 6 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 5 + 1 SNP, 1 small insertion, 1 small deletion, 1 large deletion (=translocation on same chromosome).(large insertion removed, as it wasn't detected properly) <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 7 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 5 + a variant at the beginning/end of the chromosome, where it is expected that the coverage will be too low for proper detection </p></td>
+<td class="confluenceTd"><p> Check that the variant doesn't get detected, or that the coverage is expectedly low at the chromosome ends </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 8 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 7 + circular chromosome </p></td>
+<td class="confluenceTd"><p> Check that the coverage at the chromosome ends is at 30x, and that the variant now gets detected </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 9 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 8 with 1 lane and 1 tile/lane, single read, no barcode </p></td>
+<td class="confluenceTd"><p> Check that flow still runs and variants still get detected </p></td>
+<td class="confluenceTd"><p> passed </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 10 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test 8 with different tile naming scheme </p></td>
+<td class="confluenceTd"><p> Check tile names, and check that variants still get detected by post-processing tools </p></td>
+<td class="confluenceTd"><p> not implemented <br class="atl-forced-newline" /> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> 11 </p></td>
+<td class="confluenceTd"><p> Test 8 with 2 reads: 31+151 bases </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> not implemented </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Test paired read / mate pairs difference <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> not implemented </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> Test barcodes <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> Test adapters and sequencing primers sequences </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> <br class="atl-forced-newline" /> </p></td>
+</tr>
+</tbody></table></div>
+
+
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> Test # <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Description <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Validation check <br class="atl-forced-newline" /> </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Mux1-... <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Multiplexed tests </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Mux1 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+</tbody></table></div>
+
+
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<th class="confluenceTh"><p> Test # <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Description <br class="atl-forced-newline" /> </p></th>
+<th class="confluenceTh"><p> Validation check <br class="atl-forced-newline" /> </p></th>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Human1 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Generic test with no variants on human reference genome </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Human2 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Translocations from <a href="http://www.nature.com/nature/journal/v462/n7276/full/nature08645.html" class="external-link" rel="nofollow">Stephens, et al.</a> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> Human3 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> Human1 test restricted to chr21 <br class="atl-forced-newline" /> </p></td>
+<td class="confluenceTd"><p> </p></td>
+</tr>
+</tbody></table></div>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709653/1638728.jpg">EAGLE system testing.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

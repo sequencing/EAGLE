@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simulating purity in tumour samples (chr21 example)</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simulating purity in tumour samples (chr21 example)
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Jun 10, 2013 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Preamble">Preamble</h1><p>In cancer analysis, real tumour samples are often contaminated with healthy cells, leading to a <em>purity</em> coefficient, which is the ratio of DNA from tumour cells relatively to the total amount of sequenced DNA.</p><p>Here we show how to use EAGLE to simulate the sequencing of a single Human chromosome (chr21) sample with purity=70%.</p><h1 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Process">Process</h1><p>We simulate the purity of a sample by generating and merging 2 EAGLE datasets together with the following steps:</p><ul><li>Creating the normal sample</li><li>Generating normal reads in appropriate quantity</li><li>Creating the tumour sample</li><li>Generating tumour reads in appropriate quantity</li><li>Merging normal and tumour samples</li><li>Generating Run Folder from merged reads</li></ul><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.</p><h3 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Creatingthenormalsample">Creating the normal sample</h3><p>Calculate your desired <em>normal coverage</em>: <code>normal_coverage = (1-purity)*total_desired_coverage</code><br /> For example, for 70% purity and final 30x coverage, you should use <strong>9x normal coverage</strong> here:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chr21.fa \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --coverage-depth=9 \
+  --genome-mutator-options=&quot;--prefix=normal_&quot; \
+  EAGLE_normal
+</pre>
+</div></div><h3 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Generatingnormalreadsinappropriatequantity">Generating normal reads in appropriate quantity</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE_normal
+make fragments
+cd ..
+</pre>
+</div></div><h3 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Creatingthetumoursample">Creating the tumour sample</h3><p>Let's mutate our tumour chr21 sample with a SNP at position 40,000,000. Our reference genome contains a 'G' at this position.<br /> We will use the following tumour.vcf file:</p><div class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style: solid;"><b>tumour.vcf</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">chr21	40000000	.	G	T	0	PASS	SVTYPE=SNP
+</pre>
+</div></div><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">echo -e &quot;chr21\t40000000\t.\tG\tT\t0\tPASS\tSVTYPE=SNP&quot; &gt; tumour.vcf
+</pre>
+</div></div><p>Calculate your desired <em>tumour coverage</em>: <code>tumour_coverage = purity*total_desired_coverage</code><br /> For example, for 70% purity and final 30x coverage, you should use <strong>21x tumour coverage</strong> here:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chr21.fa \
+  --variant-list=tumour.vcf \
+  --coverage-depth=21 \
+  --genome-mutator-options=&quot;--prefix=tumour_&quot; \
+  EAGLE_tumour
+</pre>
+</div></div><h3 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Generatingtumourreadsinappropriatequantity">Generating tumour reads in appropriate quantity</h3><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE_tumour
+make fragments
+cd ..
+</pre>
+</div></div><h3 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Mergingnormalandtumoursamples">Merging normal and tumour samples</h3><p>We first create the EAGLE structure with <em>configureEAGLE</em>:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReadsBarcode8x32Tiles.xml  \
+  --reference-genome=/illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chr21.fa \
+  --variant-list=$EAGLE_SHARE/Variants/None.vcf \
+  --coverage-depth=30 \
+  EAGLE_purity70
+</pre>
+</div></div><p>Then we use <em>mergeSampleGenomes</em> and <em>mergeFragments</em> to import and merge the data from the normal and tumour directories to this new directory:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE_purity70
+
+$EAGLE_LIBEXEC/mergeSampleGenomes.pl -i ../EAGLE_normal -j ../EAGLE_tumour
+
+$EAGLE_LIBEXEC/mergeFragments.pl -i ../EAGLE_normal -j ../EAGLE_tumour
+</pre>
+</div></div><p>These 2 tools bypass the standard generation of sample genome and fragments, meaning that we can then use the Makefile to complete the Run Folder generation.</p><h3 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-GeneratingRunFolderfrommergedreads">Generating Run Folder from merged reads</h3><p>You can now generate the basecalls (Run Folder) as usual:</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make -j 8
+</pre>
+</div></div><p>(other parallel execution commands described <a href="EAGLE%2B-%2BPerformance%2Band%2Bresources%2Brecommendations.html#EAGLE-Performanceandresourcesrecommendations-CPUUsage">there</a>)</p><h1 id="EAGLEUseCase-Simulatingpurityintumoursamples(chr21example)-Results">Results</h1><p>After CASAVA alignment (process described in <a href="EAGLE%2BUse%2BCase%2B-%2BInterfacing%2BEAGLE%2Bwith%2BCASAVA.html">EAGLE Use Case - Interfacing EAGLE with CASAVA</a>) with the following my_config.mk:</p><div class="code panel" style="border-style: solid;border-width: 1px;"><div class="codeHeader panelHeader" style="border-bottom-width: 1px;border-bottom-style: solid;"><b>my_config.mk</b></div><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">EAGLE_TEST_REF       = /illumina/scratch/iGenomes/Homo_sapiens/UCSC/hg19/Sequence/Chromosomes/chr21.fa
+#unused here: VARIANTS_VCF         = $(EAGLE_DATADIR)/Variants/None.vcf
+#unused here: RUN_INFO_XML         = $(EAGLE_DATADIR)/RunInfo/RunInfo_PairedReads1x1Tiles.xml
+#unused here: DEPTH                = 30
+
+CASAVA_ANALYSIS      = eland_pair
+CASAVA_USE_BASES     = y*n,y*n
+</pre>
+</div></div><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">touch eagle.log # bypass the configureEAGLE stage
+make -f $EAGLE_SHARE/validation/test1/Makefile \
+  CONFIG_MK=./my_config.mk \
+  RUN_FOLDER=111206_EAS987_0567_FC1234TST
+</pre>
+</div></div><p>It takes about 1 hour for CASAVA to do its job.</p><p>We can then admire our SNP with 70% purity in IGV:<br /> <img class="confluence-embedded-image image-center" width="90%" src="attachments/1711266/1638821.jpg" data-image-src="attachments/1711266/1638821.jpg"></p>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1711266/1638821.jpg">EagleScreenshot_IGV_chr21_purity70.jpg</a> (image/jpeg)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

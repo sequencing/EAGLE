@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Sequencer Simulator - Architecture</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Sequencer Simulator - Architecture
+                        </span>
+                    </h1>
+
+                    <div class="page-metadata">
+                        <p>This page last changed on Dec 05, 2011 by <font color="#0050B2">ljanin</font>.</p>
+                    </div>
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLESequencerSimulator-Architecture-ArchitectureandProcessideas">Architecture and Process ideas</h1>
+
+<p>Can we make it so that it works first by being just a fasta-&gt;bcl converter, then add everything as plugins?<br />
+For example, the PCR giving more reads in repetitive regions, taking into account UCSC gaps, % of reads that pass filter, etc.</p>
+
+<h2 id="EAGLESequencerSimulator-Architecture-Idea1">Idea 1</h2>
+
+<h3 id="EAGLESequencerSimulator-Architecture-Toplevelarchitecture">Top level architecture</h3>
+
+<p>This high level architecture was described for Idea 1, but is still valid in the final ideas.<br />
+<img class="confluence-embedded-image" height="480" width="640" src="attachments/1709886/1638735.png" data-image-src="attachments/1709886/1638735.png"></p>
+
+<h3 id="EAGLESequencerSimulator-Architecture-Process">Process</h3>
+
+<ul>
+	<li>Read the 6.4GB of input fasta files to RAM</li>
+	<li>Prepare one tile in RAM while flushing the previous tile to disk. To prepare a tile:
+	<ul>
+		<li>Pick a random location</li>
+		<li>Read 100 bases while applying the error model described below
+		<ul>
+			<li>Add each base to its associated bcl file, based on the cycle</li>
+		</ul>
+		</li>
+		<li>Process paired read in a similar way if required</li>
+	</ul>
+	</li>
+</ul>
+
+
+
+
+<h3 id="EAGLESequencerSimulator-Architecture-Errormodel">Error model</h3>
+
+<h4 id="EAGLESequencerSimulator-Architecture-Inputs">Inputs</h4>
+
+<ul>
+	<li>Quality per cycle table</li>
+	<li>Error model: Probability for each nucleotide type to become each other nucleotide (SNP), to be deleted or duplicated.</li>
+</ul>
+
+
+<h4 id="EAGLESequencerSimulator-Architecture-Process.1">Process</h4>
+
+<p>From the &quot;Quality per cycle table&quot;, we calculate the error rate for the current cycle.<br />
+If a random number is under the error rate, then we apply the &quot;Error model&quot; to the base.<br />
+By remembering the current &quot;read quality&quot; (or just the number of successive same base encountered so far) for this read, we update it to take into account homopolymer runs.<br />
+If a random number is under this &quot;homopolymer error rate&quot;, we apply a &quot;homopolymer error model&quot; to the base.</p>
+
+
+<h3 id="EAGLESequencerSimulator-Architecture-Problems">Problems</h3>
+
+<p>Picking random reads had already made us leave the &quot;coverage standard deviation&quot; property out.</p>
+
+<p>Our initial thoughts were to leave the BAM generation as a secondary  external process, but some new &quot;coverage threshold&quot; parameters, which  seem very valuable, bring back the need to generate metadata associated to  genome positions during the simulation.</p>
+
+
+<p>Applying &quot;quality control&quot; on specific locations requires us to search through the list of locations and update an associated property each time we generate a new read. If the list of locations becomes large - the ability to characterise the entire genome may be useful - the cpu and ram usages may become too high.</p>
+
+<p>This is addressed in a better way by the next process idea.</p>
+
+
+<h2 id="EAGLESequencerSimulator-Architecture-Idea2">Idea 2</h2>
+
+
+<p>The idea is to generate reads by going through the genome sequentially, and keep the shuffling for the end when we write the BCL files.</p>
+
+<p>Advantages:</p>
+<ul>
+	<li>BAM and metadata information can be generated on the fly, while keeping only a small region of the genome in RAM (probably the size of the max insert/mate size), input fasta files don't need to be entirely stored in RAM, etc.</li>
+	<li>avoid the wasteful process of shuffling data and then having to sort it back when we want to generate the BAM files.</li>
+	<li>BAM files are available early, enabling the user to check the simulated data before launching the subsequent tools under test.</li>
+	<li>Can be split into independent chunks easily for parallel processing</li>
+</ul>
+
+
+
+<p>The new difficulty is shuffling the reads for BCL output.</p>
+
+<p>Possible parallelisation of tasks:<br />
+<img class="confluence-embedded-image" height="480" width="640" src="attachments/1709886/1638742.png" data-image-src="attachments/1709886/1638742.png"></p>
+
+
+<h3 id="EAGLESequencerSimulator-Architecture-Process.2">Process</h3>
+
+<p><img class="confluence-embedded-image" height="239" width="320" src="attachments/1709886/1638730.jpg" data-image-src="attachments/1709886/1638730.jpg"></p>
+
+<p>Same as for idea 1, but instead of picking random read locations, the locations will be picked sequentially, in chromosome order. The random element will be the length (which can be 0) of the jump to the next read.<br />
+We will also output a random allocation of a tile for each paired read (1 byte/paired read =&gt; 1GB), so that the BCL creation process (which will involve shuffling) can be done in parallel.<br />
+The BCL creation will then happen at the tile level, where each process generates 1 tile by reading the allocation file sequentially, loading the corresponding paired read to RAM by reading the 100GB data file sequentially too (with possible fseeks) and then flushing the tile when it has been fully prepared in RAM. This can be optimised by processing sets of tiles per process instead of only 1 tile.</p>
+
+<p>Sequencer Simulator details:</p>
+
+<h3 id="EAGLESequencerSimulator-Architecture-Costs">Costs</h3>
+
+<p><img class="confluence-embedded-image" height="480" width="640" src="attachments/1709886/1638743.png" data-image-src="attachments/1709886/1638743.png"></p>
+
+<h2 id="EAGLESequencerSimulator-Architecture-Idea3">Idea 3</h2>
+
+<p>The cost analysis of idea 2 shows 200GB of data being temporarily written and read.<br />
+Idea 3 shows that this can be avoided.<br />
+Instead of parallelising the Sequencer Simulator per bin, we can parallelise it per tile:<br />
+<img class="confluence-embedded-image" height="480" width="640" src="attachments/1709886/1638744.png" data-image-src="attachments/1709886/1638744.png"></p>
+
+<p>Another consequence on cost improvement is that, in the previous idea, the Metadata (BAM) file and the tile files were imbalanced in size, possibly leading to bottlenecks when writing the BAM files.<br />
+With idea 3, this is solved.</p>
+
+<h3 id="EAGLESequencerSimulator-Architecture-Process.3">Process</h3>
+
+<p>The Seq Sim and the Run Folder Generator need to share their RAM, so we'll probably integrate them as 1 process.<br />
+However, One Run Folder Generator can still run in parallel with the next tile's Seq Sim. We need to check how long each of these 2 processes take, and if the overlap is sound.</p>
+
+<p><img class="confluence-embedded-image" height="480" width="640" src="attachments/1709886/1638747.png" data-image-src="attachments/1709886/1638747.png"></p>
+
+<p>The BAM generator will probably have more work to do than expected: as the metadata will likely be ordered relatively to the sample genome, it will have to be re-ordered relatively to the reference genome. We expected that it would involve merge-sorting the reads from the different tiles, but it will also involve merge-sorting the reads from the different alleles, and splitting/duplicating the reads that overlap breakpoints.</p>
+
+<h2 id="EAGLESequencerSimulator-Architecture-Idea3b">Idea 3b</h2>
+
+<p>Based on Idea 3, it may be worth replacing the Metadata output by a second processing of the same inputs, as shown on the following diagram. The BAM generation may be done at a chromosome bin level.</p>
+
+<p><img class="confluence-embedded-image" height="480" width="640" src="attachments/1709886/1638748.png" data-image-src="attachments/1709886/1638748.png"></p>
+
+<h1 id="EAGLESequencerSimulator-Architecture-FinalArchitecturechoice">Final Architecture choice</h1>
+
+
+<h1 id="EAGLESequencerSimulator-Architecture-Tasks">Tasks</h1>
+
+<ul>
+	<li>Identified a new requirement: We need FastaReader to read on demand and at the same time to provide the total chromosome lengths. We can achieve this by using the usually existing genome_size.xml file. Maybe we should then allow for directory inputs. This could be compatible with the mutator's &quot;-c chrY -l 0&quot; options when a female is needed.</li>
+</ul>
+                    </div>
+
+                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638730.jpg">SequencerDataShuffling.jpg</a> (image/jpeg)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638734.png">EagleSequencerSimulatorArchitecture.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638735.png">EagleSequencerSimulatorArchitecture1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638742.png">EagleSequencerSimulatorArchitecture3.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638743.png">EagleSequencerSimulatorArchitecture3costs.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638744.png">EagleSequencerSimulatorArchitecture5.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638747.png">EagleSequencerSimulatorArchitecture_Slide6.PNG</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638748.png">EagleSequencerSimulatorArchitecture_Slide7.PNG</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/1709886/1638749.pptx">EagleSequencerSimulatorArchitecture.pptx</a> (application/vnd.openxmlformats-officedocument.presentationml.presentation)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                 
+                </div>             </div> 
+            <div id="footer" style="background: url(http://ukch-confluence.illumina.com/images/border/border_bottom.gif) repeat-x;">
+                <p><small>Document generated by Confluence on Jan 29, 2014 12:01</small></p>
+            </div>
+        </div>     </body>
+</html>

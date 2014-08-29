@@ -1,0 +1,4 @@
+Stress
+Haploid
+Diploid
+WholeDir

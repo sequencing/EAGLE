@@ -1,0 +1,6 @@
+<sequenceSizes>
+	<chromosome fileName="chr1.fa" contigName="chr1" totalBases="280"/>
+	<chromosome fileName="chr2.fa" contigName="chr2" totalBases="280"/>
+	<chromosome fileName="chr3.fa" contigName="chr3" totalBases="280"/>
+	<chromosome fileName="chr4.fa" contigName="chr4" totalBases="280"/>
+</sequenceSizes>
