@@ -2,8 +2,8 @@ EAGLE - Enhanced Artificial Genome Engine
 =========================================
 
 The Enhanced Artificial Genome Engine (EAGLE) software is designed to simulate 
-the behaviour of the actual instrument (sequencer), hence facilitating the 
-development and testing of downstream applications.
+the behaviour of Illumina's Next Generation Sequencing instruments, in order to 
+facilitate the development and testing of downstream applications.
 
 
 Dependencies
@@ -30,6 +30,9 @@ Required packages (based on a fresh Ubuntu install):
 
     dc
         yum/apt-get install dc
+
+    all together:
+        yum/apt-get install cmake g++ libboost-all-dev libbz2-dev libxml2-dev libxml-simple-perl samtools dc
 
 
 Installation Instructions
