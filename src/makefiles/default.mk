@@ -142,11 +142,11 @@ bam: eagle.bam.bai
 eagle.bam.bai: eagle.bam
 	$(TIME) $(SAMTOOLS) index eagle.bam
 
-eagle.bam: $(foreach bamChr, $(BAM_CHROMOSOMES), eagle_$(bamChr).bam)
+eagle.bam: $(foreach bamChr, $(BAM_CHROMOSOMES), $(subst $(PIPE),$(BACKSLASHED_PIPE),eagle_$(bamChr).bam))
 ifeq (1,$(words $(BAM_CHROMOSOMES)))
 	cp $^ $@
 else
-	$(SAMTOOLS) view -H eagle_$(word 1,${BAM_CHROMOSOMES}).bam | tr -d '\0' | grep --text SN | sed 's/.*\tSN:\(.*\)\t.*/eagle_\1.bam/' | xargs ls -f 2> /dev/null | xargs $(TIME) $(SAMTOOLS) cat -o eagle.bam
+	$(SAMTOOLS) view -H "eagle_$(word 1,${BAM_CHROMOSOMES}).bam" | tr -d '\0' | grep --text SN | sed 's/.*\tSN:\(.*\)\t.*/eagle_\1.bam/' | xargs ls -f 2> /dev/null | xargs $(TIME) $(SAMTOOLS) cat -o eagle.bam
 endif
 #	$(TIME) $(SAMTOOLS) cat -o eagle.bam $^
 
@@ -162,12 +162,12 @@ eagle_%.bam: $(EAGLE_OUTDIR)/$(RUN_FOLDER)/RunInfo.xml $(EAGLE_OUTDIR)/fragments
 	        $(ERROR_MODEL_OPTIONS:%=--error-model-options=%) \
 	        --fragments-dir=$(EAGLE_OUTDIR)/fragments \
 	        --output-dir=$(EAGLE_OUTDIR) \
-	        --output-filename=eagle_$*.bam \
+	        --output-filename="eagle_$*.bam" \
 	        --lane-count=$(words $(LANES)) \
 	        --tiles-per-lane=$(words $(TILES)) \
 	        $(RANDOM_SEED_OPTION) \
 	        $(SEQUENCER_SIMULATOR_OPTIONS) \
-			--bam-region=$*
+			--bam-region="$*"
 
 .PHONY: sample-bam
 sample-bam: eagle.sample.bam
