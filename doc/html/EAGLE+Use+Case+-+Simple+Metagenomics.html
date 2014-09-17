@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Software development : EAGLE Use Case - Simple Metagenomics simulation</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body>
+        <div id="page">
+            <div id="main">
+                <div id="main-header" class="pageSectionHeader">
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Software development : EAGLE Use Case - Simple Metagenomics simulation
+                        </span>
+                    </h1>
+
+                </div>
+
+                <div id="content" class="view">
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Preamble">Preamble</h1><p>If you haven't done it yet, you may refer to the <a href="EAGLE%2B-%2BInstallation%2Band%2Bconfiguration%2Binstructions.html">EAGLE - Installation and configuration instructions</a>.<img class="confluence-embedded-image confluence-thumbnail image-right" width="100" confluence-query-params="effects=border-simple,shadow-kn" src="attachments/thumbnails/1711448/1638806" data-image-src="attachments/1711448/1638806.jpg?effects=border-simple,shadow-kn"><br /> We are using EAGLE to simulate a small Run Folder from multiple bacterial genomes by going through the following steps:</p><ol><li>Sample simulation, by combining a set of bacterial genomes together and specifying one chromosome with a greater abundance than others</li><li>Sequencing simulation with 1 tile in 1 lane</li></ol><h3 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Inputandconfigurationfiles">Input and configuration files</h3><p>In this example we will use the following inputs:</p><ul><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-Genomes">A few random genomes from NCBI</a></li><li><a href="EAGLE%2BData%2BFiles.html#EAGLEDataFiles-RunInfo">RunInfo_PairedReads1x1Tiles.xml</a></li></ul><h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Initialisation">Initialisation</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">source /illumina/development/EAGLE/stable-setup
+
+# Download a few bacterial genomes from NCBI
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009925.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009926.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009927.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009928.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009929.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009930.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009931.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009932.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009933.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acaryochloris_marina_MBIC11017_uid58167/NC_009934.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021976.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021977.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021978.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021979.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021991.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021992.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacter_pasteurianus_386B_uid214433/NC_021993.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetobacterium_woodii_DSM_1030_uid88073/NC_016894.fna
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Acetohalobium_arabaticum_DSM_5501_uid51423/NC_014378.fna
+
+# Combine them
+cat *fna > sample.fa
+
+# Run EAGLE, specifying 10x more abundance for the NC_014378 chromosome (with the specified 5x "coverage depth per allele", this chromosome will get 50x coverage)
+configureEAGLE.pl \
+  --run-info=$EAGLE_SHARE/RunInfo/RunInfo_PairedReads1x1Tiles.xml \
+  --reference-genome=sample.fa \
+  --coverage-depth=5 \
+  --genome-mutator-options="--ploidy-chromosome=\"gi|302390797|ref|NC_014378.1|\" --ploidy-level=10"
+
+</pre>
+</div></div><h1 id="EAGLEUseCase-SimulatingasmallRunFolderfromPhiX-Execution">Execution</h1><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">cd EAGLE
+make
+</pre>
+</div></div><p>This should take less than 1 minute to complete and generate a Run Folder full of BCL files, ready to be aligned by your preferred aligner tool.</p><p>You can also generate BAM files (for visualisation in IGV for example):</p><div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">make bam</pre>
+        </div>     </body>
+</html>
