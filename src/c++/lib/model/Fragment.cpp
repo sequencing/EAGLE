@@ -102,20 +102,23 @@ FragmentList::FragmentList( const boost::filesystem::path& dir, const unsigned l
             indexFile.seekg( 0, ios_base::end );
         }
         unsigned long posInIndexFile = indexFile.tellg();
-        unsigned long indexEntryNum = posInIndexFile / sizeof(unsigned long) - 3;
-        fragmentNum_ = indexEntryNum * indexInterval;
+        unsigned long indexEntryNum = posInIndexFile / sizeof(unsigned long) - 3; // 0-based
+        if (indexEntryNum > 0)
+        {
+            fragmentNum_ = indexEntryNum * indexInterval; // 1-based
 
-        ifstream shiftFile( (dir/"fragments.pos.shift").string().c_str() );
-        unsigned int shift;
-        shiftFile.seekg( indexEntryNum * sizeof(unsigned int) );
-        shiftFile.read( (char*)&shift, sizeof(unsigned int));
+            ifstream shiftFile( (dir/"fragments.pos.shift").string().c_str() );
+            unsigned int shift;
+            shiftFile.seekg( (indexEntryNum-1) * sizeof(unsigned int) );
+            shiftFile.read( (char*)&shift, sizeof(unsigned int));
 
-        unsigned long posInPosFile =  (fragmentNum_ + shift) * 2;
-        unsigned long posInOtherFiles =  fragmentNum_ * 2;
-        in1.seekg( posInPosFile );
-        in2.seekg( posInOtherFiles );
-        in3.seekg( posInOtherFiles );
-        currentPos_ = previousPos;
+            unsigned long posInPosFile = (fragmentNum_ + shift) * 2;
+            unsigned long posInOtherFiles = fragmentNum_ * 2;
+            in1.seekg( posInPosFile );
+            in2.seekg( posInOtherFiles );
+            in3.seekg( posInOtherFiles );
+            currentPos_ = previousPos;
+        }
     }
 }
 

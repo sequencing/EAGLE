@@ -27,15 +27,15 @@ include $(MAKEFILES_DIR)/assign.mk
 $(EAGLE_OUTDIR)/.$(fmtLane)_%.bcl.completed:
 	$(TIME) $(SIMULATE_SEQUENCER) $(EAGLE_FORCE) --generate-bcl-tile \
 	        --run-info=$< \
-	        --sample-genome-dir=$(EAGLE_OUTDIR)/$(SAMPLE_GENOME) \
+	        --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)" \
 	        $(QUALITY_TABLE:%=--quality-table=%) \
 	        $(QQ_TABLE_OPTION) \
 	        $(MISMATCH_TABLE_OPTION) \
 	        $(HOMOPOLYMER_INDEL_TABLE_OPTION) \
 	        $(MOTIF_QUALITY_DROP_TABLE_OPTION) \
 	        $(ERROR_MODEL_OPTIONS:%=--error-model-options=%) \
-	        --fragments-dir=$(dir $(word 2,$^)) \
-	        --output-dir=$(dir $<) \
+	        --fragments-dir="$(dir $(word 2,$^))" \
+	        --output-dir="$(dir $<)" \
 	        --lane-count=$(words $(LANES)) \
 	        --tiles-per-lane=$(words $(TILES)) \
 	        --lane=$(@:$(EAGLE_OUTDIR)/.L00%_$(*).bcl.completed=%) \

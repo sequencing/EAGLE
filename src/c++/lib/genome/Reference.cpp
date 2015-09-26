@@ -129,8 +129,13 @@ unsigned long FastaReference::local2global( const eagle::model::Locus& location)
         static bool firstTime = true;
         if (firstTime)
         {
-          std::clog << "Warning: degraded performance due to more than 2 alleles - local2global: updating cache pos " << local2globalCache_roundRobin << " from " <<  local2globalCache_chr[local2globalCache_roundRobin]<< " to " << location.chr() << std::endl;
-          firstTime = false;
+            static int maxMsgCount = 100;
+            if (maxMsgCount > 0)
+            {
+                --maxMsgCount;
+                std::clog << "Warning: degraded performance due to more than 2 alleles - local2global: updating cache pos " << local2globalCache_roundRobin << " from " <<  local2globalCache_chr[local2globalCache_roundRobin]<< " to " << location.chr() << std::endl;
+            }
+            firstTime = false;
         }
         eagle::io::FastaInfo info;
         boost::filesystem::path file = reader_.find(location.chr(),info);
@@ -160,6 +165,7 @@ eagle::model::Locus FastaReference::global2local(unsigned long globalPos)
         }
         std::clog << " to " << global2localCache.contigName << std::endl;
     }
+
     return eagle::model::Locus( global2localCache.contigName, globalPos - global2localCache.position.first + 1);
 }
 

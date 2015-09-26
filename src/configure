@@ -143,6 +143,7 @@ fi
 
 # Parse arguments
 eagle_build_type=RelWithDebInfo
+#eagle_build_type=Debug
 eagle_cmake_generator="Unix Makefiles"
 eagle_verbose=
 eagle_parallel=1

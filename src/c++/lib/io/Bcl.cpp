@@ -167,7 +167,7 @@ BclTile::BclTile( const unsigned long long expectedReadCount, const unsigned int
         os.write( (const char*)&binCount, 4);
         for (unsigned int i=0; i<binCount; ++i)
         {
-            const unsigned char clusterCount = (i+1<binCount)?255:(expectedReadCount_ % 255);
+            const unsigned char clusterCount = min<unsigned int>( leftToProcess, 255 );
             os.write( (const char*)&clusterCount, 1);
             for (unsigned char j=0; j<clusterCount; ++j)
             {

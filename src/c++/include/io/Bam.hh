@@ -144,14 +144,15 @@ void serializeHeader(
 
     std::string headerText(
         "@HD\t"
-            "VN:1.0\t"
-            "SO:coordinate\n"
-        "@PG\t"
-            "ID:EAGLE\t"
-            "PN:EAGLE\t"
-            "CL:" + commandLine + "\t"
-            "VN:" + EAGLE_VERSION +
-            "\n");
+        "VN:1.0\t"
+        "SO:coordinate\n"
+        "@PG\t" 
+        "ID:EAGLE\t"
+        "PN:EAGLE\t"
+        "VN:"
+        EAGLE_VERSION
+        "\n");
+// This was between PN and VN:            "CL:" + commandLine + "\t"
     BOOST_FOREACH(const typename THeader::ReadGroupType &readGroup, header.getReadGroups())
     {
         std::clog << "Writing read group: " << readGroup.getId() << std::endl;

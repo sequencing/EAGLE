@@ -79,8 +79,8 @@ fragments: $(notdir $(ALLOCATE_FRAGMENTS))
 $(notdir $(ALLOCATE_FRAGMENTS)): $(EAGLE_OUTDIR)/fragments/fragments.done
 $(EAGLE_OUTDIR)/fragments_single_process.pos: $(EAGLE_OUTDIR)/$(SAMPLE_GENOME)/genome_size.xml
 	( $(TIME) $(ALLOCATE_FRAGMENTS) $(EAGLE_FORCE) \
-	  --sample-genome-dir=$(EAGLE_OUTDIR)/$(SAMPLE_GENOME) \
-	  --output-dir=$(dir $@) \
+	  --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)" \
+	  --output-dir="$(dir $@)" \
 	  $(COVERAGE_DEPTH_OPTION) \
 	  $(RANDOM_SEED_OPTION) \
 	  $(TEMPLATE_LENGTH_TABLE_OPTION) \
@@ -93,8 +93,8 @@ $(EAGLE_OUTDIR)/fragments_single_process.pos: $(EAGLE_OUTDIR)/$(SAMPLE_GENOME)/g
 $(EAGLE_OUTDIR)/fragments/fragments.done: $(foreach chrAllele, $(CHROMOSOME_ALLELES_FORWARD_AND_REVERSE), $(subst $(PIPE),$(BACKSLASHED_PIPE),$(EAGLE_OUTDIR)/fragments/fragments_$(chrAllele)/fragments.done))
 	( $(TIME) $(ALLOCATE_FRAGMENTS) $(EAGLE_FORCE) \
 	  --merge-existing-fragments \
-	  --sample-genome-dir=$(EAGLE_OUTDIR)/$(SAMPLE_GENOME) \
-	  --output-dir=$(dir $@) \
+	  --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)" \
+	  --output-dir="$(dir $@)" \
 	  $(COVERAGE_DEPTH_OPTION) \
 	  $(RANDOM_SEED_OPTION) \
 	  $(TEMPLATE_LENGTH_TABLE_OPTION) \
@@ -112,7 +112,7 @@ $(EAGLE_OUTDIR)/fragments/fragments_%/fragments.done: $(EAGLE_OUTDIR)/$(SAMPLE_G
 	$(AND) \
 	( $(TIME) $(ALLOCATE_FRAGMENTS) $(EAGLE_FORCE) \
 	  --contig="$*" \
-	  --sample-genome-dir=$(EAGLE_OUTDIR)/$(SAMPLE_GENOME) \
+	  --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)/${*:_rev=}.fa" \
 	  --output-dir="$(dir $@)" \
 	  $(COVERAGE_DEPTH_OPTION) \
 	  $(RANDOM_SEED_OPTION) \
@@ -153,15 +153,15 @@ endif
 eagle_%.bam: $(EAGLE_OUTDIR)/$(RUN_FOLDER)/RunInfo.xml $(EAGLE_OUTDIR)/fragments/fragments.done $(EAGLE_OUTDIR)/sample_genome/segmentsFromRef.tsv
 	$(TIME) $(SIMULATE_SEQUENCER) $(EAGLE_FORCE) --generate-bam \
 	        --run-info=$< \
-	        --sample-genome-dir=$(EAGLE_OUTDIR)/$(SAMPLE_GENOME) \
+	        --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)" \
 	        $(QUALITY_TABLE:%=--quality-table=%) \
 	        $(QQ_TABLE_OPTION) \
 	        $(MISMATCH_TABLE_OPTION) \
 	        $(HOMOPOLYMER_INDEL_TABLE_OPTION) \
 	        $(MOTIF_QUALITY_DROP_TABLE_OPTION) \
 	        $(ERROR_MODEL_OPTIONS:%=--error-model-options=%) \
-	        --fragments-dir=$(EAGLE_OUTDIR)/fragments \
-	        --output-dir=$(EAGLE_OUTDIR) \
+	        --fragments-dir="$(EAGLE_OUTDIR)/fragments" \
+	        --output-dir="$(EAGLE_OUTDIR)" \
 	        --output-filename="eagle_$*.bam" \
 	        --lane-count=$(words $(LANES)) \
 	        --tiles-per-lane=$(words $(TILES)) \
@@ -174,15 +174,15 @@ sample-bam: eagle.sample.bam
 eagle.sample.bam: $(EAGLE_OUTDIR)/$(RUN_FOLDER)/RunInfo.xml $(EAGLE_OUTDIR)/fragments/fragments.done
 	$(TIME) $(SIMULATE_SEQUENCER) $(EAGLE_FORCE) --generate-sample-bam \
 	        --run-info=$< \
-	        --sample-genome-dir=$(EAGLE_OUTDIR)/$(SAMPLE_GENOME) \
+	        --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)" \
 	        $(QUALITY_TABLE:%=--quality-table=%) \
 	        $(QQ_TABLE_OPTION) \
 	        $(MISMATCH_TABLE_OPTION) \
 	        $(HOMOPOLYMER_INDEL_TABLE_OPTION) \
 	        $(MOTIF_QUALITY_DROP_TABLE_OPTION) \
 	        $(ERROR_MODEL_OPTIONS:%=--error-model-options=%) \
-	        --fragments-dir=$(EAGLE_OUTDIR)/fragments \
-	        --output-dir=$(EAGLE_OUTDIR) \
+	        --fragments-dir="$(EAGLE_OUTDIR)/fragments" \
+	        --output-dir="$(EAGLE_OUTDIR)" \
 	        --output-filename=eagle.sample.bam \
 	        --lane-count=$(words $(LANES)) \
 	        --tiles-per-lane=$(words $(TILES)) \

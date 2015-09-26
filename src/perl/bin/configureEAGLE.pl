@@ -93,9 +93,13 @@ Path to an alternative motif quality drop table
 
 If specified, calculate GC content to affect coverage. Should be a tab-separated file with 2 columns: gc% and coverage multiplier. Intermediate values are interpolated linearly.
 
-=item B<--coverage-depth=<NUM>>, B<-d <NUM>>    F<(=30)>
+=item B<--coverage-depth=<NUM>>    F<(=30)>
 
-Coverage depth
+Coverage depth (deprecated, replaced by --allele-coverage-depth)
+
+=item B<--allele-coverage-depth=<NUM>>, B<-d <NUM>>    F<(=30)>
+
+Coverage depth for each allele
 
 =item B<--random-seed=<NUM>>
 
@@ -218,6 +222,7 @@ my $homopolymerIndelTable = File::Spec->catfile( $EAGLE_DATADIR, 'MismatchTables
 my $motifQualityDropTable = File::Spec->catfile( $EAGLE_DATADIR, 'MotifQualityDropTables', 'ZeroMotifQualityDropTable.tsv');
 my $gcCoverageFitTable = undef;
 my $coverageDepth   = 30;  # FragmentAllocator uses 30 by default, but I want to concentrate default values in just one place
+my $alleleCoverageDepth   = undef;
 my $randomSeed      = undef;
 my @genomeMutatorOptionsArray = ();
 my $genomeMutatorOptions      = '';
@@ -243,6 +248,7 @@ my %options =
     'gc-coverage-fit-table'      => \$gcCoverageFitTable,
     'error-model-options'        => \@errorModelOptions,
     'coverage-depth'             => \$coverageDepth,
+    'allele-coverage-depth'      => \$alleleCoverageDepth,
     'random-seed'                => \$randomSeed,
     'generate-run-id'            => \$generateRunId,
 #    'make'                       => \$make,
@@ -273,9 +279,12 @@ pod2usage(-exitstatus => 0, -verbose => 99, -sections => 'NAME|VERSION')        
 pod2usage(-exitstatus => 0, -verbose => 2,  -input => $1)  if ($man and $0 =~ /(.*)/);
 pod2usage("$0: Too many positional arguments.\n")          if (1 < @ARGV);
 
+if (defined $coverageDepth && !defined $alleleCoverageDepth) {
+  $alleleCoverageDepth = $coverageDepth;
+}
 croak "ERROR: *** At least one Reference file or dir is needed. Please use --reference-genome ***\n   "  unless @referenceGenome;
 croak "ERROR: *** Path to RunInfo.xml not given. The --run-info switch is not optional! ***\n   "        unless defined $runInfoFile;
-croak "ERROR: *** Coverage depth must be specified ***\n   "                                             unless defined $coverageDepth;
+croak "ERROR: *** Allele coverage depth must be specified ***\n   "                                             unless defined $alleleCoverageDepth;
 print "WARNING: *** No variant list specified ***\n   "                                                  unless @variantList;
 
 $genomeMutatorOptions = join( ' ', @genomeMutatorOptionsArray );
@@ -491,7 +500,7 @@ $config->declare( 'HOMOPOLYMER_INDEL_TABLE', $fullHomopolymerIndelTable);
 $config->declare( 'MOTIF_QUALITY_DROP_TABLE', $fullMotifQualityDropTable);
 $config->declare( 'GC_COVERAGE_FIT_TABLE', $fullGcCoverageFitTable) if defined $gcCoverageFitTable;
 $config->declare( 'ERROR_MODEL_OPTIONS',"@fullErrorModelOptions");
-$config->declare( 'COVERAGE_DEPTH',    $coverageDepth)  if defined $coverageDepth;
+$config->declare( 'COVERAGE_DEPTH',    $alleleCoverageDepth)  if defined $alleleCoverageDepth;
 $config->declare( 'RANDOM_SEED',       $randomSeed)     if defined $randomSeed;
 $config->declare( 'BASES_PER_CLUSTER', $basesPerCluster);
 $config->declare( 'EAGLE_OUTDIR',      $fullOutputDir);
@@ -549,7 +558,7 @@ my $totalTileCount = $layout->{TileCount};
 if (defined $layout->{SwathCount} && $layout->{SwathCount} > 0) { $totalTileCount *= $layout->{SwathCount}; }
 if (defined $layout->{SurfaceCount} && $layout->{SurfaceCount} > 0) { $totalTileCount *= $layout->{SurfaceCount}; }
 if (defined $layout->{LaneCount} && $layout->{LaneCount} > 0) { $totalTileCount *= $layout->{LaneCount}; }
-my $sequencersimulatorExpectedRamUsage = $genomeSize * $coverageDepth / $totalTileCount + $maxChromosomeLength;
+my $sequencersimulatorExpectedRamUsage = $genomeSize * $alleleCoverageDepth / $totalTileCount + $maxChromosomeLength;
 if ($genomeMutatorExpectedRamUsage == 0) { $genomeMutatorExpectedRamUsage = "unknown"; }
 if ($sequencersimulatorExpectedRamUsage == 0) { $sequencersimulatorExpectedRamUsage = "unknown"; }
 print " - Genome Mutator (sequential process)    : ~" . int($genomeMutatorExpectedRamUsage/(1024*1024)+1) . " MB\n";

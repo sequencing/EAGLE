@@ -166,6 +166,7 @@ while (read (INF1, $myInt16, 2))
   {
     my $offset = unpack('S',$myInt16);
     #    print "offset=$offset\n";
+    ($offset < 65535) or die "TODO long offset";
     $finalPosInDataset1 += $offset;
   }
 close INF1;
@@ -180,9 +181,11 @@ my $offset = $dataset1Length - $finalPosInDataset1;
 open INF1, "<$PARAMS{dataset2}/fragments/fragments.pos" or die "Can't open $PARAMS{dataset2}/fragments/fragments.pos";
 binmode INF1;
 read (INF1, $myInt16, 2);
-$offset += unpack('S',$myInt16);
+my $val += unpack('S',$myInt16);
+($val < 65535) or die "TODO long offset";
 print "New offset=$offset\n";
 close INF1;
+$offset += $val;
 if ($offset < 65535) {
   print OUTF pack('s',$offset);
 }

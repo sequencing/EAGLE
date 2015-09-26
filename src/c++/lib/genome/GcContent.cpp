@@ -101,6 +101,35 @@ bool GcCoverageFit::needsDiscarding( const model::Fragment& fragment )
         return false;
     }
 
+//#define EXPERIMENT_SPECIAL_GC_BIAS_AT_CYCLE_4
+#ifdef EXPERIMENT_SPECIAL_GC_BIAS_AT_CYCLE_4
+    if (fragment.fragmentLength_ > 4)
+    {
+        unsigned long offset = 3;
+        bool overlapContigBoundary;
+        char base = genome::SharedFastaReference::get()->get( fragment.startPos_, offset, overlapContigBoundary );
+        base = baseConverter_.norm( base );
+        base = toupper( base );
+        if (base=='A' || base=='T')
+        {
+            double randomValue = (double)random() / (double)RAND_MAX;
+            if (randomValue < .25)
+                return true; //discard
+        }
+
+        offset = 4;
+        base = genome::SharedFastaReference::get()->get( fragment.startPos_, offset, overlapContigBoundary );
+        base = baseConverter_.norm( base );
+        base = toupper( base );
+        if (base=='A' || base=='T')
+        {
+            double randomValue = (double)random() / (double)RAND_MAX;
+            if (randomValue < .1)
+                return true; //discard
+        }
+    }
+#endif
+
     unsigned int gcCount=0, acgtCount=0;
     for (unsigned long offset = 0; offset < fragment.fragmentLength_; ++offset)
     {
