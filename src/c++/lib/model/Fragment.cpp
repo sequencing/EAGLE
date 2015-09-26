@@ -95,14 +95,15 @@ FragmentList::FragmentList( const boost::filesystem::path& dir, const unsigned l
             previousPos = pos;
             indexFile.read( (char*)&pos, sizeof(unsigned long));
         }
-        if (!indexFile.good())
+        bool reachedEndOfIndex = !indexFile.good();
+        if (reachedEndOfIndex)
         {
             // if we reached the end, move properly to the end, so that tellg returns the file size rather than -1
             indexFile.clear();
             indexFile.seekg( 0, ios_base::end );
         }
         unsigned long posInIndexFile = indexFile.tellg();
-        unsigned long indexEntryNum = posInIndexFile / sizeof(unsigned long) - 3; // 0-based
+        unsigned long indexEntryNum = posInIndexFile / sizeof(unsigned long) - 3 + (reachedEndOfIndex?1:0); // 0-based
         if (indexEntryNum > 0)
         {
             fragmentNum_ = indexEntryNum * indexInterval; // 1-based
