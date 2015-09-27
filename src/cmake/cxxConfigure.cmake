@@ -78,16 +78,6 @@ else  (HAVE_ZLIB)
     message(FATAL_ERROR "No support for gzip compression")
 endif (HAVE_ZLIB)
 
-# optional support for bzip2 compression
-eagle_find_library(BZIP2 bzlib.h bz2)
-if    (HAVE_BZIP2)
-    set(HAVE_BZLIB HAVE_BZIP2)
-    set(EAGLE_ADDITIONAL_LIB ${EAGLE_ADDITIONAL_LIB} bz2)
-    message(STATUS "bzip2 compression supported")
-else  (HAVE_BZIP2)
-    message(FATAL_ERROR "No support for bzip2 compression")
-endif (HAVE_BZIP2)
-
 # optional support for libzoo
 eagle_find_library(LIBZOO libzoo/cli/Common.hh zoo)
 if    (HAVE_LIBZOO)

@@ -20,9 +20,6 @@ Required packages (based on a fresh Ubuntu install):
     Boost development libraries >= 1.47
         yum/apt-get install libboost-all-dev
 
-    LibBz2 
-        yum/apt-get install libbz2-dev
-
     LibXml
         yum/apt-get install libxml2-dev libxml-simple-perl
 
@@ -33,7 +30,7 @@ Required packages (based on a fresh Ubuntu install):
         yum/apt-get install dc
 
     all together:
-        yum/apt-get install cmake g++ libboost-all-dev libbz2-dev libxml2-dev libxml-simple-perl samtools dc
+        yum/apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc
 
 
 Installation Instructions
