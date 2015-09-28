@@ -14,6 +14,9 @@
 
 #include "common/Program.hh"
 
+#include <stdlib.h>
+
+
 namespace eagle
 {
 namespace common
@@ -50,6 +53,9 @@ Options::Action Options::parse(int argc, char *argv[])
 {
     try
     {
+        // Discovery of locale files sometimes fails. See if being conservative helps.
+        setenv("LC_ALL", "C", 1);
+
         bpo::options_description allOptions("Allowed options");
         allOptions.add(parameters_).add(namedOptions_).add(unnamedOptions_).add(general_);
         bpo::variables_map vm;
