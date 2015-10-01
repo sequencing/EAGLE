@@ -81,15 +81,17 @@ void GenomeMutator::run()
     // Adding chromosome begin&end markers
     for (eagle::genome::ReferenceIterator contig=genome_.begin(); contig != genome_.end(); ++contig)
     {
-        unsigned int n( variantList_.ploidy().level(contig->id()) );
-        forwardStartingPoints[contig] = n;
-        reverseStartingPoints[contig] = n;
+        //unsigned int n( variantList_.ploidy().level(contig->id()) );
+        unsigned int n_beg = variantList_.ploidy().level(contig->id() + "_beg");
+        unsigned int n_end = variantList_.ploidy().level(contig->id() + "_end");
+        forwardStartingPoints[contig] = n_beg;
+        reverseStartingPoints[contig] = n_end;
         eagle::model::StructuralVariant sv1( contig->id(), 0 );
         eagle::model::StructuralVariant sv2( contig->id(), contig->size()+1 );
         sv1.getVariant().adjacency.second.pos( sv1.getVariant().adjacency.first.pos() );
         sv2.getVariant().adjacency.second.pos( sv2.getVariant().adjacency.first.pos() );
-        variantList_.push_back( eagle::genome::Event( sv1, n ));
-        variantList_.push_back( eagle::genome::Event( sv2, n ));
+        variantList_.push_back( eagle::genome::Event( sv1, n_beg ));
+        variantList_.push_back( eagle::genome::Event( sv2, n_end ));
     }
 
     start = clock();
@@ -123,6 +125,8 @@ void GenomeMutator::run()
         eagle::genome::ReferenceIterator contig = startingPoint->first;
         unsigned int n = startingPoint->second;
 
+	unsigned int startingPosition = ( direction.isFwd() ? 0 : contig->size()+1 );
+
         if (n > 0)
         {
             clog << "Started processing " << n << " allele(s) from " << ((direction.isFwd())?"beginning":"end") << " of chromosome " << contig->id() << endl;
@@ -152,18 +156,44 @@ void GenomeMutator::run()
                           << "in " << eagle::common::displayTime(clock() - start, timeProcessing) << std::endl;
 
                 // Remove the starting point that we just processed
-                --(startingPoint->second);
+
+		if ( startingPoint->second <= 0 ) {
+		    EAGLE_ERROR("[starting points] Trying to delete already-deleted starting points at " + std::string((0 == startingPosition)?"beginning":"end") + " of chromosome " + contig->id() );
+		} else {
+		    --(startingPoint->second); 
+		}
+
                 // Remove the final position that we just reached from lists of startingPoints
                 std::map< eagle::genome::ReferenceIterator, unsigned int >& mapToSearch = (0 == finalPosition.pos())?forwardStartingPoints:reverseStartingPoints;
                 for (std::map< eagle::genome::ReferenceIterator, unsigned int >::iterator it = mapToSearch.begin(); it != mapToSearch.end(); ++it) {
                     if (it->first->id() == finalPosition.chr()) {
-                        EAGLE_DEBUG(5, "[starting points] Deleting starting point at " << ((0 == finalPosition.pos())?"beginning":"end") << " of chromosome " << finalPosition.chr());
+		        EAGLE_DEBUG(5, "[starting points] Deleting starting point at " << ((0 == finalPosition.pos())?"beginning":"end") << " of chromosome " << finalPosition.chr());
                         if ( it->second <= 0 ) {
-                            EAGLE_ERROR("[starting points] Trying to delete already-deleted starting points at " + std::string((1 == finalPosition.pos())?"beginning":"end") + " of chromosome " + finalPosition.chr());
-                        }
-                        --(it->second);
+                            EAGLE_ERROR("[starting points] Trying to delete already-deleted starting points at " + std::string((0 == finalPosition.pos())?"beginning":"end") + " of chromosome " + finalPosition.chr());
+                        } else {
+			    --(it->second);
+			}
+
+			// if we came out the same chromosome end we started at, we need to decrease the number of chromosomes to generate by one
+		        if(it->first->id() == contig->id()){
+
+			  if ( finalPosition.pos()==0 ?  (startingPosition == 0) : !(startingPosition == 0) ){
+			    EAGLE_WARNING("Encountered loop-back chromosome (same begin and end) for " << finalPosition.chr());
+			    unsigned int nsmp = sample_.size();
+			    unsigned int ismp = contigOut - sample_.begin();
+			    // test for trouble ...
+			    if (ismp == nsmp-1){
+			      EAGLE_ERROR("[starting points] Loop-back chromosome (same begin and end) at last sample -- can't satisfy the ploidy for " 
+					  + std::string((0 == finalPosition.pos())?"beginning":"end") + " of chromosome " + finalPosition.chr());
+			    }
+			    // shrink the sample_ by one
+			    sample_.resize(nsmp-1);
+			    // make sure the iterator is valid
+			    contigOut = sample_.begin() + ismp;
+			  }
+			}
                         break;
-                    }
+		    }                    
                 }
             }
             start = clock();
@@ -356,6 +386,7 @@ void GenomeMutator::run()
                             EAGLE_ERROR("[starting points] Trying to delete already-deleted starting points at " + string((1 == finalPosition.pos())?"beginning":"end") + " of chromosome " + finalPosition.chr() + "\n You probably have a translocation landing inside a deletion\n  Vote for ticket SAGE-174 if you want this automatically detected :p" );
                         }
                         --(vectorToSearch[j]);
+
                         break;
                     }
                 }
@@ -431,10 +462,9 @@ unsigned int GenomeMutator::process(unsigned int num,
         do {
             event += direction.offset();
             EAGLE_DEBUG(5, "Trying... " << *event);
-
             skip = false;
             // Check for variants with GT field
-            if( event->metadata_.hasData() && event->metadata_.getData("GT").size() > 0)
+            if( event->metadata_.hasData() && event->metadata_.getData("GT").size() > 0 && event->metadata_.getData("GT")[0] != string("."))
             {
                 unsigned int altGtIndex = event->getVariant().altGtIndex_;
                 eagle::model::Genotype GT( 1, altGtIndex );
@@ -445,7 +475,9 @@ unsigned int GenomeMutator::process(unsigned int num,
                     // Don't skip the ones demanded to be processed by the input VCF file
 
                     // But skip already processed variants
-                    if (event->allele_.find(num) != event->allele_.end()) { skip = true; }
+                    if (event->allele_.find(num) != event->allele_.end()) { 
+		      skip = true; 
+		    }
                 }
                 else
                 {
@@ -459,7 +491,9 @@ unsigned int GenomeMutator::process(unsigned int num,
                 if (!event->allele_.isHomozygousRef()) { skip = true; }
             }
             // Skip variants defined for the opposite direction
-            if (!direction.sameAs( event->getVariant().adjacency.first.dir )) { skip = true; }
+            if (!direction.sameAs( event->getVariant().adjacency.first.dir )) { 
+	      skip = true; 
+	    }
             // Don't skip begin/end markers
             if (!event->incoming().defined()) { skip = false; }
             // Skip variants starting at same location
@@ -498,6 +532,7 @@ unsigned int GenomeMutator::process(unsigned int num,
         }
 */
 
+
         // Apply variant
 #ifdef DISTRIBUTED_GENOME_MUTATOR
         event->apply2(contigOut, lastEvent, make_pair(genome_.begin(),genome_.end()), direction);
@@ -508,9 +543,10 @@ unsigned int GenomeMutator::process(unsigned int num,
 
         // Mark as processed
         // Don't mark begin/end markers
+
         if( !event->allele_.set(num) )
         {
-            EAGLE_WARNING("Tried to overwrite the following event");
+	  EAGLE_WARNING("Tried to overwrite the following event with num=" << num);
             EAGLE_WARNING_CONT("      " << *event);
 //            EAGLE_ERROR("The last warning is known to happen when a translocation break-end jumps inside a deletion. You need to fix this in the VCF file.");
         }
@@ -545,6 +581,7 @@ unsigned int GenomeMutator::process(unsigned int num,
             // Convert pointer to iterator
             event = variantList_.begin() + event->pairedEvent_;
         }
+
     }
 
     finalPosition = event->getVariant().adjacency.second;

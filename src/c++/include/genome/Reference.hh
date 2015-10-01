@@ -78,6 +78,7 @@ public:
     size_t fileCount() const {return ( (mode_ & std::ios_base::out) ? writer_.size() : reader_.size() );}
     void clear() {reference_.clear();}
     void resize(unsigned int n) {reference_.resize(n);}
+    unsigned int size() {return reference_.size();}
 
     size_t length();
     size_t length(unsigned int i) const {return reference_[i].size();}
