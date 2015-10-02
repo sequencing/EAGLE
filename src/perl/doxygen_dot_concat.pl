@@ -1,4 +1,4 @@
-#!/bin/env perl
+#!/usr/bin/env perl
 
 if (scalar(@ARGV) == 0) {
   print STDERR "Usage:\n";

@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 
 if [ $# -ne 5 ]; then
   echo "Usage:" 
