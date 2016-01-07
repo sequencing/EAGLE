@@ -328,7 +328,7 @@ bool BamOrMetadataOutput::updateRhsCIGAR( const vector< unsigned int >& reordere
                 tmpCIGAR4.clear();
                 unsigned int n = splitAndAppendNCigarEntries( interSegmentIns, tmpCIGAR2, tmpCIGAR4, tmpCIGAR3, insCount, delCount );
                 tmpCIGAR2 = tmpCIGAR3;
-                tmpCIGAR1.push_back( n << 4 | 1 ); // nI
+                tmpCIGAR1.push_back( ( n + insCount - delCount ) << 4 | 1 ); // nI
             }
             if (interSegmentDel > 0)
             {
