@@ -141,8 +141,14 @@ std::istream& operator>>( std::istream& is, Genotype& gt )
         gt.setPloidy(alleles.size());
     for (unsigned int i = 0; i < alleles.size(); i++)
     {
-        if (gt.altGtIndex_ == boost::lexical_cast<unsigned int>(alleles[i]))
-            gt.set(i+1);
+        try
+        {
+            if (gt.altGtIndex_ == boost::lexical_cast<unsigned int>(alleles[i]))
+                gt.set(i+1);
+        }
+        catch (const boost::bad_lexical_cast &e)
+        {
+        }
     }
     return is;
 }
