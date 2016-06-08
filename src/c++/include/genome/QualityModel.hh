@@ -35,7 +35,7 @@ struct ClusterErrorModelContext
 {
     struct
     {
-        unsigned int qualityLevel;
+        unsigned int profileNumber;
     } qualityModelContext;
 
     struct
@@ -66,7 +66,7 @@ struct ClusterErrorModelContext
 
     void initialiseForNewRead()
     {
-        qualityModelContext.qualityLevel = 0;
+        qualityModelContext.profileNumber = 0;
         homopolymerModelContext.lastBase = 0;
         homopolymerModelContext.errorDirection = 0;
         homopolymerModelContext.homopolymerLength = 0;

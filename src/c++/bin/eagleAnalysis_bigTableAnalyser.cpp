@@ -81,7 +81,7 @@ void printKmer( unsigned int kmer, int length )
 
 unsigned int getQuality( const int cycle, int precedingKmer, int newBaseNum, const int prevQBin )
 {
-    //    unsigned int prevQualityBin = Qbins[ clusterErrorModelContext.qualityModelContext.qualityLevel ];
+    //    unsigned int prevQualityBin = Qbins[ clusterErrorModelContext.qualityModelContext.profileNumber ];
     unsigned int firstCycle = ( cycle > 0 ) ? cycle : 1;
     unsigned int lastCycle = ( cycle > 0 ) ? cycle : 502;
     unsigned int firstPrevQBin = ( prevQBin >= 0 ) ? prevQBin : 0;

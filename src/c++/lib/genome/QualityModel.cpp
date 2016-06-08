@@ -125,6 +125,9 @@ unsigned int QualityModel::parseQualityTableFile( const boost::filesystem::path&
 
             for (unsigned int i=2; i<tokens.size(); ++i)
             {
+                if ( tokens[i].empty() )
+                    continue;
+
                 unsigned int quality;
                 double count = 0;
                 istringstream ss( tokens[i] );
@@ -245,7 +248,7 @@ unsigned int QualityModel::getQuality( boost::mt19937& randomGen, const unsigned
     unsigned int cycleNum = cycle;
     unsigned int precedingKmer = clusterErrorModelContext.qualityModelContext.kmer & 0x3FF;
     unsigned int newBaseNum = bclBase;
-    unsigned int prevQualityBin = Qbins[ clusterErrorModelContext.qualityModelContext.qualityLevel ];
+    unsigned int prevQualityBin = Qbins[ clusterErrorModelContext.qualityModelContext.profileNumber ];
     vector<unsigned int> counts(8);
     unsigned int sum = 0;
     for (unsigned int newQualityBin = 0; newQualityBin<8; ++newQualityBin)
@@ -285,11 +288,11 @@ unsigned int QualityModel::getQuality( boost::mt19937& randomGen, const unsigned
     }
     else
     {
-        result = bin2Q[ 5 ]; //clusterErrorModelContext.qualityModelContext.qualityLevel;
+        result = bin2Q[ 5 ]; //clusterErrorModelContext.qualityModelContext.profileNumber;
     }
 
     clusterErrorModelContext.qualityModelContext.kmer = (clusterErrorModelContext.qualityModelContext.kmer << 2 ) | (bclBase & 3);
-    clusterErrorModelContext.qualityModelContext.qualityLevel = result;
+    clusterErrorModelContext.qualityModelContext.profileNumber = result;
 
     return result;
 }
@@ -304,27 +307,28 @@ unsigned int QualityModel::getQuality( boost::mt19937& randomGen, const unsigned
         EAGLE_ERROR( "The quality table doesn't model as many cycles as necessary for this simulation" );
     }
 
-    if (clusterErrorModelContext.qualityModelContext.qualityLevel == 0)
+    if (clusterErrorModelContext.qualityModelContext.profileNumber == 0)
     {
-        unsigned int cycleForQualityLevel = cycle;
-        while (qualityDistPerCyclePerLastQuality[cycleForQualityLevel][0].max() == 0)
+        // No profile number assigned to this read => find the last cycle containing a profile spec and use it
+        unsigned int cycleForProfileNumber = cycle;
+        while (qualityDistPerCyclePerLastQuality[cycleForProfileNumber][0].max() == 0)
         {
-            if (cycleForQualityLevel == 0)
+            if (cycleForProfileNumber == 0)
             {
-                EAGLE_ERROR("Cannot find quality level distribution in quality tables (there should at least be an entry for {cycle=1, prevQ=0})");
+                EAGLE_ERROR("Cannot find quality level distribution in quality tables (there should at least be an entry for {cycle=0, profile=0})");
             }
-            --cycleForQualityLevel;
+            --cycleForProfileNumber;
         }
-        clusterErrorModelContext.qualityModelContext.qualityLevel = qualityDistPerCyclePerLastQuality[cycleForQualityLevel][0](randomGen);
-        assert( clusterErrorModelContext.qualityModelContext.qualityLevel > 0 );
+        clusterErrorModelContext.qualityModelContext.profileNumber = qualityDistPerCyclePerLastQuality[cycleForProfileNumber][0](randomGen);
+        assert( clusterErrorModelContext.qualityModelContext.profileNumber > 0 );
     }
-    unsigned int qualityLevel = clusterErrorModelContext.qualityModelContext.qualityLevel;
-    assert( qualityLevel > 0 );
-    if (qualityLevel >= qualityDistPerCyclePerLastQuality[cycle].size())
+    unsigned int profileNumber = clusterErrorModelContext.qualityModelContext.profileNumber;
+    assert( profileNumber > 0 );
+    if (profileNumber >= qualityDistPerCyclePerLastQuality[cycle].size())
     {
-        EAGLE_ERROR( (boost::format("The quality table doesn't contain the required entry for {cycle=%d, qualityLevel=%d}") % cycle % qualityLevel).str() );
+        EAGLE_ERROR( (boost::format("The quality table doesn't contain the required entry for {cycle=%d, profileNumber=%d}") % cycle % profileNumber).str() );
     }
-    unsigned int quality = qualityDistPerCyclePerLastQuality[cycle][qualityLevel](randomGen);
+    unsigned int quality = qualityDistPerCyclePerLastQuality[cycle][profileNumber](randomGen);
 
 #ifdef DEBUG_QUALITIES
     cout << (boost::format("Q=%d => error-rate=%f") % quality % model::Phred::qualToProb(quality)).str() << endl;
@@ -869,10 +873,11 @@ void ErrorModel::getQualityAndRandomError( boost::mt19937& randomGen, const unsi
 
     // Apply quality drop due to phasing, using an additive strategy
     // This quality drop was calculated as part of the previous "applyQualityDrop" methods
-    if( quality >= 2 ) // Preserve 'N'
-    {
-        quality = max<int>( static_cast<int>(quality) - clusterErrorModelContext.phasingContext.qualityDrop, 2 );
-    }
+    quality -= clusterErrorModelContext.phasingContext.qualityDrop;
+
+    // Make sure quality scores stay above 2
+    if ( quality < 2 )
+        quality = 2;
 
     double errorRate = qqTable_.qualToErrorRate( quality );
 
