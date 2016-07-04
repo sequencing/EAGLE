@@ -17,11 +17,11 @@ EAGLE vB<@EAGLE_VERSION@>
 
 =head1 DESCRIPTION
 
-B<configureEAGLE.pl> - Create and initialize the EAGLE folder.
+B<configureEAGLE_Normal+Tumour.pl> - Create and initialize the EAGLE folder.
 
 =head1 SYNOPSIS
 
-  configureEAGLE.pl [<path/to/EAGLE-dir>] \
+  configureEAGLE_Normal+Tumour.pl [<path/to/EAGLE-dir>] \
                     --reference-genome=<path/to/ReferenceDir> \
                     --run-info=<path/to/RunInfo.xml> \
                     [options]
@@ -207,7 +207,7 @@ my @tumourOnlyVariants = ();
 my $tumourOnlyCnv = '';
 my $normalCoverage = 0;
 my $tumourOverallCoverage = 0;
-my $tumourPurity = 0;
+my $tumourPurity = 1.0;
 
 my $useQsub = 0;
 my $useSge = 0;
