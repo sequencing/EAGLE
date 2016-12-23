@@ -404,7 +404,7 @@ print $makefileHandle "tumour_merged: ${tumourDir}/fragments/fragments.pos\n";
 print $makefileHandle "${tumourDir}/fragments/fragments.pos: ${tumourDir}/EAGLE_normalForPurityMix/fragments/fragments.pos ${tumourDir}/EAGLE_tumourForPurityMix/fragments/fragments.pos\n";
 print $makefileHandle "\tcd ${tumourDir} \\\n";
 print $makefileHandle "\t\$(AND) $EAGLE_LIBEXEC/mergeSampleGenomes.pl -i EAGLE_normalForPurityMix -j EAGLE_tumourForPurityMix \\\n";
-print $makefileHandle "\t\$(AND) $EAGLE_LIBEXEC/mergeFragments.pl -i EAGLE_normalForPurityMix -j EAGLE_tumourForPurityMix\n";
+print $makefileHandle "\t\$(AND) $EAGLE_LIBEXEC/mergeFragments.pl -i EAGLE_normalForPurityMix -j EAGLE_tumourForPurityMix -a \"`grep CHROMOSOME_ALLELES Makefile | cut -d ' ' -f 3-`\"\n";
 
 print $makefileHandle "\n# Prepare normal\n";
 print $makefileHandle "normal_prep: ${normalDir}/Makefile\n";

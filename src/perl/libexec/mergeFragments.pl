@@ -70,6 +70,7 @@ my $usage =
     "Usage: $programName [options]\n"
   . "\t-i, --dataset1=PATH          - 1st dataset directory\n"
   . "\t-j, --dataset2=PATH          - 2nd dataset directory\n"
+  . "\t-a, --chromosome-alleles=STR - space-separated list of alleles\n"
 
   . "\t--help                       - prints usage guide\n"
   . "\t--version                    - prints version information\n"
@@ -91,10 +92,12 @@ $PARAMS{verbose} = 0;
 
 $PARAMS{dataset1} = "";
 $PARAMS{dataset2} = "";
+$PARAMS{chrAlleles} = "";
 
 my $result = GetOptions(
     "dataset1|i=s"          => \$PARAMS{dataset1},
     "dataset2|j=s"          => \$PARAMS{dataset2},
+    "chrAlleles|a=s"        => \$PARAMS{chrAlleles},
 
     "version"               => \$isVersion,
     "help"                  => \$help
@@ -200,5 +203,20 @@ else {
 system( "tail -c +3 $PARAMS{dataset2}/fragments/fragments.pos >> fragments/fragments.pos" );
 
 system( "touch fragments/fragments.done" );
+
+
+# Create one directory per chromosome allele with a fragments.done file in it
+my @alleles = split(' ', $PARAMS{chrAlleles});
+
+foreach my $allele (@alleles) {
+  system( "mkdir \"fragments/fragments_${allele}\"" );
+  system( "touch \"fragments/fragments_${allele}/fragments.done\"" );
+
+  # rev
+  $allele .= "_rev";
+  system( "mkdir \"fragments/fragments_${allele}\"" );
+  system( "touch \"fragments/fragments_${allele}/fragments.done\"" );
+}
+
 
 print "Fragments successfully merged\n";
