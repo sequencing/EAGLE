@@ -324,7 +324,8 @@ my $normalCoverageForRequestedPurity = ${tumourOverallCoverage} * (1-${tumourPur
 my $normalDir = "$fullOutputDir/EAGLE_normal";
 my $tumourDir = "$fullOutputDir/EAGLE_tumour_purity_" . ${tumourPurity};
 
-my $EAGLE_LIBEXEC = "/home/ljanin/install/EAGLE-release/libexec/EAGLE";
+#my $EAGLE_LIBEXEC = "/home/ljanin/install/EAGLE-release/libexec/EAGLE";
+my $EAGLE_LIBEXEC = ${programPath} . "/../libexec/EAGLE";
 
 my $makeOptions = '-j 8';
 
