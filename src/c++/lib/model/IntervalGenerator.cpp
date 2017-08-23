@@ -188,7 +188,12 @@ double RandomIntervalGeneratorUsingIntervalLengthDistribution::getIntervalsProba
         unsigned int index = fragmentLengthDist_.max() - distanceToContigEnd;
         if (index >= probas_.size())
         {
-            assert( index == probas_.size() ); // We expect to build the index 1 entry at a time
+            // We expect to build the index 1 entry at a time( index == probas_.size() most of the time), but we need to skip some initial entries for chromosomes smaller than the max template length
+            if (index > probas_.size())
+            {
+                probas_.resize( index, 0 );
+            }
+
             double p = 0;
             for (unsigned int i=fragmentLengthDist_.min(); i<=distanceToContigEnd; ++i)
             {
