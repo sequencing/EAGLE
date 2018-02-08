@@ -18,10 +18,12 @@ Required packages (based on a fresh Ubuntu install):
     Samtools
     dc
     bzip2
+    which
+    time
 
     All together:
-        apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2
-      / yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bzip2
+        apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 which time
+      / yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bzip2 which bc time
 
 
 Installation Instructions
