@@ -23,7 +23,7 @@ Required packages (based on a fresh Ubuntu install):
 
     All together:
         apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 which time
-      / yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bzip2 which bc time
+      / yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bc bzip2 which time
 
 
 Installation Instructions
