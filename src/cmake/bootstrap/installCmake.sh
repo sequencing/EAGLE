@@ -43,7 +43,9 @@ if [[ `cmake --version 2> /dev/null` =~ $check && ! $FORCE ]] ; then
     MAJOR=${BASH_REMATCH[1]}
     MINOR=${BASH_REMATCH[2]}
     PATCH=${BASH_REMATCH[3]}
-    if [[ "$MAJOR" -eq "$CMAKE_MAJOR" && ( "$MINOR" -gt "$CMAKE_MINOR" || "$MINOR" -eq "$CMAKE_MINOR" && "$PATCH" -ge "$CMAKE_PATCH"  ) ]] ; then
+    let VERSION_INT=1000000*MAJOR+1000*MINOR+PATCH
+    let WANTED_VERSION_INT=1000000*CMAKE_MAJOR+1000*CMAKE_MINOR+CMAKE_PATCH
+    if [[ "$VERSION_INT" -ge "$WANTED_VERSION_INT" ]] ; then
         echo "${BASH_REMATCH[0]} (>= $CMAKE_REQUIRED) detected" >&2
         exit 1
     fi
