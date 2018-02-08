@@ -18,11 +18,11 @@ Required packages (based on a fresh Ubuntu install):
     Samtools
     dc
     bzip2
-    which
-    time
+    which (in centos docker)
+    time (in docker)
 
     All together:
-        apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 which time
+        apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 time
       / yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bc bzip2 which time
 
 
