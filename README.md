@@ -13,7 +13,7 @@ Required packages (based on a fresh Ubuntu install):
 
     CMake >= 2.8.2
     C++ compiler
-    Boost development libraries >= 1.47
+    Boost development libraries >= 1.56
     LibXml
     Samtools
     dc

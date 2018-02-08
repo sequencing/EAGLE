@@ -97,7 +97,7 @@ void FastaReference::outputStructure( const boost::filesystem::path& outputDir )
 
 void FastaReference::inputMode()
 {
-    if (! mode_ & std::ios_base::in)
+    if (!(mode_ & std::ios_base::in))
     {
         BOOST_THROW_EXCEPTION(common::PreConditionException(
                               (boost::format("Not allowed to read from %s" ) % reader_.file()).str() ));
@@ -106,7 +106,7 @@ void FastaReference::inputMode()
 // TODO: print out the file name
 void FastaReference::outputMode()
 {
-    if (! mode_ & std::ios_base::out)
+    if (!(mode_ & std::ios_base::out))
     {
         BOOST_THROW_EXCEPTION(common::PreConditionException(
                               (boost::format("Not allowed to write to FASTA file" )).str() ));
@@ -491,7 +491,7 @@ GenomeSizeXml::GenomeSizeXml(
 
 void GenomeSizeXml::load(eagle::io::FastaMetadata &metadata)
 {
-    if (! mode_ & std::ios_base::in)
+    if (!(mode_ & std::ios_base::in))
     {
         BOOST_THROW_EXCEPTION(common::PreConditionException( (boost::format("Not allowed to read from %s") % path_ ).str() ));
     }
@@ -552,7 +552,7 @@ void GenomeSizeXml::load(std::istream &is, eagle::io::FastaMetadata &metadata)
 
 void GenomeSizeXml::save(const eagle::io::FastaMetadata &index)
 {
-    if (! mode_ & std::ios_base::out)
+    if (!(mode_ & std::ios_base::out))
     {
         BOOST_THROW_EXCEPTION(common::PreConditionException( (boost::format("Not allowed to write to %s") % path_ ).str() ));
     }
@@ -580,7 +580,7 @@ void GenomeSizeXml::save(const boost::filesystem::path &file, const eagle::io::F
             sequenceSizes.add_child("chromosome",node);
         }
     }
-    write_xml(file.string(), tree, std::locale(), xml_writer_settings<char>(' ', 4));
+    write_xml(file.string(), tree, std::locale(), xml_writer_settings<std::string>(' ', 4));
 }
 
 

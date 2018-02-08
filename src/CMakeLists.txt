@@ -30,7 +30,7 @@ set(EAGLE_COPYRIGHT "Copyright (c) 2014 Illumina, Inc.")
 # The EAGLE version number.
 set(EAGLE_VERSION_MAJOR "2")
 set(EAGLE_VERSION_MINOR "0")
-set(EAGLE_VERSION_PATCH "3")
+set(EAGLE_VERSION_PATCH "4")
 set(EAGLE_VERSION_DEVEL "")
 set(EAGLE_VERSION "${EAGLE_VERSION_MAJOR}.${EAGLE_VERSION_MINOR}.${EAGLE_VERSION_PATCH}${EAGLE_VERSION_DEVEL}")
 set(EAGLE_VERSION_FULL "${PROJECT_NAME}-${EAGLE_VERSION}")
@@ -128,7 +128,7 @@ add_custom_target(EAGLE_CXX)
 set(BOOST_REDIST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../redist")
 
 # required boost libraries
-set      (EAGLE_BOOST_VERSION 1.47.0)
+set      (EAGLE_BOOST_VERSION 1.56.0)
 set      (EAGLE_BOOST_COMPONENTS date_time filesystem iostreams program_options
                                 regex serialization system thread)
 set      (Boost_USE_MULTITHREAD ON)

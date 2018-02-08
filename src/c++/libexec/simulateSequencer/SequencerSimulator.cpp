@@ -149,6 +149,7 @@ void SequencerSimulator::generateBam()
         }
     }
     assert( refChrFound && "Error: specified chromosome not found in reference genome" );
+    (void)refChrFound; // prevents "variable set but not used" warning when asserts are not compiled
 
     genome::RefToSampleSegment refToSampleSegment;
     bool segmentAvailable;

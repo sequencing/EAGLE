@@ -43,7 +43,6 @@ endforeach (SOURCE_FILE)
 
 include_directories (${EAGLE_COMMON_INCLUDE} )
 add_library         (eagle_${EAGLE_LIB_DIR} STATIC ${EAGLE_LIBRARY_SOURCES})
-add_dependencies    (eagle_${EAGLE_LIB_DIR} EAGLE_OPT)
 
 ##
 ## build the unit tests if any (this should be mandatory really)

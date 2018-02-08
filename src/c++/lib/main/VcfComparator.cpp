@@ -191,6 +191,8 @@ void VcfComparator::run()
             assert(false);
         }
     }
+
+    (void)start; // prevents "variable set but not used" warning when EAGLE_DEBUGs are not compiled
 }
 
 

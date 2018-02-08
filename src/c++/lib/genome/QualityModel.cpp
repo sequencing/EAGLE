@@ -360,6 +360,7 @@ SequencingMismatchModel::SequencingMismatchModel( const boost::filesystem::path&
         const vector<string> expectedRowHeaders = boost::assign::list_of("A")("C")("G")("T");
         BOOST_FOREACH( const string& expectedRowHeader, expectedRowHeaders)
         {
+            (void)expectedRowHeader; // prevents "unused variable" warning when asserts are not compiled
             tsvReader.getNextLineFields<'\t'>(tokens);
             assert( tokens.size() == 10 && "There should be 10 entries per line" );
             assert( tokens[0] == expectedRowHeader && "Unexpected value in first column (The first 4 entries - ignoring the lines starting with '#' - should be A,C,G,T)" );

@@ -171,7 +171,7 @@ void RunFolderGenerator::generateRunInfo() const
         reads.add_child("Read", read);
     }
 
-    const boost::property_tree::xml_writer_settings<char> w(' ', 2);
+    const boost::property_tree::xml_writer_settings<string> w(' ', 2);
     const bfs::path runInfoPath = runFolderPath_ / "RunInfo.xml";
 
     // DEBUG
@@ -249,7 +249,7 @@ void RunFolderGenerator::generateConfig() const
         tileSelection.add_child("Lane", lane);
     }
 
-    const boost::property_tree::xml_writer_settings<char> w(' ', 2);
+    const boost::property_tree::xml_writer_settings<string> w(' ', 2);
     const bfs::path configPath = baseCallsPath_ / "config.xml";
 
     // DEBUG
