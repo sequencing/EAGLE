@@ -18,6 +18,7 @@
 #include "genome/SharedFastaReference.hh"
 #include "genome/ReferenceToSample.hh"
 #include "io/Bcl.hh"
+#include "io/Fastq.hh"
 #include "genome/BamMetadata.hh"
 #include "model/Fragment.hh"
 #include "model/PassFilter.hh"
@@ -26,6 +27,7 @@
 
 using namespace std;
 using eagle::io::BclTile;
+using eagle::io::FastqTile;
 
 
 namespace eagle
@@ -47,6 +49,11 @@ void SequencerSimulator::run()
     if (options_.generateBclTile)
     {
         generateBclTile();
+    }
+
+    if (options_.generateFastqTile)
+    {
+        generateFastqTile();
     }
 
     if (options_.generateBam)
@@ -103,6 +110,51 @@ void SequencerSimulator::generateBclTile()
     else
     {
         bclTile.flushToDisk();
+    }
+}
+
+void SequencerSimulator::generateFastqTile()
+{    // for each tile in the to-be-processed set:
+    unsigned long long tileReadCount = fragmentList_.getTileSize( tileNum_ );
+    clog << "SequencerSimulator::generateFastqTile: tile=" << tileNum_ << ", readCount=" << tileReadCount << endl;
+
+    unsigned int tileId = options_.tileId;
+    string fastqFilenameTemplate = (boost::format("%s/Data/Intensities/BaseCalls/L%03g/C%%d.1/s_%d_%g.fastq") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
+    string statsFilenameTemplate = (boost::format("%s/Data/Intensities/BaseCalls/L%03g/C%%d.1/s_%d_%g.stats") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
+    string filterFilename = (boost::format("%s/Data/Intensities/BaseCalls/L00%d/s_%d_%04g.filter") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
+    string posFilename = (boost::format("%s/Data/Intensities/s_%d_%04g_pos.txt") % options_.outDir.string() % options_.lane % tileId).str();
+    string clocsFilename = (boost::format("%s/Data/Intensities/L00%d/s_%d_%04g.clocs") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
+    string controlFilename = (boost::format("%s/Data/Intensities/BaseCalls/L00%d/s_%d_%04g.control") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
+    unsigned int clusterLength = runInfo_.getClusterLength();
+    FastqTile fastqTile( tileReadCount, clusterLength, fastqFilenameTemplate, statsFilenameTemplate, filterFilename, clocsFilename, controlFilename );
+
+    for (unsigned int i=0; i<tileReadCount; ++i)
+    {
+        // Read next paired read position for our tile(s) of interest
+        eagle::model::Fragment fragment = fragmentList_.getNext( tileNum_ );
+        eagle::genome::ReadClusterWithErrors readClusterWithErrors = readClusterFactory_.getReadClusterWithErrors( fragment );
+
+        // Apply errors
+        //automatically done by class//            readClusterWithErrors.generateErrors();
+
+        // Output FASTQ
+        const char *fastqCluster = readClusterWithErrors.getBclCluster();
+        bool isPassingFilter = model::PassFilter::isBclClusterPassingFilter( fastqCluster, clusterLength );
+        fastqTile.addClusterToRandomLocation( fastqCluster, isPassingFilter );
+    }
+
+    // Flush tile to disk (TODO: ...in parallel with next tile's creation)
+    if (options_.maxConcurrentWriters > 0)
+    {
+        clog << "Ready to flush tile. Waiting for semaphore." << endl;
+        eagle::common::Semaphore semaphore( "EagleSemaphore", options_.maxConcurrentWriters );
+        semaphore.wait();
+        fastqTile.flushToDisk();
+        semaphore.post();
+    }
+    else
+    {
+        fastqTile.flushToDisk();
     }
 }
 

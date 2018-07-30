@@ -28,6 +28,7 @@ public:
     SequencerSimulator (const SequencerSimulatorOptions &options);
     void run();
     void generateBclTile();
+    void generateFastqTile();
     void generateBam();
     void generateSampleBam();
 

@@ -27,6 +27,7 @@ namespace bfs = boost::filesystem;
 
 SequencerSimulatorOptions::SequencerSimulatorOptions()
     : generateBclTile(false)
+    , generateFastqTile(false)
     , generateBam(false)
     , generateSampleBam(false)
     , sampleGenomeDir()
@@ -73,6 +74,7 @@ SequencerSimulatorOptions::SequencerSimulatorOptions()
         ;
     namedOptions_.add_options()
         ("generate-bcl-tile", bpo::value< bool >(&generateBclTile)->zero_tokens(), "Generates BCL tile identified by the following parameters:")
+        ("generate-fastq-tile", bpo::value< bool >(&generateFastqTile)->zero_tokens(), "Generates FASTQ tile identified by the following parameters:")
         ("read-count,n", bpo::value<unsigned int>(&readCount)->default_value(readCount), "Number of reads")
         ("lane-count,m", bpo::value<unsigned int>(&laneCount)->default_value(laneCount), "Number of lanes")
         ("tiles-per-lane,u", bpo::value<unsigned int>(&tilesPerLane)->default_value(tilesPerLane), "Number of tiles per lane")
@@ -96,7 +98,7 @@ void SequencerSimulatorOptions::postProcess(bpo::variables_map &vm)
     eagle::common::OptionsHelper check(vm);
 
     std::string mode = check.mutuallyExclusiveOptions(
-        boost::assign::list_of("generate-bcl-tile")("generate-bam")("generate-sample-bam")
+        boost::assign::list_of("generate-bcl-tile")("generate-fastq-tile")("generate-bam")("generate-sample-bam")
         );
 
     check.requiredOptions(boost::assign::list_of
@@ -106,7 +108,7 @@ void SequencerSimulatorOptions::postProcess(bpo::variables_map &vm)
                           ("quality-table")
                           );
 
-    if (mode == "generate-bcl-tile")
+    if (mode == "generate-bcl-tile" || mode == "generate-fastq-tile")
     {
         check.requiredOptions(boost::assign::list_of
                               ("lane")
