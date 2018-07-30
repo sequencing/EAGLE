@@ -874,7 +874,14 @@ void ErrorModel::getQualityAndRandomError( boost::mt19937& randomGen, const unsi
 
     // Apply quality drop due to phasing, using an additive strategy
     // This quality drop was calculated as part of the previous "applyQualityDrop" methods
-    quality -= clusterErrorModelContext.phasingContext.qualityDrop;
+    if (quality > clusterErrorModelContext.phasingContext.qualityDrop)
+    {
+      quality -= clusterErrorModelContext.phasingContext.qualityDrop;
+    }
+    else
+    {
+      quality = 0;
+    }
 
     // Make sure quality scores stay above 2
     if ( quality < 2 )
