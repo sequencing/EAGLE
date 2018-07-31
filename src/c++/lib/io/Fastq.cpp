@@ -33,7 +33,7 @@ FastqTile::FastqTile( const unsigned long long expectedReadCount, const unsigned
         , read1FastqFile_    ( read1FastqFilename.c_str() )
         , read2FastqFile_    ( read2FastqFilename.c_str() )
         , infoFile_          ( (read1FastqFilename_ + ".info").c_str() )
-        , readNamePrefix_    ( (boost::format("@EAGLE:%s:%s:%d:%04g:0:0 ") % runInfo.runNumber % runInfo.flowcell % lane % tileId).str() ) // @HSQ1004:200:C0M7LACXX:1:1101:1187:2070 1:N:0:1
+        , readNamePrefix_    ( (boost::format("@EAGLE:%s:%s:%d:%04g:") % runInfo.runNumber % runInfo.flowcell % lane % tileId).str() ) // @HSQ1004:200:C0M7LACXX:1:1101:1187:2070 1:N:0:1
         , totalReadCount_    ( 0 )
         , passedFilterReadCount_( 0 )
     {
@@ -61,12 +61,14 @@ FastqTile::FastqTile( const unsigned long long expectedReadCount, const unsigned
         }
    }
 
-    void FastqTile::addCluster( const string &read1Nucleotides, const string &read1Qualities, const string &read2Nucleotides, const string &read2Qualities, const bool isPassingFilter )
+    void FastqTile::addCluster( const string &read1Nucleotides, const string &read1Qualities, const string &read2Nucleotides, const string &read2Qualities, const bool isPassingFilter, const unsigned long coordX, const unsigned long coordY )
     {
-        string read1Buf = readNamePrefix_ + "1:" + (isPassingFilter?"N":"Y") + ":0:1\n" + read1Nucleotides + "\n+\n" + read1Qualities + "\n";
+        string readNamePart1 = readNamePrefix_ + (boost::format("%d:%d") % coordX % coordY).str();
+
+        string read1Buf = readNamePart1 + " 1:" + (isPassingFilter?"N":"Y") + ":0:1\n" + read1Nucleotides + "\n+\n" + read1Qualities + "\n";
         read1FastqFile_.write(read1Buf.c_str(), read1Buf.size());
 
-        string read2Buf = readNamePrefix_ + "2:" + (isPassingFilter?"N":"Y") + ":0:1\n" + read2Nucleotides + "\n+\n" + read2Qualities + "\n";
+        string read2Buf = readNamePart1 + " 2:" + (isPassingFilter?"N":"Y") + ":0:1\n" + read2Nucleotides + "\n+\n" + read2Qualities + "\n";
         read2FastqFile_.write(read2Buf.c_str(), read2Buf.size());
 
         totalReadCount_++;

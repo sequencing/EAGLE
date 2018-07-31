@@ -31,7 +31,7 @@ class FastqTile
 public:
     FastqTile( const unsigned long long expectedReadCount, const unsigned int clusterLength, const std::string &read1FastqFilename, const std::string &read2FastqFilename, const RunInfo &runInfo, const int lane, const unsigned int tileId, const bool verbose=true );
 
-    void addCluster( const std::string &read1Nucleotides, const std::string &read1Qualities, const std::string &read2Nucleotides, const std::string &read2Qualities, const bool isPassingFilter = true );
+    void addCluster( const std::string &read1Nucleotides, const std::string &read1Qualities, const std::string &read2Nucleotides, const std::string &read2Qualities, const bool isPassingFilter, const unsigned long coordX, const unsigned long coordY );
     void finaliseAndWriteInfo();
 
 private:

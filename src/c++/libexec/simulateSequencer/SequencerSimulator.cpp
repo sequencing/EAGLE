@@ -140,7 +140,15 @@ void SequencerSimulator::generateFastqTile()
         const string read2Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,true,false,true);
         const string read2Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,false,false,true);
 
-        fastqTile.addCluster( read1Nucleotides, read1Qualities, read2Nucleotides, read2Qualities, isPassingFilter );
+        // Use position
+        unsigned long startPos = readClusterWithErrors.eFragment_.fragment_.startPos_;
+        int refId;
+        unsigned long posInContig;
+        genome::SharedFastaReference::get()->convertFromGlobalPos( startPos, refId, posInContig);
+        unsigned long coordX = refId;
+        unsigned long coordY = posInContig;
+
+        fastqTile.addCluster( read1Nucleotides, read1Qualities, read2Nucleotides, read2Qualities, isPassingFilter, coordX, coordY );
     }
 
     fastqTile.finaliseAndWriteInfo();
