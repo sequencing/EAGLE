@@ -75,7 +75,7 @@ $(EAGLE_OUTDIR)/.$(fmtLane)_%.fastq.completed:
 	        --output-dir="$(dir $<)" \
 	        --lane-count=$(words $(LANES)) \
 	        --tiles-per-lane=$(words $(TILES)) \
-	        --lane=$(@:$(EAGLE_OUTDIR)/.L00%_$(*).bcl.completed=%) \
+	        --lane=$(@:$(EAGLE_OUTDIR)/.L00%_$(*).fastq.completed=%) \
 	        --tile-num=$(tile.$*) --tile-id=$* \
 	        $(RANDOM_SEED_OPTION) \
 	        $(SEQUENCER_SIMULATOR_OPTIONS) \

@@ -118,15 +118,12 @@ void SequencerSimulator::generateFastqTile()
     unsigned long long tileReadCount = fragmentList_.getTileSize( tileNum_ );
     clog << "SequencerSimulator::generateFastqTile: tile=" << tileNum_ << ", readCount=" << tileReadCount << endl;
 
-    unsigned int tileId = options_.tileId;
-    string fastqFilenameTemplate = (boost::format("%s/Data/Intensities/BaseCalls/L%03g/C%%d.1/s_%d_%g.fastq") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
-    string statsFilenameTemplate = (boost::format("%s/Data/Intensities/BaseCalls/L%03g/C%%d.1/s_%d_%g.stats") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
-    string filterFilename = (boost::format("%s/Data/Intensities/BaseCalls/L00%d/s_%d_%04g.filter") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
-    string posFilename = (boost::format("%s/Data/Intensities/s_%d_%04g_pos.txt") % options_.outDir.string() % options_.lane % tileId).str();
-    string clocsFilename = (boost::format("%s/Data/Intensities/L00%d/s_%d_%04g.clocs") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
-    string controlFilename = (boost::format("%s/Data/Intensities/BaseCalls/L00%d/s_%d_%04g.control") % options_.outDir.string() % options_.lane % options_.lane % tileId).str();
+    //unsigned int tileId = options_.tileId;
+    string fastqFilenameTemplate = (boost::format("%s/EAGLE_S%d_L%03g_R%%d_001.fastq") % options_.outDir.string() % (tileNum_ + 1) % options_.lane).str();
+    string read1FastqFilename = (boost::format(fastqFilenameTemplate) % 1).str();
+    string read2FastqFilename = (boost::format(fastqFilenameTemplate) % 2).str();
     unsigned int clusterLength = runInfo_.getClusterLength();
-    FastqTile fastqTile( tileReadCount, clusterLength, fastqFilenameTemplate, statsFilenameTemplate, filterFilename, clocsFilename, controlFilename );
+    FastqTile fastqTile( tileReadCount, clusterLength, read1FastqFilename, read2FastqFilename, runInfo_, options_.lane, options_.tileId );
 
     for (unsigned int i=0; i<tileReadCount; ++i)
     {
@@ -134,28 +131,19 @@ void SequencerSimulator::generateFastqTile()
         eagle::model::Fragment fragment = fragmentList_.getNext( tileNum_ );
         eagle::genome::ReadClusterWithErrors readClusterWithErrors = readClusterFactory_.getReadClusterWithErrors( fragment );
 
-        // Apply errors
-        //automatically done by class//            readClusterWithErrors.generateErrors();
-
         // Output FASTQ
-        const char *fastqCluster = readClusterWithErrors.getBclCluster();
-        bool isPassingFilter = model::PassFilter::isBclClusterPassingFilter( fastqCluster, clusterLength );
-        fastqTile.addClusterToRandomLocation( fastqCluster, isPassingFilter );
+        const char *bclCluster = readClusterWithErrors.getBclCluster();
+        bool isPassingFilter = model::PassFilter::isBclClusterPassingFilter( bclCluster, clusterLength );
+
+        const string read1Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,true,false,true);
+        const string read1Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,false,false,true);
+        const string read2Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,true,false,true);
+        const string read2Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,false,false,true);
+
+        fastqTile.addCluster( read1Nucleotides, read1Qualities, read2Nucleotides, read2Qualities, isPassingFilter );
     }
 
-    // Flush tile to disk (TODO: ...in parallel with next tile's creation)
-    if (options_.maxConcurrentWriters > 0)
-    {
-        clog << "Ready to flush tile. Waiting for semaphore." << endl;
-        eagle::common::Semaphore semaphore( "EagleSemaphore", options_.maxConcurrentWriters );
-        semaphore.wait();
-        fastqTile.flushToDisk();
-        semaphore.post();
-    }
-    else
-    {
-        fastqTile.flushToDisk();
-    }
+    fastqTile.finaliseAndWriteInfo();
 }
 
 /*

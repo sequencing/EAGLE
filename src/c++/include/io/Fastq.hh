@@ -15,7 +15,9 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "common/Exceptions.hh"
+#include "io/RunInfo.hh"
 
 
 namespace eagle
@@ -27,28 +29,25 @@ namespace io
 class FastqTile
 {
 public:
-    FastqTile( const unsigned long long expectedReadCount, const unsigned int clusterLength, const std::string &filenameTemplate, const std::string &statsFilenameTemplate, const std::string &filterFilename, const std::string &clocsFilename, const std::string &controlFilename, const bool verbose=true );
-    void addClusterToRandomLocation( const char *bufCluster, const bool isPassingFilter = true );
-    void flushToDisk() const;
+    FastqTile( const unsigned long long expectedReadCount, const unsigned int clusterLength, const std::string &read1FastqFilename, const std::string &read2FastqFilename, const RunInfo &runInfo, const int lane, const unsigned int tileId, const bool verbose=true );
+
+    void addCluster( const std::string &read1Nucleotides, const std::string &read1Qualities, const std::string &read2Nucleotides, const std::string &read2Qualities, const bool isPassingFilter = true );
+    void finaliseAndWriteInfo();
 
 private:
-    void writeFastqFile( const unsigned int cycle ) const;
-    void writeStatsFile( const unsigned int cycle ) const;
-    void writeFilterFile() const;
-    void writeClocsFile() const;
-    void writeControlFile() const;
 
     unsigned long long expectedReadCount_;
     unsigned int clusterLength_;
     std::string filenameTemplate_;
-    std::string statsFilenameTemplate_;
-    std::string filterFilename_;
-    std::string clocsFilename_;
-    std::string controlFilename_;
-    //    vector<bool> usedLocations;
-    std::vector<std::vector<unsigned int> > stats_;
-    char *ramTile_;
-    std::vector<char> passFilter_;
+    std::string read1FastqFilename_;
+    std::string read2FastqFilename_;
+    std::ofstream read1FastqFile_;
+    std::ofstream read2FastqFile_;
+    std::ofstream infoFile_;
+
+    std::string readNamePrefix_;
+    unsigned long long totalReadCount_;
+    unsigned long long passedFilterReadCount_;
 };
 
 
