@@ -135,10 +135,10 @@ void SequencerSimulator::generateFastqTile()
         const char *bclCluster = readClusterWithErrors.getBclCluster();
         bool isPassingFilter = model::PassFilter::isBclClusterPassingFilter( bclCluster, clusterLength );
 
-        const string read1Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,true,false,true);
-        const string read1Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,false,false,true);
-        const string read2Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,true,false,true);
-        const string read2Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,false,false,true);
+        const string read1Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,true,false,false);
+        const string read1Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,false,false,false);
+        const string read2Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,true,false,false);
+        const string read2Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,false,false,false);
 
         // Use position
         unsigned long startPos = readClusterWithErrors.eFragment_.fragment_.startPos_;
