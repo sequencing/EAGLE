@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <RunInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2">
-  <Run Id="121221_HSQ868_0359_AH04ADADXX" Number="359">
+  <Run Id="111206_EAS987_0567_FC1234TST" Number="359">
     <Flowcell>H04ADADXX</Flowcell>
     <Instrument>HSQ868</Instrument>
     <Date>121221</Date>
