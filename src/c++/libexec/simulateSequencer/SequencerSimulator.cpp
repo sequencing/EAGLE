@@ -148,7 +148,7 @@ void SequencerSimulator::generateFastqTile()
         int refId;
         unsigned long posInContig;
         genome::SharedFastaReference::get()->convertFromGlobalPos( startPos, refId, posInContig);
-        unsigned long coordX = refId + 100 * (i % 1000); // We need to use i to make read names unique
+        unsigned long coordX = refId + 100 * (i % 10000); // We need to use i to make read names unique, but we don't want coordX so long that it could crash downstream tools
         unsigned long coordY = posInContig;
 
         fastqTile.addCluster( read1Nucleotides, read1Qualities, read2Nucleotides, read2Qualities, isPassingFilter, coordX, coordY );
