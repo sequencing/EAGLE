@@ -135,6 +135,9 @@ void SequencerSimulator::generateFastqTile()
         const char *bclCluster = readClusterWithErrors.getBclCluster();
         bool isPassingFilter = model::PassFilter::isBclClusterPassingFilter( bclCluster, clusterLength );
 
+        // Don't output reads that don't pass filter
+        if (!isPassingFilter) continue;
+
         const string read1Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,true,false,false);
         const string read1Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,false,false,false);
         const string read2Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,true,false,false);
