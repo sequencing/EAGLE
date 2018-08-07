@@ -258,33 +258,41 @@ unsigned int splitAndAppendNCigarEntries( const unsigned int length, const vecto
     {
         cigarOpCount = cigarVal >> 4;
         cigarOp = cigarVal & 0xF;
-        if (cigarOpCount <= remaining)
+
+        if (remaining > 0)
         {
-            toCIGAR.push_back( cigarVal );
-            if (cigarOp == 2) // 'D' affects the soft clipping length
+            if (cigarOp == 1) // 'I' doesn't affect the soft clipping length
             {
-                delCount += cigarOpCount;
-            }
-            if (cigarOp == 1) // 'I' affects the soft clipping length
-            {
+                toCIGAR.push_back( cigarVal );
                 insCount += cigarOpCount;
-                remaining += cigarOpCount;
-            }
-            remaining -= cigarOpCount;
-        }
-        else
-        {
-            if (remaining > 0)
-            {
-                toCIGAR.push_back( remaining << 4 | cigarOp );
-                cigarOpCount -= remaining;
-                reminderCIGAR.push_back( cigarOpCount << 4 | cigarOp );
-                remaining = 0;
             }
             else
             {
-                reminderCIGAR.push_back( cigarVal );
+                if (cigarOpCount <= remaining)
+                {
+                    toCIGAR.push_back( cigarVal );
+                    if (cigarOp == 2) // 'D' affects the soft clipping length
+                    {
+                        delCount += cigarOpCount;
+                    }
+                    remaining -= cigarOpCount;
+                }
+                else
+                {
+                    toCIGAR.push_back( remaining << 4 | cigarOp );
+                    if (cigarOp == 2) // 'D'
+                    {
+                        delCount += remaining;
+                    }
+                    cigarOpCount -= remaining;
+                    reminderCIGAR.push_back( cigarOpCount << 4 | cigarOp );
+                    remaining = 0;
+                }
             }
+        }
+        else
+        {
+            reminderCIGAR.push_back( cigarVal );
         }
     }
 
