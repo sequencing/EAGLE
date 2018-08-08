@@ -367,33 +367,41 @@ void BamOrMetadataOutput::softClipCIGAR( const vector< unsigned int > &CIGAR, un
     {
         cigarOpCount = cigarVal >> 4;
         cigarOp = cigarVal & 0xF;
-        if (cigarOpCount <= clippingLengthRemaining)
+
+        if (clippingLengthRemaining > 0)
         {
-            if (cigarOp == 2) // 'D' affect the soft clipping length
-            {
-                clippingLength -= cigarOpCount;
-                softClippedCIGAR[0] = clippingLength << 4 | (softClippedCIGAR[0] & 0xF);
-            }
-            if (cigarOp == 1) // 'I' affect the soft clipping length
+            if (cigarOp == 1) // 'I'
             {
                 clippingLength += cigarOpCount;
                 softClippedCIGAR[0] = clippingLength << 4 | (softClippedCIGAR[0] & 0xF);
-                clippingLengthRemaining += cigarOpCount;
-            }
-            clippingLengthRemaining -= cigarOpCount;
-        }
-        else
-        {
-            if (clippingLengthRemaining > 0)
-            {
-                cigarOpCount -= clippingLengthRemaining;
-                softClippedCIGAR.push_back( cigarOpCount << 4 | cigarOp );
-                clippingLengthRemaining = 0;
             }
             else
             {
-                softClippedCIGAR.push_back( cigarVal );
+                if (cigarOpCount <= clippingLengthRemaining)
+                {
+                    if (cigarOp == 2) // 'D'
+                    {
+                        clippingLength -= cigarOpCount;
+                        softClippedCIGAR[0] = clippingLength << 4 | (softClippedCIGAR[0] & 0xF);
+                    }
+                    clippingLengthRemaining -= cigarOpCount;
+                }
+                else
+                {
+                    if (cigarOp == 2) // 'D'
+                    {
+                        clippingLength -= clippingLengthRemaining;
+                        softClippedCIGAR[0] = clippingLength << 4 | (softClippedCIGAR[0] & 0xF);
+                    }
+                    cigarOpCount -= clippingLengthRemaining;
+                    softClippedCIGAR.push_back( cigarOpCount << 4 | cigarOp );
+                    clippingLengthRemaining = 0;
+                }
             }
+        }
+        else
+        {
+            softClippedCIGAR.push_back( cigarVal );
         }
     }
 }
