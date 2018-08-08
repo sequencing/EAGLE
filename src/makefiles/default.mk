@@ -188,3 +188,8 @@ eagle.sample.bam: $(EAGLE_OUTDIR)/$(RUN_FOLDER)/RunInfo.xml $(EAGLE_OUTDIR)/frag
 	        --tiles-per-lane=$(words $(TILES)) \
 	        $(RANDOM_SEED_OPTION) \
 	        $(SEQUENCER_SIMULATOR_OPTIONS)
+
+
+.PHONY: fastq
+fastq: $(foreach lane,$(LANES),$(foreach tile,$(TILES), \
+       $(EAGLE_OUTDIR)/.$(shell printf "L%03i" $(lane))_$(tile).fastq.completed ))

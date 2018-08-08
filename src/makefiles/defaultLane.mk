@@ -59,3 +59,27 @@ $(foreach t,$(TILES), $(EAGLE_OUTDIR)/sge/$(fmtLane)_$(t).bcl.completed): $(EAGL
                                                                           $(EAGLE_OUTDIR)/fragments/fragments.done \
                                                                           $(EAGLE_OUTDIR)/sge/.sentinel
 
+
+# Rules for FASTQ output
+$(EAGLE_OUTDIR)/.$(fmtLane)_%.fastq.completed:
+	$(TIME) $(SIMULATE_SEQUENCER) $(EAGLE_FORCE) --generate-fastq-tile \
+	        --run-info=$< \
+	        --sample-genome-dir="$(EAGLE_OUTDIR)/$(SAMPLE_GENOME)" \
+	        $(QUALITY_TABLE:%=--quality-table=%) \
+	        $(QQ_TABLE_OPTION) \
+	        $(MISMATCH_TABLE_OPTION) \
+	        $(HOMOPOLYMER_INDEL_TABLE_OPTION) \
+	        $(MOTIF_QUALITY_DROP_TABLE_OPTION) \
+	        $(ERROR_MODEL_OPTIONS:%=--error-model-options=%) \
+	        --fragments-dir="$(dir $(word 2,$^))" \
+	        --output-dir="$(dir $<)" \
+	        --lane-count=$(words $(LANES)) \
+	        --tiles-per-lane=$(words $(TILES)) \
+	        --lane=$(@:$(EAGLE_OUTDIR)/.L00%_$(*).fastq.completed=%) \
+	        --tile-num=$(tile.$*) --tile-id=$* \
+	        $(RANDOM_SEED_OPTION) \
+	        $(SEQUENCER_SIMULATOR_OPTIONS) \
+	$(AND) $(TOUCH) $@
+
+$(foreach t,$(TILES), $(EAGLE_OUTDIR)/.$(fmtLane)_$(t).fastq.completed): $(EAGLE_OUTDIR)/$(RUN_FOLDER)/RunInfo.xml \
+                                                                         $(EAGLE_OUTDIR)/fragments/fragments.done

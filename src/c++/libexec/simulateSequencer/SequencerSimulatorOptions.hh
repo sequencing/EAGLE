@@ -35,6 +35,7 @@ private:
 
 public:
     bool generateBclTile;
+    bool generateFastqTile;
     bool generateBam;
     bool generateSampleBam;
     boost::filesystem::path runInfo;

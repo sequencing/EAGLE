@@ -38,7 +38,7 @@ void serialize(std::ostream &os, const char* bytes, size_t size)
 void serializeBgzfFooter(std::ostream &os)
 {
     // For some strange reason, samtools wants an empty block at the very end of a compressed bam.
-    // They call it 'magic'. Note, last \0 is removed (comparing to the oritinal bgzf.c) because
+    // They call it 'magic'. Note, last \0 is removed (comparing to the original bgzf.c) because
     // the C++ compiler (rightfully) complains.
     const static char magic[28] = "\037\213\010\4\0\0\0\0\0\377\6\0\102\103\2\0\033\0\3\0\0\0\0\0\0\0\0";
     serialize(os, magic, sizeof(magic));

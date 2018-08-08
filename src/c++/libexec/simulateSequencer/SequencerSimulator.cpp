@@ -18,6 +18,7 @@
 #include "genome/SharedFastaReference.hh"
 #include "genome/ReferenceToSample.hh"
 #include "io/Bcl.hh"
+#include "io/Fastq.hh"
 #include "genome/BamMetadata.hh"
 #include "model/Fragment.hh"
 #include "model/PassFilter.hh"
@@ -26,6 +27,7 @@
 
 using namespace std;
 using eagle::io::BclTile;
+using eagle::io::FastqTile;
 
 
 namespace eagle
@@ -47,6 +49,11 @@ void SequencerSimulator::run()
     if (options_.generateBclTile)
     {
         generateBclTile();
+    }
+
+    if (options_.generateFastqTile)
+    {
+        generateFastqTile();
     }
 
     if (options_.generateBam)
@@ -104,6 +111,50 @@ void SequencerSimulator::generateBclTile()
     {
         bclTile.flushToDisk();
     }
+}
+
+void SequencerSimulator::generateFastqTile()
+{    // for each tile in the to-be-processed set:
+    unsigned long long tileReadCount = fragmentList_.getTileSize( tileNum_ );
+    clog << "SequencerSimulator::generateFastqTile: tile=" << tileNum_ << ", readCount=" << tileReadCount << endl;
+
+    //unsigned int tileId = options_.tileId;
+    string fastqFilenameTemplate = (boost::format("%s/EAGLE_S%d_L%03g_R%%d_001.fastq") % options_.outDir.string() % (tileNum_ + 1) % options_.lane).str();
+    string read1FastqFilename = (boost::format(fastqFilenameTemplate) % 1).str();
+    string read2FastqFilename = (boost::format(fastqFilenameTemplate) % 2).str();
+    unsigned int clusterLength = runInfo_.getClusterLength();
+    FastqTile fastqTile( tileReadCount, clusterLength, read1FastqFilename, read2FastqFilename, runInfo_, options_.lane, options_.tileId );
+
+    for (unsigned int i=0; i<tileReadCount; ++i)
+    {
+        // Read next paired read position for our tile(s) of interest
+        eagle::model::Fragment fragment = fragmentList_.getNext( tileNum_ );
+        eagle::genome::ReadClusterWithErrors readClusterWithErrors = readClusterFactory_.getReadClusterWithErrors( fragment );
+
+        // Output FASTQ
+        const char *bclCluster = readClusterWithErrors.getBclCluster();
+        bool isPassingFilter = model::PassFilter::isBclClusterPassingFilter( bclCluster, clusterLength );
+
+        // Don't output reads that don't pass filter
+        if (!isPassingFilter) continue;
+
+        const string read1Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,true,false,false);
+        const string read1Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(0,false,false,false);
+        const string read2Nucleotides = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,true,false,false);
+        const string read2Qualities = readClusterWithErrors.getNucleotideOrQualitySequenceForRead(1,false,false,false);
+
+        // Use position
+        unsigned long startPos = readClusterWithErrors.eFragment_.fragment_.startPos_;
+        int refId;
+        unsigned long posInContig;
+        genome::SharedFastaReference::get()->convertFromGlobalPos( startPos, refId, posInContig);
+        unsigned long coordX = refId + 100 * (i % 10000); // We need to use i to make read names unique, but we don't want coordX so long that it could crash downstream tools
+        unsigned long coordY = posInContig;
+
+        fastqTile.addCluster( read1Nucleotides, read1Qualities, read2Nucleotides, read2Qualities, isPassingFilter, coordX, coordY );
+    }
+
+    fastqTile.finaliseAndWriteInfo();
 }
 
 /*

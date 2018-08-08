@@ -81,8 +81,10 @@ void FastaReference::inputStructure( const eagle::io::FastaMetadata& metadata )
 {
     BOOST_FOREACH(const eagle::io::FastaIndex &idx, metadata)
     {
-        std::clog << "+ Input reference genome: " << idx.first << std::endl;
-        EAGLE_WARNING_IF(!boost::filesystem::exists( idx.first ), "The above file does not exist!")
+        if (!boost::filesystem::exists( idx.first ))
+        {
+            EAGLE_WARNING("Input reference genome file does not exist: " + idx.first.string());
+        }
     }
 }
 
@@ -127,7 +129,7 @@ unsigned long FastaReference::local2global( const eagle::model::Locus& location)
     else
     {
         static bool firstTime = true;
-        if (firstTime)
+        if (firstTime && local2globalCache_chr[local2globalCache_roundRobin] != "")
         {
             static int maxMsgCount = 100;
             if (maxMsgCount > 0)

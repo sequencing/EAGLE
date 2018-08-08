@@ -45,7 +45,14 @@ struct AlleleEvent
         int comp = chrAllele_.compare( rhs.chrAllele_ );
         if (comp == 0)
         {
-            return (pos_ < rhs.pos_);
+            if (pos_ == rhs.pos_ && event_ != NULL && rhs.event_ != NULL)
+            {
+                return (event_ < rhs.event_);
+            }
+            else
+            {
+                return (pos_ < rhs.pos_);
+            }
         }
         else
         {
