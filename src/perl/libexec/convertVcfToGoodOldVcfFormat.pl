@@ -175,6 +175,11 @@ while( <VCF_IN> )
             print VCF_OUT join("\t",@splitLine) . "\n";
         }
     }
+    elsif (defined $hash{SVTYPE} && ! ( $splitLine[6] =~ "PASS" ) )
+    {
+        # We skip variants with SVTYPE that don't pass, because they make too many good SNPs disappear
+        next;
+    }
     elsif ($hash{SVTYPE} =~ "DEL")
     {
         my $lastPos = $hash{END};
