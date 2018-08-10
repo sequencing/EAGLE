@@ -151,7 +151,12 @@ while( <VCF_IN> )
     my %hash;
     $hash{$1} = $2 while $splitLine[7] =~ /([[:alpha:]_]+)=([^;]+)/g;
 
-    if (defined $hash{OLD_VARIANT})
+    if ($splitLine[5] eq ".")
+    {
+        # Removing those "monomorphic reference" (==homref)... dunno why some positions are specifically mentioned in the vcf
+        next;
+    }
+    elsif (defined $hash{OLD_VARIANT})
     {
         # TODO: fix instead of ignoring those
         warn "WARNING: Ignoring line where OLD_VARIANT is defined: $_\n";
