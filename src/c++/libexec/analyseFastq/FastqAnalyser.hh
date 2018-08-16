@@ -1,5 +1,5 @@
 /**
- ** Copyright (c) 2014 Illumina, Inc.
+ ** Copyright (c) 2018 Illumina, Inc.
  **
  ** This file is part of Illumina's Enhanced Artificial Genome Engine (EAGLE),
  ** covered by the "BSD 2-Clause License" (see accompanying LICENSE file)
@@ -7,15 +7,15 @@
  ** \author Lilian Janin
  **/
 
-#ifndef EAGLE_MAIN_BAM_ANALYSER_HH
-#define EAGLE_MAIN_BAM_ANALYSER_HH
+#ifndef EAGLE_MAIN_FASTQ_ANALYSER_HH
+#define EAGLE_MAIN_FASTQ_ANALYSER_HH
 
 #include <vector>
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include "genome/Reference.hh"
-#include "io/BamParserFilter.hh"
-#include "BamAnalyserOptions.hh"
+//#include "io/FastqParserFilter.hh"
+#include "FastqAnalyserOptions.hh"
 
 
 namespace eagle
@@ -24,26 +24,32 @@ namespace main
 {
 
 
-class BamAnalyser
+class FastqAnalyser
 {
 public:
-    BamAnalyser (const BamAnalyserOptions &options);
+    FastqAnalyser (const FastqAnalyserOptions &options);
     void run();
 
 private:
-    const BamAnalyserOptions &options_;
+    const FastqAnalyserOptions &options_;
 
     boost::iostreams::filtering_ostream bgzfStream_;
+
+    void processRead(std::string line_readname, std::string line_bases, std::string line_quals);
+    void endOfFastq();
+    std::vector< std::vector< std::vector< unsigned long long > > > qualityTable_;
+    std::vector< unsigned long long > qualCount_;
 };
 
-
-class BamReadDumper : public io::bam::BamParserFilter
+/*
+class FastqReadDumper : public io::fastq::FastqParserFilter
 {
-    virtual void parsedAlignment( const io::bam::BamAlignment& alignment, const io::bam::VirtualOffset& virtualOffset, const io::bam::VirtualOffset& virtualEndOffset )
+    virtual void parsedAlignment( const io::fastq::FastqAlignment& alignment, const io::fastq::VirtualOffset& virtualOffset, const io::fastq::VirtualOffset& virtualEndOffset )
     {
         std::cout << "pos=" << alignment.pos << std::endl;
     }
 };
+
 
 class StatsPerGenomeWindow
 {
@@ -137,13 +143,13 @@ private:
     unsigned long long globalPosOfFirstDataElement_;
 };
 
-class MetricsComputer : public io::bam::BamParserFilter
+class MetricsComputer : public io::fastq::FastqParserFilter
 {
 public:
     MetricsComputer( std::vector<bool>& requestedMetrics, std::vector<bool>& requestedTables );
 
 private:
-    virtual void parsedAlignment( const io::bam::BamAlignment& alignment, const io::bam::VirtualOffset& virtualOffset, const io::bam::VirtualOffset& virtualEndOffset );
+    virtual void parsedAlignment( const io::fastq::FastqAlignment& alignment, const io::fastq::VirtualOffset& virtualOffset, const io::fastq::VirtualOffset& virtualEndOffset );
     virtual void finishedParsing();
 
     std::vector< bool > requestedMetrics_;
@@ -166,9 +172,10 @@ private:
     std::vector< unsigned int > insertSizes_;
     std::vector< std::vector< std::vector< unsigned long long > > > qualityTable_;
 };
+*/
 
 
 } // namespace main
 } // namespace eagle
 
-#endif // EAGLE_MAIN_BAM_ANALYSER_HH
+#endif // EAGLE_MAIN_FASTQ_ANALYSER_HH

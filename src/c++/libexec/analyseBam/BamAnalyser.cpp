@@ -430,6 +430,38 @@ void MetricsComputer::parsedAlignment( const io::bam::BamAlignment& alignment, c
         }
         ++mismatchCountPerRead_[mismatchCountForThisRead];
     }
+
+    // QScores count
+    if (requestedTables_[7])
+    {
+        const char *quals = alignment.getQual();
+        unsigned int seqLength = alignment.lSeq;
+
+        int qSum = 0;
+        for (unsigned int i=0; i<seqLength; ++i) {
+            int qual = quals[i];
+            qSum += qual;
+        }
+        int averageQ = qSum / seqLength;
+
+#define MAX_QSCORE 50
+        unsigned int templateNum = max(0, min(MAX_QSCORE, averageQ));
+        if (qualityTable_.size() <= templateNum)
+        {
+            qualityTable_.resize( templateNum+1 );
+        }
+        if (qualityTable_[templateNum].size() < seqLength)
+        {
+            qualityTable_[templateNum].resize( seqLength );
+            for (unsigned int i=0; i<seqLength; ++i)
+                qualityTable_[templateNum][i].resize( MAX_QSCORE+1 );
+        }
+        for (unsigned int i=0; i<seqLength; ++i) {
+            int qual = quals[i];
+            qual = max(0, min(MAX_QSCORE, qual));
+            qualityTable_[templateNum][i][qual]++;
+        }
+    }
 }
 
 void MetricsComputer::finishedParsing()
@@ -603,6 +635,51 @@ void MetricsComputer::finishedParsing()
                 cout << (boost::format("insertSize\t%d\t%d") % i % insertSizes_[i]).str() << endl;
             }
         }
+    }
+
+    if (requestedTables_[7])
+    {
+        cout << " *** Quality table ***" << endl;
+        cout << "Output to Qualitytable.xx" << endl;
+        ofstream ofs( "QualityTable.xx" );
+        ofs << "#templateNum\tcycle\tQ1:#Q1\tQ2:#Q2\t..." << endl;
+
+        ofs << "0\t0";
+        for (unsigned int templateNum = 1; templateNum < qualityTable_.size(); ++templateNum)
+        {
+            unsigned long long count = 0;
+            //for (unsigned int cycle = 0; cycle < qualityTable_[templateNum].size(); ++cycle)
+            if (qualityTable_[templateNum].size() > 1)
+            {
+                unsigned int cycle = 1; // any cycle would do
+                for (unsigned int qscore = 0; qscore < qualityTable_[templateNum][cycle].size(); ++qscore)
+                {
+                    count += qualityTable_[templateNum][cycle][qscore];
+                }
+            }
+
+            if (count)
+            {
+                ofs << '\t' << templateNum << ':' << count;
+            }
+        }
+        ofs << endl;
+
+        for (unsigned int templateNum = 1; templateNum < qualityTable_.size(); ++templateNum)
+        {
+            for (unsigned int cycle = 0; cycle < qualityTable_[templateNum].size(); ++cycle)
+            {
+                ofs << templateNum << '\t' << (cycle + 1);
+                for (unsigned int qscore = 0; qscore < qualityTable_[templateNum][cycle].size(); ++qscore)
+                {
+                    unsigned long long count = qualityTable_[templateNum][cycle][qscore];
+                    if (count)
+                        ofs << '\t' << qscore << ':' << count;
+                }
+                ofs << endl;
+            }
+        }
+        ofs << endl;
     }
 }
 
