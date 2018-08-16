@@ -133,6 +133,12 @@ bool GcCoverageFit::needsDiscarding( const model::Fragment& fragment )
     unsigned int gcCount=0, acgtCount=0;
     for (unsigned long offset = 0; offset < fragment.fragmentLength_; ++offset)
     {
+        // Only consider the first and last 150 bases, to make the GC% values less average and to match a bit more closely Firebrand's GC plots, which are calculated using 150bp windows
+        if (offset >= 150 && offset < fragment.fragmentLength_-150)
+        {
+            continue;
+        }
+
         bool overlapContigBoundary;
         char base = genome::SharedFastaReference::get()->get( fragment.startPos_, offset, overlapContigBoundary );
         if (overlapContigBoundary)
