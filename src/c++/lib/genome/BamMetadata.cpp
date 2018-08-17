@@ -110,7 +110,7 @@ void BamOrMetadataOutput::add( eagle::genome::ReadClusterWithErrors& readCluster
             unsigned long startPos = readClusterWithErrors.eFragment_.fragment_.startPos_;
             unsigned long endPos   = readClusterWithErrors.eFragment_.fragment_.startPos_ + readClusterWithErrors.eFragment_.fragment_.fragmentLength_ - usedDnaLength;
 
-            string QNAME = (boost::format("FC:%d") % fragmentNum).str(); //readClusterWithErrors.id_;
+            string QNAME = (boost::format("FC:0:0:%d:%d") % (fragmentNum/100000) % (fragmentNum%100000)).str(); //readClusterWithErrors.id_;
             bool isPassingFilter = model::PassFilter::isSequencePassingFilter( SEQ );
             unsigned int FLAG  = 0x3 | (readNum12==1?0x40:0x80) | (directionIsForward?0x20:0x10) | (isPassingFilter?0:0x200);
             unsigned long GlobalPos = directionIsForward?startPos:endPos;
@@ -170,7 +170,7 @@ void BamOrMetadataOutput::addRebased( eagle::genome::ReadClusterWithErrors& read
             signed long GlobalPos = (directionIsForward?startPos1:startPos2) + globalPosShift;
             if (GlobalPos+usedDnaLength-1 >= (signed long)firstPosToProcess && GlobalPos <= (signed long)lastPosToProcess)
             {
-                string QNAME = (boost::format("FC:%d") % readClusterWithErrors.eFragment_.fragment_.fragmentNum_).str(); //readClusterWithErrors.id_;
+                string QNAME = (boost::format("FC:0:0:%d:%d") % (readClusterWithErrors.eFragment_.fragment_.fragmentNum_/100000) % (readClusterWithErrors.eFragment_.fragment_.fragmentNum_%100000)).str(); //readClusterWithErrors.id_;
                 bool isPassingFilter = model::PassFilter::isSequencePassingFilter( SEQ );
                 unsigned int FLAG  = 0x3 | (readNum12==1?0x40:0x80) | (directionIsForward?0x20:0x10) | (isPassingFilter?0:0x200);
                 unsigned int MAPQ = 50;
