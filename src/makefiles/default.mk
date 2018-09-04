@@ -144,7 +144,7 @@ eagle.bam.bai: eagle.bam
 
 eagle.bam: $(foreach bamChr, $(BAM_CHROMOSOMES), $(subst $(PIPE),$(BACKSLASHED_PIPE),eagle_$(bamChr).bam))
 ifeq (1,$(words $(BAM_CHROMOSOMES)))
-	cp $^ $@
+	cp "$^" $@
 else
 	$(SAMTOOLS) view -H "eagle_$(word 1,${BAM_CHROMOSOMES}).bam" | tr -d '\0' | grep --text SN | sed 's/.*\tSN:\(.*\)\t.*/eagle_\1.bam/' | xargs ls -f 2> /dev/null | xargs $(TIME) $(SAMTOOLS) cat -o eagle.bam
 endif

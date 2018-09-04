@@ -174,7 +174,12 @@ void BamOrMetadataOutput::addRebased( eagle::genome::ReadClusterWithErrors& read
                 bool isPassingFilter = model::PassFilter::isSequencePassingFilter( SEQ );
                 unsigned int FLAG  = 0x3 | (readNum12==1?0x40:0x80) | (directionIsForward?0x20:0x10) | (isPassingFilter?0:0x200);
                 unsigned int MAPQ = 50;
-                unsigned long PNEXT = (directionIsForward?startPos2:startPos1) + globalPosShift;
+                unsigned long PNEXT = (directionIsForward?startPos2:startPos1) + globalPosShift; // TODO: This PNEXT is incorrect if there are some vcf indels between the 2 ends of the cluster
+                // In the meantime, we artificially prevent PNEXT from becoming negative:
+                if (globalPosShift < 0 && (directionIsForward?startPos2:startPos1) < -globalPosShift)
+                {
+                    PNEXT = 0;
+                }
                 long TLEN = readClusterWithErrors.eFragment_.fragment_.fragmentLength_ * (directionIsForward?1:-1);
                 string QUAL  = readClusterWithErrors.getNucleotideOrQualitySequenceForRead( readNum, false, !directionIsForward, dropLastBase );
 
