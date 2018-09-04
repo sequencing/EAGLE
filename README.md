@@ -41,6 +41,8 @@ The following public Docker image is available: `ljanin/eagle:2.0.4`
 
 `sudo docker run -it --rm ljanin/eagle:2.0.4`
 
+PS: This is not the latest version. TODO.
+
 
 Documentation
 =============
