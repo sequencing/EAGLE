@@ -45,5 +45,6 @@ The following public Docker image is available: `ljanin/eagle:2.0.4`
 Documentation
 =============
 
-Goto doc/html/index.html
+ - http://htmlpreview.github.io/?https://github.com/sequencing/EAGLE/blob/master/doc/html/index.html
+ - http://htmlpreview.github.io/?https://github.com/sequencing/EAGLE/blob/master/doc/html/index2.html
 
