@@ -37,11 +37,9 @@ Note: We noticed that cmake doesn't always get detected. Adding "--with-cmake=cm
 Pre-built Docker image
 ======================
 
-The following public Docker image is available: `ljanin/eagle:2.0.4`
+The following public Docker image is available: `ljanin/eagle:2.5.1`
 
-`sudo docker run -it --rm ljanin/eagle:2.0.4`
-
-PS: This is not the latest version. TODO.
+`sudo docker run -it --rm ljanin/eagle:2.5.1`
 
 
 Documentation
