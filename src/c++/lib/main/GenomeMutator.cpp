@@ -159,7 +159,7 @@ void GenomeMutator::run()
                     if (it->first->id() == finalPosition.chr()) {
                         EAGLE_DEBUG(5, "[starting points] Deleting starting point at " << ((0 == finalPosition.pos())?"beginning":"end") << " of chromosome " << finalPosition.chr());
                         if ( it->second <= 0 ) {
-                            EAGLE_ERROR("[starting points] Trying to delete already-deleted starting points at " + std::string((1 == finalPosition.pos())?"beginning":"end") + " of chromosome " + finalPosition.chr());
+                            EAGLE_ERROR("[starting points] Trying to delete already-deleted starting points at " + std::string((1 == finalPosition.pos())?"beginning":"end") + " of chromosome " + finalPosition.chr() + "\n You probably have a translocation landing inside a deletion\n  Vote for ticket SAGE-174 if you want this automatically detected :p" );
                         }
                         --(it->second);
                         break;

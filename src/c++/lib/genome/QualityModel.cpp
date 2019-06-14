@@ -436,9 +436,8 @@ HomopolymerIndelModel::HomopolymerIndelModel( const boost::filesystem::path& hom
 {
     if (homopolymerIndelTableFilename == "")
     { // Use default values: no indels
-        homoDeletionTable_ = homoInsertionTable_ = boost::assign::list_of
-            (0.0)     // homopolymer of size 0 or more
-            ;
+        homoDeletionTable_.push_back(0.0);
+        homoInsertionTable_.push_back(0.0); // homopolymer of size 0 or more
     }
     else
     { // Parse homopolymer indel table file

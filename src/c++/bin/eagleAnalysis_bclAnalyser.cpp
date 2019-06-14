@@ -36,7 +36,7 @@ AutoGrowVector< AutoGrowVector< AutoGrowVector< unsigned int > > > glitchStats; 
 AutoGrowVector< AutoGrowVector< AutoGrowVector< unsigned int > > > glitchStats2;
 AutoGrowVector< unsigned int > glitchCountHist;
 AutoGrowVector< unsigned int > glitchCountHist2;
-vector< tuple< int, int, int > > glitchInfo2;
+vector< boost::tuple< int, int, int > > glitchInfo2;
 AutoGrowVector< AutoGrowVector< AutoGrowVector< unsigned int > > > qualityTable;
 
 
@@ -192,7 +192,7 @@ void detectGlitchesInRead( vector<unsigned int> &bclValues, vector<int> &qualBin
 
                 // Add glitch to stats
                 ++(glitchStats[cycle][glitchHeight][glitchLength]);
-                glitchInfo2.push_back(make_tuple(cycle,glitchHeight,glitchLength));
+                glitchInfo2.push_back(boost::make_tuple(cycle,glitchHeight,glitchLength));
             }
         }
     }

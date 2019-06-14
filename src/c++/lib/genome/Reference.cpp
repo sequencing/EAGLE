@@ -315,12 +315,12 @@ void FastaReference::save()
 
 size_t FastaReference::length()
 {
-    using boost::lambda::_1;
-    using boost::lambda::_2;
-    using boost::lambda::bind;
-    return std::accumulate(
-        reference_.begin(), reference_.end(),
-        size_t(0), bind<size_t>(std::plus<size_t>(), _1, bind(&eagle::model::Contig::size, _2)));
+    size_t length = 0;
+    for (auto& contig: reference_)
+    {
+        length += contig.size();
+    }
+    return length;
 }
 
 
@@ -334,8 +334,12 @@ std::vector<std::string> FastaReference::allContigNames() const
         for (eagle::io::FastaMetadata::const_iterator idx = reader_.index().begin();
              idx != reader_.index().end(); ++idx)
         {
-            std::transform( idx->second.begin(), idx->second.end(), std::back_inserter(contigNames),
-                            bind( &eagle::io::FastaInfo::contigName, _1 ));
+            //std::transform( idx->second.begin(), idx->second.end(), std::back_inserter(contigNames),
+              //              bind( &eagle::io::FastaInfo::contigName, _1 ));
+	    for (auto& contig: idx->second)
+            {
+                contigNames.push_back(contig.contigName);
+            }
         }
     } else {
         BOOST_FOREACH(const eagle::model::Contig& contig, reference_)
@@ -356,8 +360,12 @@ std::vector<unsigned long> FastaReference::allContigLengths() const
         for (eagle::io::FastaMetadata::const_iterator idx = reader_.index().begin();
              idx != reader_.index().end(); ++idx)
         {
-            std::transform( idx->second.begin(), idx->second.end(), std::back_inserter(contigLengths),
-                            bind( &eagle::io::FastaInfo::contigSize, _1 ));
+            //std::transform( idx->second.begin(), idx->second.end(), std::back_inserter(contigLengths),
+              //              bind( &eagle::io::FastaInfo::contigSize, _1 ));
+	    for (auto& contig: idx->second)
+            {
+                contigLengths.push_back(contig.contigSize);
+            }
         }
     } else {
         BOOST_FOREACH(const eagle::model::Contig& contig, reference_)

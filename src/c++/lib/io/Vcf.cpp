@@ -62,7 +62,10 @@ std::string VcfMetadata::strFormat() const
     if (formatFieldParsed_)
     {
         std::vector<std::string> keys;
-        std::transform( format_.begin(), format_.end(), back_inserter(keys), bind(&InfoType::value_type::first,_1) );
+        for (auto& oneFormat: format_)
+        {
+            keys.push_back( oneFormat.first );
+        }
         return boost::algorithm::join( keys, ":" );
     }
     else

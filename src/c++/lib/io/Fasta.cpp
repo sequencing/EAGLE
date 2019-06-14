@@ -60,14 +60,13 @@ std::ostream& operator<<( std::ostream& os, const FastaMetadata& fm )
 }
 
 
-void FastaMetadata::init( const std::vector< boost::filesystem::path > &P )
+void FastaMetadata::init( const std::vector< boost::filesystem::path > &paths )
 {
-    using boost::lambda::_1;
-    using boost::lambda::bind;
     this->clear();
-    std::transform( P.begin(), P.end(), std::inserter(*this,this->begin()),
-                    boost::bind( &std::make_pair< boost::filesystem::path, std::vector< eagle::io::FastaInfo > >,
-                                 _1, std::vector< eagle::io::FastaInfo >() ));
+    for (auto& path: paths)
+    {
+        this->push_back( std::make_pair(path, std::vector< eagle::io::FastaInfo >()) );
+    }
 }
 
 
@@ -88,11 +87,9 @@ void FastaMetadata::update( const boost::filesystem::path &p, const FastaInfo &f
         idx->second[0].contigNumber = contigCount;
         EAGLE_DEBUG(0, "[metadata] " << FastaIndex(std::make_pair( p, this->at(p) )) );
     } else {
-        using boost::lambda::_1;
-        using boost::lambda::bind;
         this->insert(FastaIndex( std::make_pair( p, std::vector<FastaInfo>(1,fi)) ));
         std::vector< FastaInfo >::iterator it = std::find_if( idx->second.begin(), idx->second.end(),
-                                                              bind( &FastaInfo::sameName, _1, fi.contigName) );
+                                                              [fi](FastaInfo &obj){ return obj.sameName(fi.contigName); } );
         if (idx->second.end() != it)
         {   // some info about fi already exists => check that it's up-to-date
             if (fi.hasSize() && !it->sameSize(fi))
@@ -459,7 +456,7 @@ unsigned long MultiFastaReader::getContigSize()
     FastaInfo fi;
     boost::filesystem::path p = this->find(getContigName(),fi);
     std::vector< FastaInfo >::iterator it = std::find_if( index_[p].begin(), index_[p].end(),
-                                                          bind( &FastaInfo::sameName, _1, fi.contigName) );
+                                                          [fi](FastaInfo &obj){ return obj.sameName(fi.contigName); } );
     if (index_[p].end() != it)
     {
         return it->contigSize;

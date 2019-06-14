@@ -179,13 +179,17 @@ template <>  variant::Type initialize(std::string chr, unsigned long pos, std::s
     Breakend bnd2(chr,pos);
     std::string targetBase = parseAlternate( alt, bnd1, bnd2 );
 
-    if( (bnd1.chr() != bnd2.chr())
-     || (abs( bnd1.pos() - bnd2.pos() ) > 0) )
+    if ( (bnd1.chr() != bnd2.chr())
+     || (bnd1.pos() != bnd2.pos()) )
     {   // Translocation?
         svt |= variant::Translocation;
     }
     if ( bnd1.chr() == bnd2.chr()
-         && abs( bnd1.pos() - bnd2.pos() ) > 1 )
+         && (
+             bnd1.pos() > bnd2.pos() + 1
+          || bnd2.pos() > bnd1.pos() + 1
+            )
+       )
     {   // Large deletion
         svt |= variant::DEL;
     }

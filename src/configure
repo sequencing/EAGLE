@@ -30,7 +30,7 @@ Configuration:
   --with-eclipse          create the eclipse project files
   --with-version-control  create the eclipse project in the source tree to
                           allow version control within eclipse
-  --with-unit-tests       allow unit testing duting the build
+  --with-unit-tests       allow unit testing during the build
   --build-type            specify the build type for CMake (affects compiler
                           options). Allowed values are "", "Debug", "Release",
                           "RelWithDebInfo", and "MinSizeRel" [RelWithDebInfo]

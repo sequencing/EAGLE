@@ -87,7 +87,7 @@ void Genotype::setPloidy(unsigned int n)
         std::stringstream message;
         message << (boost::format("*** Genotype cannot be set to '%d'. This event already contains %d alleles ***") % n % altSize()).str() << std::endl;
         message << "    The following alleles have already been used:" << std::endl;
-        message << dump(message);
+        dump(message);
         BOOST_THROW_EXCEPTION(common::PreConditionException( message.str() ));
     }
     ploidy = n;
@@ -102,7 +102,7 @@ bool Genotype::set(int v)
         std::stringstream message;
         message << (boost::format("*** Could not set allele number '%d' in %s event ***") % v % p.label()).str() << std::endl;
         message << "    The following alleles have already been used:" << std::endl;
-        message << dump(message);
+        dump(message);
         BOOST_THROW_EXCEPTION(common::PreConditionException( message.str() ));
     }
     return r.second;
