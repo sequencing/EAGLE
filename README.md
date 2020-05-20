@@ -21,11 +21,11 @@ Required packages (based on a fresh Ubuntu install):
     which (in centos docker)
     time (in docker)
 
-    All together:
-        `apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 time`
-      / `yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bc bzip2 which time`
+All together:  
+`apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 time`  
+/ `yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bc bzip2 which time`
 
-    Note: On some versions of CentOS you may need: `yum install libxml2-static glibc-static zlib-static`
+Note: On some versions of CentOS you may need: `yum install libxml2-static glibc-static zlib-static`
     
 
 Installation Instructions
