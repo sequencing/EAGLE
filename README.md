@@ -22,14 +22,16 @@ Required packages (based on a fresh Ubuntu install):
     time (in docker)
 
     All together:
-        apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 time
-      / yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bc bzip2 which time
+        `apt-get install cmake g++ libboost-all-dev libxml2-dev libxml-simple-perl samtools dc bzip2 time`
+      / `yum install cmake gcc-c++ boost-devel libxml2-devel perl-libxml-perl samtools bc bzip2 which time`
 
+    Note: On some versions of CentOS you may need: `yum install libxml2-static glibc-static zlib-static`
+    
 
 Installation Instructions
 =========================
 
-<EAGLE_source_dir>/src/configure
+`<EAGLE_source_dir>/src/configure`
 
 Note: We noticed that cmake doesn't always get detected. Adding "--with-cmake=cmake" helps. (I know...)
 
